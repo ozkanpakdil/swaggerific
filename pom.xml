@@ -148,6 +148,26 @@
                 <configuration>
                     <reflectionList>
                         <list>com.mascix.swaggerific.MainController</list>
+                        <list>com.mascix.swaggerific.SwaggerModal</list>
+                        <list>io.swagger.v3.oas.models.Operation</list>
+                        <list>io.swagger.v3.oas.models.media.Schema</list>
+                        <list>io.swagger.v3.oas.models.headers.Header</list>
+                        <list>io.swagger.v3.oas.models.info.Info</list>
+                        <list>io.swagger.v3.oas.models.info.Contact</list>
+                        <list>io.swagger.v3.oas.models.tags.Tag</list>
+                        <list>io.swagger.v3.oas.models.info.License</list>
+                        <list>io.swagger.v3.oas.models.PathItem</list>
+                        <list>io.swagger.v3.oas.models.parameters.RequestBody</list>
+                        <list>io.swagger.v3.oas.models.responses.ApiResponses</list>
+                        <list>io.swagger.v3.oas.models.responses.ApiResponse</list>
+                        <list>io.swagger.v3.oas.models.media.Content</list>
+                        <list>io.swagger.v3.oas.models.media.MediaType</list>
+                        <list>io.swagger.v3.oas.models.ExternalDocumentation</list>
+                        <list>io.swagger.v3.oas.models.parameters.Parameter</list>
+                        <list>io.swagger.v3.oas.models.servers.Server</list>
+                        <list>io.swagger.v3.oas.models.security.SecurityRequirement</list>
+                        <list>io.swagger.v3.oas.models.Paths</list>
+                        <list>io.swagger.v3.oas.models.Components</list>
                         <list>javafx.scene.layout.AnchorPane</list>
                         <list>javafx.scene.control.SplitPane</list>
                         <list>javafx.scene.control.TreeView</list>
