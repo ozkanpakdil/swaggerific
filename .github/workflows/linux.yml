@@ -32,7 +32,7 @@ jobs:
         run: ./mvnw -Pdesktop gluonfx:build gluonfx:package
 
       - name: Copy native image to staging
-        run: cp -r target/gluonfx/x86_64-linux/HelloGluon* staging
+        run: cp -r target/gluonfx/x86_64-linux/* staging
 
       - name: Upload
         uses: actions/upload-artifact@v2

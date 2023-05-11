@@ -80,7 +80,7 @@ jobs:
         id: outputfilestore
         run: |
           ./mvnw -Pdesktop,macstore gluonfx:package
-          echo ::set-output name=path::target/gluonfx/x86_64-darwin/HelloGluon-1.0.0.pkg
+          echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
       - name: Upload (pkg store)
         uses: actions/upload-artifact@v2
@@ -88,11 +88,11 @@ jobs:
           name: PackageAppStore
           path: ${{ steps.outputfilestore.outputs.path }}
 
-      - name: Upload App Store TestFlight
-        uses: Apple-Actions/upload-testflight-build@master
-        with:
-          app-path: ${{ steps.outputfilestore.outputs.path }}
-          app-type: osx
-          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
+#      - name: Upload App Store TestFlight
+#        uses: Apple-Actions/upload-testflight-build@master
+#        with:
+#          app-path: ${{ steps.outputfilestore.outputs.path }}
+#          app-type: osx
+#          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
+#          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
+#          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
