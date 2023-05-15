@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="mainBox" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.mascix.swaggerific.MainController">
-    <MenuBar fx:id="menuBar" onKeyPressed="#handleKeyInput">
+<VBox fx:id="mainBox" prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.MainController">
+    <MenuBar fx:id="menuBar">
         <menus>
             <Menu text="File">
                 <items>
-                    <MenuItem text="Open Swagger JSON URL" onAction="#menuFileOpenSwagger"/>
+                    <MenuItem onAction="#menuFileOpenSwagger" text="Open Swagger JSON URL">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
                     <MenuItem text="Open"/>
                     <MenuItem text="Save"/>
                     <MenuItem text="Save As"/>
                     <SeparatorMenuItem/>
-                    <MenuItem text="Exit" onAction="#menuFileExit"/>
+                    <MenuItem onAction="#menuFileExit" text="Exit">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="Q" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
                 </items>
             </Menu>
             <Menu text="Edit">
@@ -26,10 +35,10 @@
             </Menu>
             <Menu text="Help">
                 <items>
-                    <MenuItem text="Search" disable="true"/>
+                    <MenuItem disable="true" text="Search"/>
                     <MenuItem text="Online Manual" visible="false"/>
                     <SeparatorMenuItem/>
-                    <MenuItem text="About" onAction="#handleAboutAction"/>
+                    <MenuItem onAction="#handleAboutAction" text="About"/>
                 </items>
             </Menu>
         </menus>
@@ -52,13 +61,21 @@
                                 <content>
                                     <AnchorPane prefHeight="180.0" prefWidth="200.0">
                                         <children>
-                                            <SplitPane dividerPositions="0.29797979797979796" maxHeight="-Infinity"
-                                                       maxWidth="-Infinity" prefHeight="600.0" prefWidth="800.0"
-                                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <SplitPane dividerPositions="0.3" maxHeight="-Infinity"
+                                                       maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0"
+                                                       prefWidth="800.0" AnchorPane.bottomAnchor="0.0"
+                                                       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                       AnchorPane.topAnchor="0.0">
                                                 <items>
-                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0"
-                                                                prefWidth="160.0"/>
+                                                    <AnchorPane fx:id="ancText" minHeight="0.0" minWidth="0.0" prefHeight="100.0"
+                                                                prefWidth="160.0">
+                                                        <TextArea visible="false" fx:id="txtJson" minHeight="-Infinity"
+                                                                  minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
+                                                                  AnchorPane.leftAnchor="0.0"
+                                                                  AnchorPane.rightAnchor="0.0"
+                                                                  AnchorPane.topAnchor="0.0"/>
+
+                                                    </AnchorPane>
                                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0"
                                                                 prefWidth="160.0"/>
                                                 </items>
@@ -74,11 +91,8 @@
                             </Tab>
                         </tabs>
                     </TabPane>
-
                 </AnchorPane>
             </items>
-
         </SplitPane>
     </AnchorPane>
 </VBox>
-
