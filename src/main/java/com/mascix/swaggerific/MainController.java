@@ -10,7 +10,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -39,20 +38,6 @@ public class MainController implements Initializable {
         /*
         showAlert();*/
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//
-//        SwingNode swingNode = new SwingNode();
-//        RSyntaxTextArea textArea = new RSyntaxTextArea(200, 160);
-//        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
-//        textArea.setCodeFoldingEnabled(true);
-//        textArea.setLineWrap(true);
-//        textArea.setAutoIndentEnabled(true);
-//        textArea.setAutoscrolls(true);
-//        RTextScrollPane sp = new RTextScrollPane(textArea);
-//        sp.setAutoscrolls(true);
-//        sp.setLineNumbersEnabled(true);
-//        swingNode.setContent(sp);
-//        ancText.getChildren().add(swingNode);
 
         txtJson.setWrapText(true);
         treePaths.getSelectionModel()
@@ -62,10 +47,6 @@ public class MainController implements Initializable {
                     if (newValue instanceof MyTreeItem) {
                         MyTreeItem m = (MyTreeItem) newValue;
                         try {
-                            jsonModal.getPaths().forEach((k, v) -> {
-//                            if(v.)
-//                            v.readOperationsMap().get(newValue.getValue()).getParameters()
-                            });
                             PathItem p = m.getBindPathItem();
                             txtJson.setText(
                                     mapper.writerWithDefaultPrettyPrinter().writeValueAsString(p)
@@ -78,11 +59,11 @@ public class MainController implements Initializable {
                 });
     }
 
-    public void showAlert() {
+    public void showAlert(String title,String header,String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Message Here...");
-        alert.setHeaderText("Look, an Information Dialog");
-        alert.setContentText("I have a great message for you!");
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
         alert.showAndWait().ifPresent(rs -> {
             if (rs == ButtonType.OK) {
                 System.out.println("Pressed OK.");
@@ -91,7 +72,7 @@ public class MainController implements Initializable {
     }
 
     public void handleAboutAction(ActionEvent actionEvent) {
-        showAlert();
+        showAlert("About","Learning JavaFX with GraalVM","Not ready for prod use.");
     }
 
     public void menuFileExit(ActionEvent actionEvent) {
