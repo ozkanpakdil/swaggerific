@@ -79,7 +79,6 @@ public class MainController implements Initializable {
 
     public void menuFileExit(ActionEvent actionEvent) {
         Platform.exit();
-        System.exit(0);
     }
 
     public void menuFileOpenSwagger(ActionEvent actionEvent) {

@@ -11,6 +11,7 @@ module com.mascix.swaggerific {
     requires com.fasterxml.jackson.databind;
     requires io.swagger.v3.oas.models;
     requires static lombok;
+    requires java.prefs;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;
