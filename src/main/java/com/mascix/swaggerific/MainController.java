@@ -81,6 +81,7 @@ public class MainController implements Initializable {
         Platform.exit();
     }
 
+    @DisableWindow
     public void menuFileOpenSwagger(ActionEvent actionEvent) {
         TextInputDialog dialog = new TextInputDialog("https://petstore.swagger.io/v2/swagger.json");
         dialog.setTitle("Enter swagger url");
@@ -88,13 +89,10 @@ public class MainController implements Initializable {
         dialog.setHeaderText("Enter the json url of swagger url.");
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(string -> {
-            mainBox.setDisable(true);
             openSwaggerUrl(string);
-            mainBox.setDisable(false);
         });
     }
 
-    @DisableWindow
     private void openSwaggerUrl(String urlSwagger) {
         //TODO put some loading animation for loading the json.
         String webApiUrl = urlSwagger;

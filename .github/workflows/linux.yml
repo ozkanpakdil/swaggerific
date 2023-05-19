@@ -26,6 +26,7 @@ jobs:
 
       - name: Copy native image to staging
         run: |
+          set -e
           cd target/gluonfx/x86_64-linux/
           chmod +x swaggerific
           ./swaggerific

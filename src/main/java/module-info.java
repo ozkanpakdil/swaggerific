@@ -15,4 +15,6 @@ module com.mascix.swaggerific {
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;
+    exports com.mascix.swaggerific.splashscreen;
+    opens com.mascix.swaggerific.splashscreen to javafx.fxml;
 }
