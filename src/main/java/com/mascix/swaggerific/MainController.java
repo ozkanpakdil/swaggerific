@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -32,6 +33,7 @@ public class MainController implements Initializable {
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
 
+    TreeItem<String> root = new TreeItem<>("base root");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -59,7 +61,7 @@ public class MainController implements Initializable {
                 });
     }
 
-    public void showAlert(String title,String header,String content) {
+    public void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
@@ -72,7 +74,7 @@ public class MainController implements Initializable {
     }
 
     public void handleAboutAction(ActionEvent actionEvent) {
-        showAlert("About","Learning JavaFX with GraalVM","Not ready for prod use.");
+        showAlert("About", "Learning JavaFX with GraalVM", "Not ready for prod use.");
     }
 
     public void menuFileExit(ActionEvent actionEvent) {
@@ -95,8 +97,8 @@ public class MainController implements Initializable {
 
     @DisableWindow
     private void openSwaggerUrl(String urlSwagger) {
+        //TODO put some loading animation for loading the json.
         String webApiUrl = urlSwagger;
-        TreeItem<String> root = new TreeItem<>("base root");
         treePaths.setRoot(root);
         try {
             jsonModal = mapper.readValue(new URL(webApiUrl), SwaggerModal.class);
@@ -127,5 +129,10 @@ public class MainController implements Initializable {
             it.setBindPathItem(pathItem);
             children.add(it);
         });
+    }
+
+    public void treeOnClick(MouseEvent mouseEvent) {
+        if (root.getChildren().size() == 0)
+            menuFileOpenSwagger(null);
     }
 }
