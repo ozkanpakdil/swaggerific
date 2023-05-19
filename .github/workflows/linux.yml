@@ -25,7 +25,11 @@ jobs:
         run: ./mvnw -Pdesktop gluonfx:build gluonfx:package
 
       - name: Copy native image to staging
-        run: cp -r target/gluonfx/x86_64-linux/* staging
+        run: |
+          cd target/gluonfx/x86_64-linux/
+          chmod +x swaggerific
+          ./swaggerific
+          cp -r swaggerific staging
 
       - name: Upload
         uses: actions/upload-artifact@v2

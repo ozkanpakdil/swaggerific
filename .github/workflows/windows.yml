@@ -35,6 +35,7 @@ jobs:
 
       - name: Copy native bundles to staging
         run: |
+          target/gluonfx/x86_64-windows/swaggerific.exe
           cp -r target/gluonfx/x86_64-windows/*.exe staging
           cp -r target/gluonfx/x86_64-windows/*.msi staging
 

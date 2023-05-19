@@ -181,6 +181,13 @@
                         <list>javafx.scene.control.TreeView</list>
                         <list>javafx.scene.control.TabPane</list>
                         <list>javafx.scene.control.Tab</list>
+                        <list>javafx.scene.control.MenuBar</list>
+                        <list>javafx.scene.control.Menu</list>
+                        <list>javafx.scene.control.MenuItem</list>
+                        <list>javafx.scene.control.MenuButton</list>
+                        <list>javafx.scene.control.ContextMenu</list>
+                        <list>javafx.scene.input.KeyCodeCombination</list>
+                        <list>javafx.scene.input.KeyCombination</list>
                     </reflectionList>
                     <attachList>
                         <list>display</list>
