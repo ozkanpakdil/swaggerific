@@ -17,6 +17,16 @@ public class SwaggerApplication extends Application {
     public void start(Stage stage) throws IOException {
         this.primaryStage = stage;
 
+        loadingWindowLookAndLocation();
+        FXMLLoader fxmlLoader = new FXMLLoader(SwaggerApplication.class.getResource("main-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        stage.setTitle("Swaggerific");
+        stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void loadingWindowLookAndLocation() {
         Preferences userPrefs = Preferences.userNodeForPackage(getClass());
         double x = userPrefs.getDouble("stage.x", 0);
         double y = userPrefs.getDouble("stage.y", 0);
@@ -26,12 +36,6 @@ public class SwaggerApplication extends Application {
         primaryStage.setY(y);
         primaryStage.setWidth(w);
         primaryStage.setHeight(h);
-        FXMLLoader fxmlLoader = new FXMLLoader(SwaggerApplication.class.getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
-        stage.setTitle("Swaggerific");
-        stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
-        stage.setScene(scene);
-        stage.show();
     }
 
     @Override

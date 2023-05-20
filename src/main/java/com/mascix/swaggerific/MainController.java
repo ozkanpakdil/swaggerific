@@ -8,11 +8,17 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import lombok.SneakyThrows;
 
 import java.net.URL;
 import java.util.Optional;
@@ -30,17 +36,26 @@ public class MainController implements Initializable {
 
     @FXML
     AnchorPane ancText;
+    @FXML
+    StackPane topPane;
+
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
 
     TreeItem<String> root = new TreeItem<>("base root");
+    ObservableList<Node> children;
 
+    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
+    private Pane loader;
+    private VBox boxLoader;
+
+    @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        /*
-        showAlert();*/
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+        loader = fxmlLoader.load();
+
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         txtJson.setWrapText(true);
         treePaths.getSelectionModel()
                 .selectedItemProperty()
@@ -88,13 +103,48 @@ public class MainController implements Initializable {
         dialog.setContentText("URL:");
         dialog.setHeaderText("Enter the json url of swagger url.");
         Optional<String> result = dialog.showAndWait();
+
+        setIsOnloading();
+
         result.ifPresent(string -> {
             openSwaggerUrl(string);
         });
     }
 
+    private void setIsOnloading() {
+        ProgressIndicator pi = new ProgressIndicator();
+        boxLoader = new VBox(pi);
+        boxLoader.setAlignment(Pos.CENTER);
+        // Grey Background
+        mainBox.setVisible(false);
+        topPane.getChildren().add(0,boxLoader);
+//        children = mainBox.getChildren();
+//        Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
+//        mainBox.getChildren().setAll(loader);
+//        mainBox.setDisable(true);
+//        mainBox.setManaged(false);
+//        mainBox.setVisible(false);
+//        loader.setVisible(true);
+//        loader.setViewOrder(1);
+//        mainBox.getChildren().clear();
+//        mainBox.getChildren().add(loader);
+    }
+
+    private void setIsOffloading() {
+        topPane.getChildren().remove(boxLoader);
+        mainBox.setVisible(true);
+//        Platform.runLater(()->{mainBox.getChildren().setAll(children);});
+//        mainBox.getChildren().setAll(children);
+//        loader.setViewOrder(0);
+//        loader.setVisible(false);
+//        mainBox.setDisable(false);
+//        mainBox.setManaged(true);
+//        mainBox.setViewOrder(1);
+    }
+
+
     private void openSwaggerUrl(String urlSwagger) {
-        //TODO put some loading animation for loading the json.
+        root.getChildren().clear();
         String webApiUrl = urlSwagger;
         treePaths.setRoot(root);
         try {
@@ -116,7 +166,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
         treePaths.setShowRoot(false);
-
+        setIsOffloading();
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children) {
