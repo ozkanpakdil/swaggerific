@@ -19,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.SneakyThrows;
+import org.controlsfx.control.StatusBar;
 
 import java.net.URL;
 import java.util.Optional;
@@ -38,6 +39,8 @@ public class MainController implements Initializable {
     AnchorPane ancText;
     @FXML
     StackPane topPane;
+    @FXML
+    StatusBar statusBar;
 
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
@@ -52,9 +55,7 @@ public class MainController implements Initializable {
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         loader = fxmlLoader.load();
-
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         txtJson.setWrapText(true);
         treePaths.getSelectionModel()
@@ -79,6 +80,7 @@ public class MainController implements Initializable {
     public void showAlert(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
+        alert.initOwner(mainBox.getScene().getWindow());
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait().ifPresent(rs -> {
@@ -99,25 +101,29 @@ public class MainController implements Initializable {
     @DisableWindow
     public void menuFileOpenSwagger(ActionEvent actionEvent) {
         TextInputDialog dialog = new TextInputDialog("https://petstore.swagger.io/v2/swagger.json");
+        dialog.initOwner(mainBox.getScene().getWindow());
         dialog.setTitle("Enter swagger url");
         dialog.setContentText("URL:");
         dialog.setHeaderText("Enter the json url of swagger url.");
         Optional<String> result = dialog.showAndWait();
 
-        setIsOnloading();
-
+        Platform.runLater(() -> setIsOnloading());
         result.ifPresent(string -> {
-            openSwaggerUrl(string);
+            Runnable task = () -> openSwaggerUrl(string);
+            task.run();
         });
     }
 
+    @SneakyThrows
     private void setIsOnloading() {
+        statusBar.setText("Loading...");
         ProgressIndicator pi = new ProgressIndicator();
         boxLoader = new VBox(pi);
         boxLoader.setAlignment(Pos.CENTER);
         // Grey Background
         mainBox.setVisible(false);
-        topPane.getChildren().add(0,boxLoader);
+        topPane.getChildren().add(0, boxLoader);
+//        Thread.sleep(100);
 //        children = mainBox.getChildren();
 //        Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
 //        mainBox.getChildren().setAll(loader);
@@ -130,7 +136,9 @@ public class MainController implements Initializable {
 //        mainBox.getChildren().add(loader);
     }
 
+    @SneakyThrows
     private void setIsOffloading() {
+        statusBar.setText("Ok");
         topPane.getChildren().remove(boxLoader);
         mainBox.setVisible(true);
 //        Platform.runLater(()->{mainBox.getChildren().setAll(children);});
@@ -141,7 +149,6 @@ public class MainController implements Initializable {
 //        mainBox.setManaged(true);
 //        mainBox.setViewOrder(1);
     }
-
 
     private void openSwaggerUrl(String urlSwagger) {
         root.getChildren().clear();
@@ -166,7 +173,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
         treePaths.setShowRoot(false);
-        setIsOffloading();
+        Platform.runLater(() -> setIsOffloading());
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children) {

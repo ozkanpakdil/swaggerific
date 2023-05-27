@@ -16,6 +16,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.9.19</version>
+        </dependency>
+
         <!--
         Caused by: java.lang.RuntimeException: No toolkit found
         <dependency>
@@ -97,6 +103,7 @@
             <artifactId>bootstrapfx-core</artifactId>
             <version>0.4.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -163,6 +170,9 @@
                 <configuration>
                     <reflectionList>
                         <list>com.mascix.swaggerific.MainController</list>
+                        <list>com.mascix.swaggerific.splashscreen.Preloader</list>
+                        <list>com.mascix.swaggerific.splashscreen.AppNotification</list>
+                        <list>com.mascix.swaggerific.Loader</list>
                         <list>com.mascix.swaggerific.SwaggerModal</list>
                         <list>io.swagger.v3.oas.models.Operation</list>
                         <list>io.swagger.v3.oas.models.media.Schema</list>

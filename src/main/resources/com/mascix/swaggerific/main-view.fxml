@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.control.*?>
 
 <StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -49,7 +50,10 @@
                                         <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
                                     </AnchorPane>
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                              <children>
+
+                              </children></AnchorPane>
                                 </SplitPane>
                             </AnchorPane>
                         </Tab>
@@ -60,5 +64,6 @@
                 </AnchorPane>
             </SplitPane>
         </AnchorPane>
+        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity" />
     </VBox>
 </StackPane>

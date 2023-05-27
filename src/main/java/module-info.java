@@ -12,6 +12,7 @@ module com.mascix.swaggerific {
     requires io.swagger.v3.oas.models;
     requires static lombok;
     requires java.prefs;
+    requires org.aspectj.runtime;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;

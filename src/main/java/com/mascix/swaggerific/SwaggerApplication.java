@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.prefs.Preferences;
 
 public class SwaggerApplication extends Application {
+
     private Stage primaryStage;
 
     @Override
@@ -40,6 +41,7 @@ public class SwaggerApplication extends Application {
 
     @Override
     public void stop() {
+        // savin last state of the window
         Preferences userPrefs = Preferences.userNodeForPackage(getClass());
         userPrefs.putDouble("stage.x", primaryStage.getX());
         userPrefs.putDouble("stage.y", primaryStage.getY());
