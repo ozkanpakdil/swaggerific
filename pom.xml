@@ -16,6 +16,7 @@
     </properties>
 
     <dependencies>
+        <!--aspectj for loading screen-->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
@@ -37,10 +38,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.swagger.codegen.v3</groupId>
-            <artifactId>swagger-codegen-maven-plugin</artifactId>
-            <version>3.0.41</version>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-maven-plugin</artifactId>
+            <version>2.2.10</version>
         </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-core</artifactId>
@@ -51,6 +53,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.14.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

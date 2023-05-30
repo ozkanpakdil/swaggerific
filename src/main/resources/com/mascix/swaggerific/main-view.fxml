@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.*?>
+
+<!--<?import org.fxmisc.richtext.CodeArea?>-->
 
 <StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -46,14 +49,32 @@
                         <Tab text="Untitled Tab 1">
                             <AnchorPane prefHeight="180.0" prefWidth="200.0">
                                 <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <AnchorPane fx:id="ancText" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                                        <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    <AnchorPane fx:id="ancText" VBox.vgrow="ALWAYS">
+                                        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                            <HBox>
+                                                <AnchorPane HBox.hgrow="ALWAYS">
+                                                    <TextField fx:id="txtAddress" minWidth="-Infinity" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                                </AnchorPane>
+                                                <Button fx:id="btnSend" onAction="#btnSendRequest" text="Send" />
+                                                <VBox.margin>
+                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                                                </VBox.margin>
+                                                <padding>
+                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                                                </padding>
+
+                                            </HBox>
+
+                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
+                                            <!--<CodeArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity"
+                                                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                      VBox.vgrow="ALWAYS" />-->
+                                        </VBox>
 
                                     </AnchorPane>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                              <children>
-
-                              </children></AnchorPane>
+                                    </AnchorPane>
                                 </SplitPane>
                             </AnchorPane>
                         </Tab>

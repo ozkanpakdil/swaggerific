@@ -6,5 +6,6 @@ import lombok.Data;
 
 @Data
 public class MyTreeItem extends TreeItem<String> {
+    //    URL urlTarget;
     PathItem bindPathItem;
 }

@@ -13,6 +13,7 @@ module com.mascix.swaggerific {
     requires static lombok;
     requires java.prefs;
     requires org.aspectj.runtime;
+//    requires org.fxmisc.richtext;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;
