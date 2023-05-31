@@ -24,12 +24,12 @@
         </dependency>
 
         <!--
-        Caused by: java.lang.RuntimeException: No toolkit found
+        Caused by: java.lang.RuntimeException: No toolkit found-->
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
             <artifactId>richtextfx</artifactId>
             <version>0.11.0</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -177,6 +177,7 @@
                         <list>com.mascix.swaggerific.splashscreen.AppNotification</list>
                         <list>com.mascix.swaggerific.Loader</list>
                         <list>com.mascix.swaggerific.SwaggerModal</list>
+                        <list>com.mascix.swaggerific.splashscreen.Preloader</list>
                         <list>io.swagger.v3.oas.models.Operation</list>
                         <list>io.swagger.v3.oas.models.media.Schema</list>
                         <list>io.swagger.v3.oas.models.headers.Header</list>

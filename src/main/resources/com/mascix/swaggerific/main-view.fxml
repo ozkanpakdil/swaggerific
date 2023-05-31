@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.*?>
 
-<!--<?import org.fxmisc.richtext.CodeArea?>-->
+<?import org.fxmisc.richtext.CodeArea?>
 
 <StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -65,11 +65,11 @@
 
                                             </HBox>
 
-                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
-                                            <!--<CodeArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity"
+<!--                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />-->
+                                            <CodeArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity"
                                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                      VBox.vgrow="ALWAYS" />-->
+                                                      VBox.vgrow="ALWAYS" />
                                         </VBox>
 
                                     </AnchorPane>

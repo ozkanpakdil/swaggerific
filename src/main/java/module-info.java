@@ -2,6 +2,7 @@ module com.mascix.swaggerific {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
+    requires javafx.media;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -13,7 +14,7 @@ module com.mascix.swaggerific {
     requires static lombok;
     requires java.prefs;
     requires org.aspectj.runtime;
-//    requires org.fxmisc.richtext;
+    requires org.fxmisc.richtext;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;
