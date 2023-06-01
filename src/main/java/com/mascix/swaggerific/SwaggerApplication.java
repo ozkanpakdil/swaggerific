@@ -21,7 +21,7 @@ public class SwaggerApplication extends Application {
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(SwaggerApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
-        scene.getStylesheets().add(this.getClass().getResource("/css/json-highlighting.css").toString());
+//        scene.getStylesheets().add(this.getClass().getResource("/css/json-highlighting.css").toString());
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
         stage.setScene(scene);

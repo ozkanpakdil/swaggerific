@@ -97,7 +97,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loader = fxmlLoader.load();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        txtJson.getStylesheets().add(this.getClass().getResource( "/css/json-highlighting-dark.css").toString());
+        txtJson.getStylesheets().add(this.getClass().getResource( "/css/json-highlighting.css").toString());
         txtJson.setWrapText(true);
         txtJson.textProperty().addListener((obs, oldText, newText) ->
                 txtJson.setStyleSpans(0, computeHighlighting(newText)));

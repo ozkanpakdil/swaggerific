@@ -12,7 +12,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
+        <javafx.version>20</javafx.version>
+        <javafx.plugin.version>0.0.8</javafx.plugin.version>
+        <gluonfx.plugin.version>1.0.18</gluonfx.plugin.version>
         <mainClass>com.mascix.swaggerific/com.mascix.swaggerific.SwaggerApplication</mainClass>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -56,18 +61,28 @@
 
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>19.0.2</version>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>19.0.2</version>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>19.0.2</version>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -133,10 +148,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -149,88 +162,40 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>${mainClass}</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                        </configuration>
-                    </execution>
-                </executions>
+                <version>${javafx.plugin.version}</version>
+                <configuration>
+                    <mainClass>${mainClass}</mainClass>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.gluonhq</groupId>
                 <artifactId>gluonfx-maven-plugin</artifactId>
-                <version>1.0.18</version>
+                <version>${gluonfx.plugin.version}</version>
                 <configuration>
-                    <reflectionList>
-                        <list>com.mascix.swaggerific.MainController</list>
-                        <list>com.mascix.swaggerific.splashscreen.Preloader</list>
-                        <list>com.mascix.swaggerific.splashscreen.AppNotification</list>
-                        <list>com.mascix.swaggerific.Loader</list>
-                        <list>com.mascix.swaggerific.SwaggerModal</list>
-                        <list>com.mascix.swaggerific.splashscreen.Preloader</list>
-                        <list>io.swagger.v3.oas.models.Operation</list>
-                        <list>io.swagger.v3.oas.models.media.Schema</list>
-                        <list>io.swagger.v3.oas.models.headers.Header</list>
-                        <list>io.swagger.v3.oas.models.info.Info</list>
-                        <list>io.swagger.v3.oas.models.info.Contact</list>
-                        <list>io.swagger.v3.oas.models.tags.Tag</list>
-                        <list>io.swagger.v3.oas.models.info.License</list>
-                        <list>io.swagger.v3.oas.models.PathItem</list>
-                        <list>io.swagger.v3.oas.models.parameters.RequestBody</list>
-                        <list>io.swagger.v3.oas.models.responses.ApiResponses</list>
-                        <list>io.swagger.v3.oas.models.responses.ApiResponse</list>
-                        <list>io.swagger.v3.oas.models.media.Content</list>
-                        <list>io.swagger.v3.oas.models.media.MediaType</list>
-                        <list>io.swagger.v3.oas.models.ExternalDocumentation</list>
-                        <list>io.swagger.v3.oas.models.parameters.Parameter</list>
-                        <list>io.swagger.v3.oas.models.servers.Server</list>
-                        <list>io.swagger.v3.oas.models.security.SecurityRequirement</list>
-                        <list>io.swagger.v3.oas.models.Paths</list>
-                        <list>io.swagger.v3.oas.models.Components</list>
-                        <list>javafx.scene.layout.AnchorPane</list>
-                        <list>javafx.scene.control.SplitPane</list>
-                        <list>javafx.scene.control.TreeView</list>
-                        <list>javafx.scene.control.TabPane</list>
-                        <list>javafx.scene.control.Tab</list>
-                        <list>javafx.scene.control.MenuBar</list>
-                        <list>javafx.scene.control.Menu</list>
-                        <list>javafx.scene.control.MenuItem</list>
-                        <list>javafx.scene.control.MenuButton</list>
-                        <list>javafx.scene.control.ContextMenu</list>
-                        <list>javafx.scene.input.KeyCodeCombination</list>
-                        <list>javafx.scene.input.KeyCombination</list>
-                    </reflectionList>
+                    <target>${gluonfx.target}</target>
+                    <mainClass>${mainClass}</mainClass>
                     <attachList>
                         <list>display</list>
                         <list>lifecycle</list>
-                        <list>position</list>
                         <list>statusbar</list>
                         <list>storage</list>
                     </attachList>
-                    <mainClass>${mainClass}</mainClass>
-                    <verbose>true</verbose>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <argLine>
-                        --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-                    </argLine>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>linux</id>
+            <properties>
+                <gluonfx.target>linux</gluonfx.target>
+            </properties>
+        </profile>
+        <profile>
+            <id>ios</id>
+            <properties>
+                <gluonfx.target>ios</gluonfx.target>
+            </properties>
+        </profile>
+    </profiles>
 </project>

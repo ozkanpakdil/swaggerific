@@ -23,7 +23,7 @@
                 <SeparatorMenuItem />
                 <MenuItem onAction="#menuFileExit" text="Exit">
                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="Q" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="ANY" code="Q" control="UP" meta="UP" shift="UP" shortcut="UP" />
                     </accelerator>
                 </MenuItem>
             </Menu>
