@@ -5,71 +5,94 @@
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.*?>
-
 <?import org.fxmisc.richtext.CodeArea?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
 
-<StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.MainController">
+<StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.mascix.swaggerific.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
         <MenuBar>
             <Menu text="File">
                 <MenuItem onAction="#menuFileOpenSwagger" text="Open Swagger JSON URL">
                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
                     </accelerator>
                 </MenuItem>
-                <MenuItem text="Open" />
-                <MenuItem text="Save" />
-                <MenuItem text="Save As" />
-                <SeparatorMenuItem />
+                <MenuItem text="Open"/>
+                <MenuItem text="Save"/>
+                <MenuItem text="Save As"/>
+                <SeparatorMenuItem/>
                 <MenuItem onAction="#menuFileExit" text="Exit">
                     <accelerator>
-                        <KeyCodeCombination alt="ANY" code="Q" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="UP" code="Q" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
                     </accelerator>
                 </MenuItem>
             </Menu>
             <Menu text="Edit">
-                <MenuItem text="Copy" />
-                <MenuItem text="Cut" />
-                <MenuItem text="Paste" />
+                <MenuItem text="Copy"/>
+                <MenuItem text="Cut"/>
+                <MenuItem text="Paste"/>
             </Menu>
             <Menu text="Help">
-                <MenuItem disable="true" text="Search" />
-                <MenuItem text="Online Manual" visible="false" />
-                <SeparatorMenuItem />
-                <MenuItem onAction="#handleAboutAction" text="About" />
+                <MenuItem disable="true" text="Search"/>
+                <MenuItem text="Online Manual" visible="false"/>
+                <SeparatorMenuItem/>
+                <MenuItem onAction="#handleAboutAction" text="About"/>
             </Menu>
         </MenuBar>
         <AnchorPane prefHeight="600" prefWidth="800" VBox.vgrow="ALWAYS">
-            <SplitPane dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <SplitPane dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0"
+                       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <AnchorPane minWidth="200.0" prefWidth="332.0">
-                    <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
+                              prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                    <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="370.0" prefWidth="396.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                             prefHeight="370.0" prefWidth="396.0" tabClosingPolicy="UNAVAILABLE"
+                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                             AnchorPane.topAnchor="0.0">
                         <Tab text="Untitled Tab 1">
                             <AnchorPane prefHeight="180.0" prefWidth="200.0">
-                                <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity"
+                                           orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0"
+                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <AnchorPane fx:id="ancText" VBox.vgrow="ALWAYS">
-                                        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                              VBox.vgrow="ALWAYS">
                                             <HBox>
                                                 <AnchorPane HBox.hgrow="ALWAYS">
-                                                    <TextField fx:id="txtAddress" minWidth="-Infinity" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                                    <TextField fx:id="txtAddress" minWidth="-Infinity"
+                                                               AnchorPane.leftAnchor="0.0"
+                                                               AnchorPane.rightAnchor="0.0"/>
                                                 </AnchorPane>
-                                                <Button fx:id="btnSend" onAction="#btnSendRequest" text="Send" />
+                                                <Button fx:id="btnSend" onAction="#btnSendRequest" text="Send"/>
                                                 <VBox.margin>
-                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </VBox.margin>
                                                 <padding>
-                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
 
                                             </HBox>
 
-<!--                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />-->
-                                            <CodeArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity"
-                                                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                      VBox.vgrow="ALWAYS" />
+                                            <!--                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />-->
+                                            <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
+                                                                   AnchorPane.bottomAnchor="0.0"
+                                                                   AnchorPane.leftAnchor="0.0"
+                                                                   AnchorPane.rightAnchor="0.0"
+                                                                   AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                                <content>
+
+                                                    <CodeArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity"
+                                                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                              VBox.vgrow="ALWAYS"/>
+                                                </content>
+                                            </VirtualizedScrollPane>
                                         </VBox>
 
                                     </AnchorPane>
@@ -79,12 +102,12 @@
                             </AnchorPane>
                         </Tab>
                         <Tab text="Untitled Tab 2">
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
                         </Tab>
                     </TabPane>
                 </AnchorPane>
             </SplitPane>
         </AnchorPane>
-        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity" />
+        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity"/>
     </VBox>
 </StackPane>
