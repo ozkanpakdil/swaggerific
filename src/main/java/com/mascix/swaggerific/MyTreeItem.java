@@ -1,11 +1,11 @@
 package com.mascix.swaggerific;
 
-import io.swagger.v3.oas.models.PathItem;
 import javafx.scene.control.TreeItem;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class MyTreeItem extends TreeItem<String> {
-    //    URL urlTarget;
-    PathItem bindPathItem;
+    List bindPathItem;
 }

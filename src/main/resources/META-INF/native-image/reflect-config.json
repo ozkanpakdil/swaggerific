@@ -32,6 +32,7 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
   ]
 },
@@ -107,6 +108,18 @@
   "methods":[{"name":"getFactory","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.javafx.font.freetype.FTFactory",
+  "methods":[{"name":"getFactory","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.javafx.logging.PrintLogger",
+  "methods":[{"name":"createInstance","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.javafx.logging.jfr.JFRPulseLogger",
+  "methods":[{"name":"createInstance","parameterTypes":[] }]
+},
+{
   "name":"com.sun.javafx.reflect.Trampoline",
   "methods":[{"name":"invoke","parameterTypes":["java.lang.reflect.Method","java.lang.Object","java.lang.Object[]"] }]
 },
@@ -116,6 +129,14 @@
 },
 {
   "name":"com.sun.javafx.tk.quantum.QuantumToolkit",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -378,6 +399,73 @@
   "queryAllDeclaredConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"get$anchor","parameterTypes":[] }, 
+    {"name":"get$comment","parameterTypes":[] }, 
+    {"name":"get$id","parameterTypes":[] }, 
+    {"name":"get$ref","parameterTypes":[] }, 
+    {"name":"get$schema","parameterTypes":[] }, 
+    {"name":"getAdditionalItems","parameterTypes":[] }, 
+    {"name":"getAdditionalProperties","parameterTypes":[] }, 
+    {"name":"getAllOf","parameterTypes":[] }, 
+    {"name":"getAnyOf","parameterTypes":[] }, 
+    {"name":"getBooleanSchemaValue","parameterTypes":[] }, 
+    {"name":"getConst","parameterTypes":[] }, 
+    {"name":"getContains","parameterTypes":[] }, 
+    {"name":"getContentEncoding","parameterTypes":[] }, 
+    {"name":"getContentMediaType","parameterTypes":[] }, 
+    {"name":"getContentSchema","parameterTypes":[] }, 
+    {"name":"getDefault","parameterTypes":[] }, 
+    {"name":"getDependentRequired","parameterTypes":[] }, 
+    {"name":"getDependentSchemas","parameterTypes":[] }, 
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getDescription","parameterTypes":[] }, 
+    {"name":"getDiscriminator","parameterTypes":[] }, 
+    {"name":"getElse","parameterTypes":[] }, 
+    {"name":"getEnum","parameterTypes":[] }, 
+    {"name":"getExample","parameterTypes":[] }, 
+    {"name":"getExampleSetFlag","parameterTypes":[] }, 
+    {"name":"getExamples","parameterTypes":[] }, 
+    {"name":"getExclusiveMaximum","parameterTypes":[] }, 
+    {"name":"getExclusiveMaximumValue","parameterTypes":[] }, 
+    {"name":"getExclusiveMinimum","parameterTypes":[] }, 
+    {"name":"getExclusiveMinimumValue","parameterTypes":[] }, 
+    {"name":"getExtensions","parameterTypes":[] }, 
+    {"name":"getExternalDocs","parameterTypes":[] }, 
+    {"name":"getFormat","parameterTypes":[] }, 
+    {"name":"getIf","parameterTypes":[] }, 
+    {"name":"getItems","parameterTypes":[] }, 
+    {"name":"getJsonSchema","parameterTypes":[] }, 
+    {"name":"getJsonSchemaImpl","parameterTypes":[] }, 
+    {"name":"getMaxContains","parameterTypes":[] }, 
+    {"name":"getMaxItems","parameterTypes":[] }, 
+    {"name":"getMaxLength","parameterTypes":[] }, 
+    {"name":"getMaxProperties","parameterTypes":[] }, 
+    {"name":"getMaximum","parameterTypes":[] }, 
+    {"name":"getMinContains","parameterTypes":[] }, 
+    {"name":"getMinItems","parameterTypes":[] }, 
+    {"name":"getMinLength","parameterTypes":[] }, 
+    {"name":"getMinProperties","parameterTypes":[] }, 
+    {"name":"getMinimum","parameterTypes":[] }, 
+    {"name":"getMultipleOf","parameterTypes":[] }, 
+    {"name":"getNot","parameterTypes":[] }, 
+    {"name":"getNullable","parameterTypes":[] }, 
+    {"name":"getOneOf","parameterTypes":[] }, 
+    {"name":"getPattern","parameterTypes":[] }, 
+    {"name":"getPatternProperties","parameterTypes":[] }, 
+    {"name":"getPrefixItems","parameterTypes":[] }, 
+    {"name":"getProperties","parameterTypes":[] }, 
+    {"name":"getPropertyNames","parameterTypes":[] }, 
+    {"name":"getReadOnly","parameterTypes":[] }, 
+    {"name":"getRequired","parameterTypes":[] }, 
+    {"name":"getThen","parameterTypes":[] }, 
+    {"name":"getTitle","parameterTypes":[] }, 
+    {"name":"getType","parameterTypes":[] }, 
+    {"name":"getTypes","parameterTypes":[] }, 
+    {"name":"getUnevaluatedItems","parameterTypes":[] }, 
+    {"name":"getUnevaluatedProperties","parameterTypes":[] }, 
+    {"name":"getUniqueItems","parameterTypes":[] }, 
+    {"name":"getWriteOnly","parameterTypes":[] }, 
+    {"name":"getXml","parameterTypes":[] }, 
     {"name":"set$ref","parameterTypes":["java.lang.String"] }, 
     {"name":"setItems","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
     {"name":"setType","parameterTypes":["java.lang.String"] }
@@ -646,6 +734,7 @@
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"getId","parameterTypes":[] }, 
+    {"name":"getStyleClass","parameterTypes":[] }, 
     {"name":"setId","parameterTypes":["java.lang.String"] }, 
     {"name":"setLayoutX","parameterTypes":["double"] }, 
     {"name":"setLayoutY","parameterTypes":["double"] }, 
@@ -657,7 +746,8 @@
 },
 {
   "name":"javafx.scene.Parent",
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"getStylesheets","parameterTypes":[] }]
 },
 {
   "name":"javafx.scene.Scene"
@@ -982,6 +1072,10 @@
 },
 {
   "name":"sun.security.provider.MD5",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

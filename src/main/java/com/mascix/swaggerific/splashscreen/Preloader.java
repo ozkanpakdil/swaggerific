@@ -41,7 +41,7 @@ public class Preloader extends javafx.application.Preloader {
         this.basestage = stage;
         basestage.initStyle(StageStyle.UNDECORATED);
         Scene sc = createPreloaderScene();
-        sc.getStylesheets().addAll(this.getClass().getResource("/css/base.css").toString());
+        sc.getStylesheets().addAll(this.getClass().getResource("/css/splashscreen.css").toString());
         stage.setScene(sc);
         stage.show();
     }

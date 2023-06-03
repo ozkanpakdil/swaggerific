@@ -15,6 +15,7 @@ module com.mascix.swaggerific {
     requires java.prefs;
     requires org.aspectj.runtime;
     requires org.fxmisc.richtext;
+    requires org.slf4j;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;

@@ -9,7 +9,7 @@
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 
 <StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.mascix.swaggerific.MainController">
+           fx:controller="com.mascix.swaggerific.MainController" stylesheets="@main-view.css">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
         <MenuBar>
             <Menu text="File">
@@ -46,7 +46,7 @@
                 <AnchorPane minWidth="200.0" prefWidth="332.0">
                     <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
                               prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="treePaths"/>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                     <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"

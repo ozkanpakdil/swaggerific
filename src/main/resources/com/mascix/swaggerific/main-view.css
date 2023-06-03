@@ -1,0 +1,32 @@
+.treePaths .tree-cell {
+    -fx-background-color: lightgray ;
+    -fx-text-fill: #ffffff ;
+}
+
+.treePaths .tree-cell:hover .highlight-on-hover {
+    -fx-text-fill: red ;
+}
+
+.tree-cell:selected {
+    -fx-font-weight: bold ;
+    -fx-text-fill: blue ;
+}
+
+.POST {
+    -fx-background-color: #49cc90 ;
+}
+.PUT {
+    -fx-background-color: #fca130 ;
+}
+.GET {
+    -fx-background-color: #61affe ;
+}
+.DELETE {
+    -fx-background-color: #f93e3e ;
+}
+.HEAD {
+    -fx-background-color: #9012fe ;
+}
+.PATCH {
+    -fx-background-color: #50e3c2 ;
+}
