@@ -1,4 +1,4 @@
-package com.mascix.swaggerific;
+package com.mascix.swaggerific.animation;
 
 import javafx.stage.Window;
 import org.aspectj.lang.annotation.After;

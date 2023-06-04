@@ -1,7 +1,9 @@
-package com.mascix.swaggerific;
+package com.mascix.swaggerific.ui;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mascix.swaggerific.DisableWindow;
+import com.mascix.swaggerific.data.SwaggerModal;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.application.Platform;
@@ -12,7 +14,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -20,8 +21,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.model.StyleSpans;
-import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.net.URI;
 import java.net.URL;
@@ -29,8 +28,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -51,55 +52,30 @@ public class MainController implements Initializable {
     @FXML
     TextField txtAddress;
     @FXML
-    CodeArea txtJsonResponse;
+    CodeArea codeJsonResponse;
     @FXML
-    VBox boxRequestParams;
+    GridPane boxRequestParams;
 
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
+    JsonColorizer jsonColorizer = new JsonColorizer();
 
     TreeItem<String> root = new TreeItem<>("base root");
-    ObservableList<Node> children;
     String urlTarget;
 
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
-    private Pane loader;
     private VBox boxLoader;
-
-    private StyleSpans<Collection<String>> computeHighlighting(String text) {
-        Matcher matcher = JsonColorizer.JSON_REGEX.matcher(text);
-        int lastKwEnd = 0;
-        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
-        while (matcher.find()) {
-            String styleClass
-                    = matcher.group("JSONPROPERTY") != null ? "json_property"
-                    : matcher.group("JSONARRAY") != null ? "json_array"
-                    : matcher.group("JSONCURLY") != null ? "json_curly"
-                    : matcher.group("JSONBOOL") != null ? "json_bool"
-                    : matcher.group("JSONNULL") != null ? "json_null"
-                    : matcher.group("JSONNUMBER") != null ? "json_number"
-                    : matcher.group("JSONVALUE") != null ? "json_value"
-                    : matcher.group("TEXT") != null ? "text"
-                    : null;
-            spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
-            spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
-            lastKwEnd = matcher.end();
-        }
-        spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
-        return spansBuilder.create();
-    }
 
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        loader = fxmlLoader.load();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         codeJsonRequest.getStylesheets().add(getCss("/css/json-highlighting.css"));
-        txtJsonResponse.getStylesheets().add(getCss("/css/json-highlighting.css"));
         codeJsonRequest.setWrapText(true);
-        txtJsonResponse.setWrapText(true);
-        codeJsonRequest.textProperty().addListener((obs, oldText, newText) -> codeJsonRequest.setStyleSpans(0, computeHighlighting(newText)));
-        txtJsonResponse.textProperty().addListener((obs, oldText, newText) -> txtJsonResponse.setStyleSpans(0, computeHighlighting(newText)));
+        codeJsonRequest.textProperty().addListener((obs, oldText, newText) -> codeJsonRequest.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
+        codeJsonResponse.getStylesheets().add(getCss("/css/json-highlighting.css"));
+        codeJsonResponse.setWrapText(true);
+        codeJsonResponse.textProperty().addListener((obs, oldText, newText) -> codeJsonResponse.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
@@ -112,19 +88,16 @@ public class MainController implements Initializable {
             boxRequestParams.getChildren().clear();
             TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
             txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
-
+            AtomicInteger row = new AtomicInteger();
             m.getParameters().forEach(f -> {
-                if (f.getRequired()) {
-                    STextField txtInput = new STextField();
-                    txtInput.setParamName(f.getName());
-                    Label lblInput = new Label();
-                    lblInput.setText(f.getName());
-                    //TODO this hbox needs some padding and margin configuration but functionally working.
-                    HBox l = new HBox();
-                    l.getChildren().add(lblInput);
-                    l.getChildren().add(txtInput);
-                    boxRequestParams.getChildren().add(l);
-                }
+                STextField txtInput = new STextField();
+                txtInput.setParamName(f.getName());
+                txtInput.setIn(f.getIn());
+                Label lblInput = new Label();
+                lblInput.setText(f.getName());
+                boxRequestParams.add(lblInput, 0, row.get());
+                boxRequestParams.add(txtInput, 1, row.get());
+                row.incrementAndGet();
             });
             codeJsonRequest.replaceText(
                     Json.pretty(m.getParameters())
@@ -291,6 +264,8 @@ public class MainController implements Initializable {
         switch (selectedItem.getValue()) {
             case "GET":
                 Platform.runLater(() -> getRequest());
+            case "POST":
+                Platform.runLater(() -> postRequest());
             default:
                 log.error(selectedItem.getValue() + " not implemented yet");
         }
@@ -298,13 +273,41 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
+    private void postRequest() {
+        final String[] queryParams = {""};
+        boxRequestParams.getChildren().stream().forEach(n -> {
+            if (n instanceof STextField) {
+                STextField node = (STextField) n;
+                if (node.getIn().equals("query"))
+                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
+            }
+        });
+        URI uri = URI.create(txtAddress.getText() + "?" + queryParams[0]);
+        log.info("uri:{}", uri);
+        //TODO not finished, make sure data send in body
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .POST(HttpRequest.BodyPublishers.ofString(codeJsonRequest.getText()))
+                .build();
+
+        HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
+
+        codeJsonResponse.replaceText(
+                Json.pretty(mapper.readTree(httpResponse.body()))
+        );
+    }
+
+    @SneakyThrows
     private void getRequest() {
         TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
         final String[] queryParams = {""};
         boxRequestParams.getChildren().stream().forEach(n -> {
-            HBox h = (HBox) n;
-            STextField node = (STextField) h.getChildren().get(1);
-            queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
+            if (n instanceof STextField) {
+                STextField node = (STextField) n;
+                if (node.getIn().equals("query"))
+                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
+            }
         });
         URI uri = URI.create(txtAddress.getText() + "?" + queryParams[0]);
         log.info("uri:{}", uri);
@@ -315,7 +318,7 @@ public class MainController implements Initializable {
 
         HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
 
-        txtJsonResponse.replaceText(
+        codeJsonResponse.replaceText(
                 Json.pretty(mapper.readTree(httpResponse.body()))
         );
     }

@@ -8,7 +8,7 @@
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <?import org.fxmisc.richtext.CodeArea?>
 <StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.mascix.swaggerific.MainController" stylesheets="@main-view.css">
+           fx:controller="com.mascix.swaggerific.ui.MainController" stylesheets="@main-view.css">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
         <MenuBar>
             <Menu text="File">
@@ -76,8 +76,7 @@
                                                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
                                             </HBox>
-
-                                            <VBox fx:id="boxRequestParams" minHeight="-Infinity"
+                                            <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
                                                   minWidth="-Infinity"
                                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
@@ -96,13 +95,24 @@
                                                 </content>
                                             </VirtualizedScrollPane>
                                         </VBox>
-
                                     </AnchorPane>
+                                    <Label fx:id="lblResponse" text="== Response ==" minHeight="30"
+                                           minWidth="-Infinity"
+                                           prefHeight="30"/>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                                        <CodeArea fx:id="txtJsonResponse" minHeight="-Infinity" minWidth="-Infinity"
-                                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                  VBox.vgrow="ALWAYS"/>
+                                        <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
+                                                               AnchorPane.bottomAnchor="0.0"
+                                                               AnchorPane.leftAnchor="0.0"
+                                                               AnchorPane.rightAnchor="0.0"
+                                                               AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <CodeArea fx:id="codeJsonResponse" minHeight="-Infinity"
+                                                          minWidth="-Infinity"
+                                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                          VBox.vgrow="ALWAYS"/>
+                                            </content>
+                                        </VirtualizedScrollPane>
                                     </AnchorPane>
                                 </SplitPane>
                             </AnchorPane>

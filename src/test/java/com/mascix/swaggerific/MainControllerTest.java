@@ -3,7 +3,8 @@ package com.mascix.swaggerific;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.models.OpenAPI;
+import com.mascix.swaggerific.data.SwaggerModal;
+import com.mascix.swaggerific.ui.MainController;
 import javafx.scene.control.TreeItem;
 import org.junit.jupiter.api.Test;
 

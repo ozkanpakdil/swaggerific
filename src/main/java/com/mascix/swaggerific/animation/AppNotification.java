@@ -1,4 +1,4 @@
-package com.mascix.swaggerific.splashscreen;
+package com.mascix.swaggerific.animation;
 
 import javafx.application.Preloader;
 

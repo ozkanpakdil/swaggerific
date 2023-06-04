@@ -1,4 +1,4 @@
-package com.mascix.swaggerific;
+package com.mascix.swaggerific.data;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.mascix.swaggerific;
+package com.mascix.swaggerific.ui;
 
 import javafx.scene.control.TextField;
 import lombok.Data;
@@ -6,4 +6,5 @@ import lombok.Data;
 @Data
 public class STextField extends TextField {
     private String paramName;
+    private String in;
 }

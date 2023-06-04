@@ -1,7 +1,7 @@
 package com.mascix.swaggerific;
 
 import atlantafx.base.theme.PrimerLight;
-import com.mascix.swaggerific.splashscreen.Preloader;
+import com.mascix.swaggerific.animation.Preloader;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,7 +21,7 @@ public class SwaggerApplication extends Application {
 
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         loadingWindowLookAndLocation();
-        FXMLLoader fxmlLoader = new FXMLLoader(SwaggerApplication.class.getResource("main-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
 //        scene.getStylesheets().add(this.getClass().getResource("/css/main-view.css").toString());
         stage.setTitle("Swaggerific");

@@ -1,4 +1,4 @@
-package com.mascix.swaggerific;
+package com.mascix.swaggerific.animation;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
