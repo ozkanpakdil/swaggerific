@@ -6,10 +6,67 @@
   "name":"[D"
 },
 {
+  "name":"[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
+},
+{
+  "name":"[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
+},
+{
+  "name":"[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
+},
+{
+  "name":"[Lcom.fasterxml.jackson.databind.ser.BeanSerializerModifier;"
+},
+{
+  "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
+},
+{
   "name":"[Ljava.lang.String;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
+},
+{
+  "name":"ch.qos.logback.classic.PatternLayout",
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.DateConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.LevelConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.LineSeparatorConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.LoggerConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.MessageConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.classic.pattern.ThreadConverter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.core.ConsoleAppender",
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"ch.qos.logback.core.OutputStreamAppender",
+  "methods":[{"name":"setLayout","parameterTypes":["ch.qos.logback.core.Layout"] }]
+},
+{
+  "name":"ch.qos.logback.core.pattern.PatternLayoutBase",
+  "methods":[{"name":"setPattern","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
@@ -57,8 +114,36 @@
   ]
 },
 {
+  "name":"com.mascix.swaggerific.animation.Preloader",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.mascix.swaggerific.data.SwaggerModal",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setBasePath","parameterTypes":["java.lang.String"] }, 
+    {"name":"setHost","parameterTypes":["java.lang.String"] }, 
+    {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, 
+    {"name":"setSwagger","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
   "name":"com.mascix.swaggerific.splashscreen.Preloader",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.mascix.swaggerific.ui.MainController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
+  ]
 },
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
@@ -140,6 +225,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.prism.GraphicsPipeline",
   "methods":[
     {"name":"getFontFactory","parameterTypes":[] }, 
@@ -156,6 +245,14 @@
 },
 {
   "name":"com.sun.prism.shader.FillPgram_LinearGradient_PAD_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.FillRoundRect_Color_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.Mask_TextureSuper_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
@@ -201,6 +298,12 @@
 {
   "name":"com.sun.xml.internal.stream.XMLInputFactoryImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.ExtensionsMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
 },
 {
   "name":"io.swagger.v3.oas.models.Components",
@@ -613,6 +716,9 @@
   ]
 },
 {
+  "name":"java.io.FilePermission"
+},
+{
   "name":"java.io.Serializable",
   "queryAllDeclaredMethods":true
 },
@@ -648,7 +754,24 @@
   ]
 },
 {
+  "name":"java.lang.Object",
+  "allDeclaredFields":true
+},
+{
+  "name":"java.lang.RuntimePermission"
+},
+{
   "name":"java.lang.String"
+},
+{
+  "name":"java.net.NetPermission"
+},
+{
+  "name":"java.net.SocketPermission"
+},
+{
+  "name":"java.net.URLPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"java.nio.ByteBuffer",
@@ -662,10 +785,16 @@
   "name":"java.security.AlgorithmParametersSpi"
 },
 {
+  "name":"java.security.AllPermission"
+},
+{
   "name":"java.security.KeyStoreSpi"
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.SecurityPermission"
 },
 {
   "name":"java.security.interfaces.ECPrivateKey"
@@ -705,6 +834,9 @@
 {
   "name":"java.util.Map",
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"java.util.PropertyPermission"
 },
 {
   "name":"javafx.fxml.FXMLLoader"
@@ -766,6 +898,12 @@
 {
   "name":"javafx.scene.control.Control",
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"javafx.scene.control.Label",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"javafx.scene.control.Labeled",
@@ -909,6 +1047,12 @@
     {"name":"getRightAnchor","parameterTypes":["javafx.scene.Node"] }, 
     {"name":"getTopAnchor","parameterTypes":["javafx.scene.Node"] }
   ]
+},
+{
+  "name":"javafx.scene.layout.GridPane",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"javafx.scene.layout.HBox",
