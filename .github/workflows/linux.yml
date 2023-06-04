@@ -23,13 +23,11 @@ jobs:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
       - name: Gluon Build
         run: ./mvnw -Pdesktop gluonfx:build gluonfx:package
-
       - name: Copy native image to staging
         run: |
           set -e
           cd target/gluonfx/x86_64-linux/
           chmod +x swaggerific
-#          ./swaggerific
           cp -r swaggerific staging
 
       - name: Upload
