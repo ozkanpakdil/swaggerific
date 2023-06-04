@@ -26,7 +26,7 @@ jobs:
       - name: Copy native image to staging
         run: |
           set -e
-          chmod +x swaggerific
+          chmod +x target/gluonfx/x86_64-linux/swaggerific
           cp -r target/gluonfx/x86_64-linux/swaggerific staging
 
       - name: Upload
