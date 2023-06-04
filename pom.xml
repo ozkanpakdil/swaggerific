@@ -22,6 +22,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.7</version>
@@ -49,9 +54,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-maven-plugin</artifactId>
-            <version>2.2.10</version>
+            <groupId>io.swagger.codegen.v3</groupId>
+            <artifactId>swagger-codegen-maven-plugin</artifactId>
+            <version>3.0.43</version>
         </dependency>
 
         <dependency>

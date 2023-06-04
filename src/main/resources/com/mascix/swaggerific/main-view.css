@@ -1,8 +1,3 @@
-.treePaths .tree-cell {
-    -fx-background-color: lightgray ;
-    -fx-text-fill: #ffffff ;
-}
-
 .treePaths .tree-cell:hover .highlight-on-hover {
     -fx-text-fill: red ;
 }
@@ -12,17 +7,23 @@
     -fx-text-fill: blue ;
 }
 
+.myLeafLabel{
+    -fx-padding: 6px;
+    -fx-border-width: 1px;
+    -fx-border-color: black;
+}
+
 .POST {
-    -fx-background-color: #49cc90 ;
+    -fx-background-color: #49cc90;
 }
 .PUT {
-    -fx-background-color: #fca130 ;
+    -fx-background-color: #fca130;
 }
 .GET {
-    -fx-background-color: #61affe ;
+    -fx-background-color: #61affe;
 }
 .DELETE {
-    -fx-background-color: #f93e3e ;
+    -fx-background-color: #f93e3e;
 }
 .HEAD {
     -fx-background-color: #9012fe ;

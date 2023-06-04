@@ -6,6 +6,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class MyTreeItem extends TreeItem<String> {
-    List bindPathItem;
+public class TreeItemOperatinLeaf extends TreeItem<String> {
+    List parameters;
 }

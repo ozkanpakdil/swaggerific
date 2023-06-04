@@ -11,11 +11,14 @@ module com.mascix.swaggerific {
     requires org.kordamp.bootstrapfx.core;
     requires com.fasterxml.jackson.databind;
     requires io.swagger.v3.oas.models;
+    requires io.swagger.v3.core;
     requires static lombok;
     requires java.prefs;
     requires org.aspectj.runtime;
     requires org.fxmisc.richtext;
     requires org.slf4j;
+    requires atlantafx.base;
+    requires java.net.http;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;

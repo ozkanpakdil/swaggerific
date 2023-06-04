@@ -2,7 +2,9 @@ package com.mascix.swaggerific;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -14,7 +16,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.StatusBar;
@@ -22,9 +27,15 @@ import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -33,7 +44,7 @@ public class MainController implements Initializable {
     @FXML
     VBox mainBox;
     @FXML
-    CodeArea txtJson;
+    CodeArea codeJsonRequest;
     @FXML
     TreeView treePaths;
     @FXML
@@ -44,6 +55,8 @@ public class MainController implements Initializable {
     StatusBar statusBar;
     @FXML
     TextField txtAddress;
+    @FXML
+    CodeArea txtJsonResponse;
 
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
@@ -84,22 +97,24 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loader = fxmlLoader.load();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        txtJson.getStylesheets().add(getCss("/css/json-highlighting.css"));
-        txtJson.setWrapText(true);
-        txtJson.textProperty().addListener((obs, oldText, newText) ->
-                txtJson.setStyleSpans(0, computeHighlighting(newText)));
+        codeJsonRequest.getStylesheets().add(getCss("/css/json-highlighting.css"));
+        txtJsonResponse.getStylesheets().add(getCss("/css/json-highlighting.css"));
+        codeJsonRequest.setWrapText(true);
+        txtJsonResponse.setWrapText(true);
+        codeJsonRequest.textProperty().addListener((obs, oldText, newText) -> codeJsonRequest.setStyleSpans(0, computeHighlighting(newText)));
+        txtJsonResponse.textProperty().addListener((obs, oldText, newText) -> txtJsonResponse.setStyleSpans(0, computeHighlighting(newText)));
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
-                    if (newValue instanceof MyTreeItem) { // if leaf
-                        MyTreeItem m = (MyTreeItem) newValue;
+                    if (newValue instanceof TreeItemOperatinLeaf) {
+                        TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
                         try {
-                            List p = m.getBindPathItem();
+                            Object p = m.getParameters();
                             txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
-                            txtJson.replaceText(
-                                    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(p)
+                            codeJsonRequest.replaceText(
+                                    Json.pretty(p)
                             );
-                            log.debug("new:{}", mapper.writeValueAsString(m.getBindPathItem()));
+//                            log.debug("new:{}", mapper.writeValueAsString(m.getBindPathItem()));
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -194,7 +209,7 @@ public class MainController implements Initializable {
         treePaths.setCellFactory(treeView -> {
             final Label label = new Label();
             label.getStyleClass().add("highlight-on-hover");
-            TreeCell<String> cell = new TreeCell<String>() {
+            TreeCell<String> cell = new TreeCell<>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -207,8 +222,18 @@ public class MainController implements Initializable {
             };
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             cell.itemProperty().addListener((obs, oldItem, newItem) -> {
-                        label.setText(newItem != null ? newItem : "");
-                        label.getStyleClass().add(newItem);
+                        if (newItem != null) {
+                            label.setText(newItem);
+                            Arrays.stream(PathItem.HttpMethod.values()).toList().forEach(it -> {
+                                if (it.name().equals(newItem)) {
+                                    label.getStyleClass().add(newItem);
+                                    label.getStyleClass().add("myLeafLabel");
+                                }
+                            });
+                        } else {
+                            label.getStyleClass().clear();
+                            label.getStyleClass().add("highlight-on-hover");
+                        }
                     }
             );
             return cell;
@@ -237,12 +262,9 @@ public class MainController implements Initializable {
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children, URL urlSwagger, SwaggerModal jsonModal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
-            MyTreeItem it = new MyTreeItem();
+            TreeItemOperatinLeaf it = new TreeItemOperatinLeaf();
             it.setValue(k.name());
-            it.setBindPathItem(v.getParameters());
-//            it.getGraphic().setStyle(k.name());
-//            log.info("p: {}",pathItem.getPost().getParameters());
-//            pathItem.get
+            it.setParameters(v.getParameters());
             children.add(it);
         });
     }
@@ -253,6 +275,35 @@ public class MainController implements Initializable {
     }
 
     public void btnSendRequest(ActionEvent actionEvent) {
-        showAlert("", "not implemented", "nope");
+        TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
+
+        switch (selectedItem.getValue()) {
+            case "GET":
+                Platform.runLater(() -> getRequest());
+        }
+
+    }
+
+    @SneakyThrows
+    private void getRequest() {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
+
+        List<Parameter> params = selectedItem.getParameters();
+        String queryParams = String.join("&", params.stream().map(f -> f.getName() + "=sold").collect(Collectors.toList()));
+        URI uri = URI.create(txtAddress.getText() + "?" + queryParams);
+
+        log.info("uri:{}", uri);
+        System.out.println("uri:" + uri);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .build();
+
+        System.out.println(Json.pretty(jsonModal.getComponents()));
+        HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
+
+        txtJsonResponse.replaceText(
+                Json.pretty(mapper.readTree(httpResponse.body()))
+        );
     }
 }
