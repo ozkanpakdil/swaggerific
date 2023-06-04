@@ -75,21 +75,25 @@
                                                 <padding>
                                                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
-
                                             </HBox>
 
-                                            <!--                                            <TextArea fx:id="txtJson" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />-->
+                                            <VBox fx:id="boxRequestParams" minHeight="-Infinity"
+                                                  minWidth="-Infinity"
+                                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                  VBox.vgrow="ALWAYS"/>
                                             <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
                                                                    AnchorPane.bottomAnchor="0.0"
                                                                    AnchorPane.leftAnchor="0.0"
                                                                    AnchorPane.rightAnchor="0.0"
                                                                    AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-
-                                                <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
-                                                          minWidth="-Infinity"
-                                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                          VBox.vgrow="ALWAYS"/>
+                                                <content>
+                                                    <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
+                                                              minWidth="-Infinity"
+                                                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                              VBox.vgrow="ALWAYS"/>
+                                                </content>
                                             </VirtualizedScrollPane>
                                         </VBox>
 

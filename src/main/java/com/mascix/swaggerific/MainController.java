@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -16,10 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.StatusBar;
@@ -35,7 +31,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -57,6 +52,8 @@ public class MainController implements Initializable {
     TextField txtAddress;
     @FXML
     CodeArea txtJsonResponse;
+    @FXML
+    VBox boxRequestParams;
 
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
@@ -106,20 +103,34 @@ public class MainController implements Initializable {
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
-                    if (newValue instanceof TreeItemOperatinLeaf) {
-                        TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
-                        try {
-                            Object p = m.getParameters();
-                            txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
-                            codeJsonRequest.replaceText(
-                                    Json.pretty(p)
-                            );
-//                            log.debug("new:{}", mapper.writeValueAsString(m.getBindPathItem()));
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                    onTreeItemSelect(newValue);
                 });
+    }
+
+    private void onTreeItemSelect(TreeItem<String> newValue) {
+        if (newValue instanceof TreeItemOperatinLeaf) {
+            boxRequestParams.getChildren().clear();
+            TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
+            txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
+
+            m.getParameters().forEach(f -> {
+                if (f.getRequired()) {
+                    STextField txtInput = new STextField();
+                    txtInput.setParamName(f.getName());
+                    Label lblInput = new Label();
+                    lblInput.setText(f.getName());
+                    //TODO this hbox needs some padding and margin configuration but functionally working.
+                    HBox l = new HBox();
+                    l.getChildren().add(lblInput);
+                    l.getChildren().add(txtInput);
+                    boxRequestParams.getChildren().add(l);
+                }
+            });
+            codeJsonRequest.replaceText(
+                    Json.pretty(m.getParameters())
+            );
+
+        }
     }
 
     private String getCss(String css) {
@@ -280,6 +291,8 @@ public class MainController implements Initializable {
         switch (selectedItem.getValue()) {
             case "GET":
                 Platform.runLater(() -> getRequest());
+            default:
+                log.error(selectedItem.getValue() + " not implemented yet");
         }
 
     }
@@ -287,19 +300,19 @@ public class MainController implements Initializable {
     @SneakyThrows
     private void getRequest() {
         TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
-
-        List<Parameter> params = selectedItem.getParameters();
-        String queryParams = String.join("&", params.stream().map(f -> f.getName() + "=sold").collect(Collectors.toList()));
-        URI uri = URI.create(txtAddress.getText() + "?" + queryParams);
-
+        final String[] queryParams = {""};
+        boxRequestParams.getChildren().stream().forEach(n -> {
+            HBox h = (HBox) n;
+            STextField node = (STextField) h.getChildren().get(1);
+            queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
+        });
+        URI uri = URI.create(txtAddress.getText() + "?" + queryParams[0]);
         log.info("uri:{}", uri);
-        System.out.println("uri:" + uri);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .build();
 
-        System.out.println(Json.pretty(jsonModal.getComponents()));
         HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
 
         txtJsonResponse.replaceText(
