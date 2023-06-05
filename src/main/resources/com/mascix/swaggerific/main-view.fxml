@@ -80,7 +80,12 @@
                                                   minWidth="-Infinity"
                                                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                  VBox.vgrow="ALWAYS"/>
+                                                      VBox.vgrow="ALWAYS" stylesheets="main-view.css" styleClass="boxRequestParams">
+                                                <columnConstraints>
+                                                    <ColumnConstraints percentWidth="30" />
+                                                    <ColumnConstraints percentWidth="70" />
+                                                </columnConstraints>
+                                            </GridPane>
                                             <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
                                                                    AnchorPane.bottomAnchor="0.0"
                                                                    AnchorPane.leftAnchor="0.0"
@@ -96,7 +101,7 @@
                                             </VirtualizedScrollPane>
                                         </VBox>
                                     </AnchorPane>
-                                    <Label fx:id="lblResponse" text="== Response ==" minHeight="30"
+                                    <Label fx:id="lblResponse" text="== Response ==" maxHeight="23"
                                            minWidth="-Infinity"
                                            prefHeight="30"/>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">

@@ -93,6 +93,7 @@ public class MainController implements Initializable {
                 STextField txtInput = new STextField();
                 txtInput.setParamName(f.getName());
                 txtInput.setIn(f.getIn());
+                txtInput.setMinWidth(Region.USE_PREF_SIZE);
                 Label lblInput = new Label();
                 lblInput.setText(f.getName());
                 boxRequestParams.add(lblInput, 0, row.get());
@@ -102,7 +103,6 @@ public class MainController implements Initializable {
             codeJsonRequest.replaceText(
                     Json.pretty(m.getParameters())
             );
-
         }
     }
 
@@ -189,7 +189,6 @@ public class MainController implements Initializable {
         URL urlApi = new URL(urlSwagger);
         urlTarget = urlSwagger.replace("swagger.json", "");
         treePaths.setRoot(root);
-
         treePaths.setCellFactory(treeView -> {
             final Label label = new Label();
             label.getStyleClass().add("highlight-on-hover");
@@ -206,17 +205,17 @@ public class MainController implements Initializable {
             };
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             cell.itemProperty().addListener((obs, oldItem, newItem) -> {
+                        label.getStyleClass().clear();
+                        label.getStyleClass().add("highlight-on-hover");
                         if (newItem != null) {
                             label.setText(newItem);
-                            Arrays.stream(PathItem.HttpMethod.values()).toList().forEach(it -> {
-                                if (it.name().equals(newItem)) {
+                            Arrays.stream(PathItem.HttpMethod.values()).toList().forEach(httpMethodName -> {
+                                if (newItem.equals(httpMethodName.name()) && label.getText().equals(newItem)) {
                                     label.getStyleClass().add(newItem);
                                     label.getStyleClass().add("myLeafLabel");
+                                    log.debug("labelclass:{},{},{}", newItem, label.getText(), httpMethodName);
                                 }
                             });
-                        } else {
-                            label.getStyleClass().clear();
-                            label.getStyleClass().add("highlight-on-hover");
                         }
                     }
             );
