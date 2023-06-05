@@ -271,15 +271,7 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void postRequest() {
-        final String[] queryParams = {""};
-        boxRequestParams.getChildren().stream().forEach(n -> {
-            if (n instanceof STextField) {
-                STextField node = (STextField) n;
-                if (node.getIn().equals("query"))
-                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
-            }
-        });
-        URI uri = URI.create(txtAddress.getText() + "?" + queryParams[0]);
+        URI uri = getUri();
         log.info("uri:{}", uri);
         //TODO not finished, make sure data send in body
         HttpClient client = HttpClient.newHttpClient();
@@ -298,15 +290,7 @@ public class MainController implements Initializable {
     @SneakyThrows
     private void getRequest() {
         TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
-        final String[] queryParams = {""};
-        boxRequestParams.getChildren().stream().forEach(n -> {
-            if (n instanceof STextField) {
-                STextField node = (STextField) n;
-                if (node.getIn().equals("query"))
-                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
-            }
-        });
-        URI uri = URI.create(txtAddress.getText() + "?" + queryParams[0]);
+        URI uri = getUri();
         log.info("uri:{}", uri);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -318,5 +302,24 @@ public class MainController implements Initializable {
         codeJsonResponse.replaceText(
                 Json.pretty(mapper.readTree(httpResponse.body()))
         );
+    }
+
+    private URI getUri() {
+        final String[] queryParams = {""};
+        final String[] adr = {txtAddress.getText()};
+        boxRequestParams.getChildren().stream().forEach(n -> {
+            if (n instanceof STextField) {
+                STextField node = (STextField) n;
+                if (node.getIn().equals("query")) {
+                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
+                }
+                if (adr[0].contains("{"))
+                    adr[0] = adr[0].replaceAll("\\{" + node.getParamName() + "\\}", node.getText());
+            }
+        });
+        if (!queryParams[0].isEmpty())
+            adr[0] += "?" + queryParams[0];
+        URI uri = URI.create(adr[0]);
+        return uri;
     }
 }
