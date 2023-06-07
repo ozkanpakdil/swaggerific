@@ -306,6 +306,12 @@
   "queryAllDeclaredConstructors":true
 },
 {
+  "name":"io.swagger.v3.core.jackson.mixin.SchemaMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
   "name":"io.swagger.v3.oas.models.Components",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -839,6 +845,9 @@
   "name":"java.util.PropertyPermission"
 },
 {
+  "name":"javafx.animation.KeyValue"
+},
+{
   "name":"javafx.fxml.FXMLLoader"
 },
 {
@@ -1049,10 +1058,26 @@
   ]
 },
 {
+  "name":"javafx.scene.layout.ColumnConstraints",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setPercentWidth","parameterTypes":["double"] }
+  ]
+},
+{
+  "name":"javafx.scene.layout.ConstraintsBase",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"javafx.scene.layout.GridPane",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getColumnConstraints","parameterTypes":[] }
+  ]
 },
 {
   "name":"javafx.scene.layout.HBox",
