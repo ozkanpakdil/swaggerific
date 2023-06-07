@@ -6,6 +6,7 @@ import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -55,6 +57,14 @@ public class MainController implements Initializable {
     CodeArea codeJsonResponse;
     @FXML
     GridPane boxRequestParams;
+    @FXML
+    VBox boxParams;
+    @FXML
+    TabPane tabRequestDetails;
+    @FXML
+    Tab tabBody;
+    @FXML
+    Tab tabParams;
 
     SwaggerModal jsonModal;
     ObjectMapper mapper = new ObjectMapper();
@@ -87,6 +97,13 @@ public class MainController implements Initializable {
         if (newValue instanceof TreeItemOperatinLeaf) {
             boxRequestParams.getChildren().clear();
             TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
+            Optional<Parameter> body = m.getParameters().stream().filter(p -> p.getName().equals("body")).findAny();
+            if (!body.isEmpty()) {// this function requires json body
+                tabRequestDetails.getSelectionModel().select(tabBody);
+                return;
+            } else {
+                tabRequestDetails.getSelectionModel().select(tabParams);
+            }
             txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
             AtomicInteger row = new AtomicInteger();
             m.getParameters().forEach(f -> {
@@ -265,6 +282,7 @@ public class MainController implements Initializable {
         } else if (selectedItem.getValue().equals("POST")) {
             Platform.runLater(() -> postRequest());
         } else {
+            showAlert("", "", selectedItem.getValue() + " not implemented yet");
             log.error(selectedItem.getValue() + " not implemented yet");
         }
     }

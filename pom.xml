@@ -21,11 +21,19 @@
     </properties>
 
     <dependencies>
+        <!-- TODO find the best css dependency  -->
+        <dependency>
+            <groupId>org.kordamp.bootstrapfx</groupId>
+            <artifactId>bootstrapfx-core</artifactId>
+            <version>0.4.0</version>
+        </dependency>
         <dependency>
             <groupId>io.github.mkpaz</groupId>
             <artifactId>atlantafx-base</artifactId>
             <version>2.0.0</version>
         </dependency>
+        <!-- CSS stuff -->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

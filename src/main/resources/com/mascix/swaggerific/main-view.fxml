@@ -45,7 +45,7 @@
                 <AnchorPane minWidth="200.0" prefWidth="332.0">
                     <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
                               prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="treePaths"/>
+                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="treePaths" />
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                     <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
@@ -59,7 +59,8 @@
                                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <AnchorPane fx:id="ancText" VBox.vgrow="ALWAYS">
-                                        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                        <VBox fx:id="boxParams" AnchorPane.bottomAnchor="0.0"
+                                              AnchorPane.leftAnchor="0.0"
                                               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                                               VBox.vgrow="ALWAYS">
                                             <HBox>
@@ -76,34 +77,44 @@
                                                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
                                             </HBox>
-                                            <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
-                                                  minWidth="-Infinity"
-                                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                      VBox.vgrow="ALWAYS" stylesheets="main-view.css" styleClass="boxRequestParams">
-                                                <columnConstraints>
-                                                    <ColumnConstraints percentWidth="30" />
-                                                    <ColumnConstraints percentWidth="70" />
-                                                </columnConstraints>
-                                            </GridPane>
-                                            <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
-                                                                   AnchorPane.bottomAnchor="0.0"
-                                                                   AnchorPane.leftAnchor="0.0"
-                                                                   AnchorPane.rightAnchor="0.0"
-                                                                   AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-                                                <content>
-                                                    <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
+                                            <TabPane VBox.vgrow="ALWAYS" fx:id="tabRequestDetails">
+                                                <Tab text="Parameters" closable="false" fx:id="tabParams">
+                                                    <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
                                                               minWidth="-Infinity"
                                                               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                                               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                              VBox.vgrow="ALWAYS"/>
-                                                </content>
-                                            </VirtualizedScrollPane>
+                                                              VBox.vgrow="ALWAYS" stylesheets="main-view.css"
+                                                              styleClass="boxRequestParams">
+                                                        <columnConstraints>
+                                                            <ColumnConstraints percentWidth="30"/>
+                                                            <ColumnConstraints percentWidth="70"/>
+                                                        </columnConstraints>
+                                                    </GridPane>
+                                                </Tab>
+                                                <Tab text="Body" closable="false" fx:id="tabBody">
+                                                    <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
+                                                                           AnchorPane.bottomAnchor="0.0"
+                                                                           AnchorPane.leftAnchor="0.0"
+                                                                           AnchorPane.rightAnchor="0.0"
+                                                                           AnchorPane.topAnchor="0.0"
+                                                                           VBox.vgrow="ALWAYS">
+                                                        <content>
+                                                            <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
+                                                                      minWidth="-Infinity"
+                                                                      AnchorPane.bottomAnchor="0.0"
+                                                                      AnchorPane.leftAnchor="0.0"
+                                                                      AnchorPane.rightAnchor="0.0"
+                                                                      AnchorPane.topAnchor="0.0"
+                                                                      VBox.vgrow="ALWAYS"/>
+                                                        </content>
+                                                    </VirtualizedScrollPane>
+                                                </Tab>
+                                            </TabPane>
                                         </VBox>
                                     </AnchorPane>
-                                    <Label fx:id="lblResponse" text="== Response ==" maxHeight="23"
+                                    <!--<Label fx:id="lblResponse" text="== Response ==" maxHeight="23"
                                            minWidth="-Infinity"
-                                           prefHeight="30"/>
+                                           prefHeight="30"/>-->
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                         <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
                                                                AnchorPane.bottomAnchor="0.0"

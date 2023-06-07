@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.kordamp.bootstrapfx.BootstrapFX;
 
 import java.io.IOException;
 import java.util.prefs.Preferences;
@@ -23,11 +24,13 @@ public class SwaggerApplication extends Application {
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+//        scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
 //        scene.getStylesheets().add(this.getClass().getResource("/css/main-view.css").toString());
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
         stage.setScene(scene);
         stage.show();
+        // load all ui state
     }
 
     private void loadingWindowLookAndLocation() {
