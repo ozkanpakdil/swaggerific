@@ -1,6 +1,5 @@
 package com.mascix.swaggerific.tools;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.ui.STextField;
 import com.mascix.swaggerific.ui.TreeItemOperatinLeaf;
@@ -16,6 +15,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class HttpUtility {
@@ -60,21 +61,25 @@ public class HttpUtility {
     }
 
     URI getUri(TextField txtAddress, GridPane boxRequestParams) {
-        final String[] queryParams = {""};
-        final String[] adr = {txtAddress.getText()};
-        boxRequestParams.getChildren().stream().forEach(n -> {
-            if (n instanceof STextField) {
-                STextField node = (STextField) n;
-                if (node.getIn().equals("query")) {
-                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
-                }
-                if (adr[0].contains("{"))
-                    adr[0] = adr[0].replaceAll("\\{" + node.getParamName() + "\\}", node.getText());
-            }
-        });
-        if (!queryParams[0].isEmpty())
-            adr[0] += "?" + queryParams[0];
-        URI uri = URI.create(adr[0]);
-        return uri;
+        String queryParams = boxRequestParams.getChildren().stream()
+                .filter(n -> n instanceof STextField && ((STextField) n).getIn().equals("query"))
+                .map(n -> ((STextField) n).getParamName() + "=" + ((STextField) n).getText())
+                .collect(Collectors.joining("&"));
+
+        String address = txtAddress.getText();
+        AtomicReference<String> finalAddress = new AtomicReference<>(address);
+
+        boxRequestParams.getChildren().stream()
+                .filter(n -> n instanceof STextField && finalAddress.get().contains("{"))
+                .forEach(n -> {
+                    STextField node = (STextField) n;
+                    finalAddress.set(finalAddress.get().replaceAll("\\{" + node.getParamName() + "}", node.getText()));
+                });
+
+        if (!queryParams.isEmpty()) {
+            finalAddress.set(finalAddress.get() + "?" + queryParams);
+        }
+
+        return URI.create(finalAddress.get());
     }
 }
