@@ -61,11 +61,13 @@
             <version>1.18.26</version>
             <scope>provided</scope>
         </dependency>
+        <!--
+        maybe we can use in the future.
         <dependency>
             <groupId>io.swagger.codegen.v3</groupId>
             <artifactId>swagger-codegen-maven-plugin</artifactId>
             <version>3.0.43</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
