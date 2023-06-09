@@ -21,6 +21,8 @@ jobs:
         uses: gluonhq/gluon-build-license@v1
         with:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
+      - name: Gluon Build
+        run: ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
