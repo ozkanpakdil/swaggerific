@@ -77,8 +77,8 @@
                                                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
                                             </HBox>
-                                            <TabPane VBox.vgrow="ALWAYS" fx:id="tabRequestDetails">
-                                                <Tab text="Parameters" closable="false" fx:id="tabParams">
+                                            <TabPane VBox.vgrow="ALWAYS" fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE">
+                                                <Tab text="Parameters" fx:id="tabParams">
                                                     <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
                                                               minWidth="-Infinity"
                                                               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -91,7 +91,7 @@
                                                         </columnConstraints>
                                                     </GridPane>
                                                 </Tab>
-                                                <Tab text="Body" closable="false" fx:id="tabBody">
+                                                <Tab text="Body" fx:id="tabBody">
                                                     <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
                                                                            AnchorPane.bottomAnchor="0.0"
                                                                            AnchorPane.leftAnchor="0.0"
