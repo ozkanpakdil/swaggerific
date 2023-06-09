@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
+import com.mascix.swaggerific.tools.HttpUtility;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -23,17 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
 
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -67,7 +62,7 @@ public class MainController implements Initializable {
     Tab tabParams;
 
     SwaggerModal jsonModal;
-    ObjectMapper mapper = new ObjectMapper();
+
     JsonColorizer jsonColorizer = new JsonColorizer();
 
     TreeItem<String> root = new TreeItem<>("base root");
@@ -75,6 +70,8 @@ public class MainController implements Initializable {
 
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     private VBox boxLoader;
+    ObjectMapper mapper = new ObjectMapper();
+    private HttpUtility httpUtility = new HttpUtility();
 
     @SneakyThrows
     @Override
@@ -278,66 +275,14 @@ public class MainController implements Initializable {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
 
         if (selectedItem.getValue().equals("GET")) {
-            Platform.runLater(() -> getRequest());
+            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper));
         } else if (selectedItem.getValue().equals("POST")) {
-            Platform.runLater(() -> postRequest());
+            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper));
         } else {
             showAlert("", "", selectedItem.getValue() + " not implemented yet");
             log.error(selectedItem.getValue() + " not implemented yet");
         }
     }
 
-    @SneakyThrows
-    private void postRequest() {
-        URI uri = getUri();
-        log.info("uri:{}", uri);
-        //TODO not finished, make sure data send in body
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(codeJsonRequest.getText()))
-                .build();
 
-        HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
-
-        codeJsonResponse.replaceText(
-                Json.pretty(mapper.readTree(httpResponse.body()))
-        );
-    }
-
-    @SneakyThrows
-    private void getRequest() {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
-        URI uri = getUri();
-        log.info("uri:{}", uri);
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .build();
-
-        HttpResponse<String> httpResponse = client.send(request, BodyHandlers.ofString());
-
-        codeJsonResponse.replaceText(
-                Json.pretty(mapper.readTree(httpResponse.body()))
-        );
-    }
-
-    private URI getUri() {
-        final String[] queryParams = {""};
-        final String[] adr = {txtAddress.getText()};
-        boxRequestParams.getChildren().stream().forEach(n -> {
-            if (n instanceof STextField) {
-                STextField node = (STextField) n;
-                if (node.getIn().equals("query")) {
-                    queryParams[0] += node.getParamName() + "=" + node.getText() + "&";
-                }
-                if (adr[0].contains("{"))
-                    adr[0] = adr[0].replaceAll("\\{" + node.getParamName() + "\\}", node.getText());
-            }
-        });
-        if (!queryParams[0].isEmpty())
-            adr[0] += "?" + queryParams[0];
-        URI uri = URI.create(adr[0]);
-        return uri;
-    }
 }
