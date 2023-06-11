@@ -11,9 +11,14 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MainControllerTest {
     ObjectMapper mapper = new ObjectMapper();
@@ -41,6 +46,18 @@ class MainControllerTest {
             jsonNode.fieldNames().forEachRemaining(c -> {
                 System.out.println(c);
             });
+            List<String> enumList = StreamSupport.stream(jsonNode
+                            .path("paths")
+                            .path("/pet/findByStatus")
+                            .path("get")
+                            .path("parameters")
+                            .get(0)
+                            .path("items")
+                            .path("enum")
+                            .spliterator(), false)
+                    .map(JsonNode::asText)
+                    .collect(Collectors.toList());
+            System.out.println(enumList);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

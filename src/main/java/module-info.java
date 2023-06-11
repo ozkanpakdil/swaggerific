@@ -19,6 +19,10 @@ module com.mascix.swaggerific {
     requires org.slf4j;
     requires atlantafx.base;
     requires java.net.http;
+//    requires swagger.parser.core;
+//    requires swagger.parser;
+//    requires swagger.parser.v2.converter;
+//    requires swagger.parser.v3;
 
     opens com.mascix.swaggerific to javafx.fxml;
     exports com.mascix.swaggerific;

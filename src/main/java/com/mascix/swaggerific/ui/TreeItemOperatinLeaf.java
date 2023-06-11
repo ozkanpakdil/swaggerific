@@ -9,4 +9,5 @@ import java.util.List;
 @Data
 public class TreeItemOperatinLeaf extends TreeItem<String> {
     private List<Parameter> parameters;
+    private List<String> items;
 }

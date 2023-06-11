@@ -1,6 +1,7 @@
 package com.mascix.swaggerific.ui;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
@@ -26,9 +27,12 @@ import org.fxmisc.richtext.CodeArea;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 public class MainController implements Initializable {
@@ -62,12 +66,10 @@ public class MainController implements Initializable {
     Tab tabParams;
 
     SwaggerModal jsonModal;
-
+    JsonNode jsonRoot;
     JsonColorizer jsonColorizer = new JsonColorizer();
-
     TreeItem<String> root = new TreeItem<>("base root");
     String urlTarget;
-
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     private VBox boxLoader;
     ObjectMapper mapper = new ObjectMapper();
@@ -108,6 +110,11 @@ public class MainController implements Initializable {
                 txtInput.setParamName(f.getName());
                 txtInput.setIn(f.getIn());
                 txtInput.setMinWidth(Region.USE_PREF_SIZE);
+                if (m.getItems() != null) {
+//                   txtInput.setTextFormatter(new TextFormatter<>(new ExpectedTextFilter("Hello, World!")));
+                    //TODO instead of text field this can be dropdown.
+                    txtInput.setPromptText(String.valueOf(m.getItems()));
+                }
                 Label lblInput = new Label();
                 lblInput.setText(f.getName());
                 boxRequestParams.add(lblInput, 0, row.get());
@@ -236,7 +243,9 @@ public class MainController implements Initializable {
             return cell;
         });
         try {
+            jsonRoot = mapper.readTree(urlApi);
             jsonModal = mapper.readValue(urlApi, SwaggerModal.class);
+//            SwaggerParseResult result = new OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json", null, null);
             jsonModal.getTags().forEach(it -> {
                 TreeItem<String> tag = new TreeItem<>();
                 tag.setValue(it.getName());
@@ -245,7 +254,7 @@ public class MainController implements Initializable {
                         TreeItem path = new TreeItem();
                         path.setValue(it2);
                         tag.getChildren().add(path);
-                        returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal);
+                        returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
                     }
                 });
                 root.getChildren().add(tag);
@@ -257,11 +266,28 @@ public class MainController implements Initializable {
         Platform.runLater(() -> setIsOffloading());
     }
 
-    private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children, URL urlSwagger, SwaggerModal jsonModal) {
+    private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children, URL urlSwagger, SwaggerModal jsonModal, String it2) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperatinLeaf it = new TreeItemOperatinLeaf();
             it.setValue(k.name());
             it.setParameters(v.getParameters());
+            try {
+                List<String> enumList = StreamSupport.stream(jsonRoot
+                                .path("paths")
+                                .path(it2)
+                                .path(k.name().toLowerCase())
+                                .path("parameters")
+                                .get(0)
+                                .path("items")
+                                .path("enum")
+                                .spliterator(), false)
+                        .map(JsonNode::asText)
+                        .collect(Collectors.toList());
+                it.setItems(enumList);
+            } catch (Exception e) {
+// not nice, TODO fix this items extraction
+            }
+
             children.add(it);
         });
     }
