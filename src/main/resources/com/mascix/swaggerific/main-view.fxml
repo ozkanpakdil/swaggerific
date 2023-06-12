@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.StatusBar?>
-<?import org.fxmisc.flowless.VirtualizedScrollPane?>
-<?import org.fxmisc.richtext.CodeArea?>
-<StackPane fx:id="topPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.mascix.swaggerific.ui.MainController" stylesheets="@main-view.css">
+<?import org.controlsfx.control.*?>
+<?import org.fxmisc.flowless.*?>
+<?import org.fxmisc.richtext.*?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.collections.FXCollections?>
+<?import com.mascix.swaggerific.ui.RequestHeader?>
+<StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
         <MenuBar>
             <Menu text="File">
@@ -44,8 +48,8 @@
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <AnchorPane minWidth="200.0" prefWidth="332.0">
                     <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
-                              prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" styleClass="treePaths" />
+                              prefWidth="200.0" styleClass="treePaths" AnchorPane.bottomAnchor="0.0"
+                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                     <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
@@ -60,9 +64,8 @@
                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                     <AnchorPane fx:id="ancText" VBox.vgrow="ALWAYS">
                                         <VBox fx:id="boxParams" AnchorPane.bottomAnchor="0.0"
-                                              AnchorPane.leftAnchor="0.0"
-                                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                              VBox.vgrow="ALWAYS">
+                                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                              AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                                             <HBox>
                                                 <AnchorPane HBox.hgrow="ALWAYS">
                                                     <TextField fx:id="txtAddress" minWidth="-Infinity"
@@ -77,9 +80,42 @@
                                                     <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                                                 </padding>
                                             </HBox>
-                                            <TabPane VBox.vgrow="ALWAYS" fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE">
-                                                <Tab text="Parameters" fx:id="tabParams">
+                                            <TabPane fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE"
+                                                     VBox.vgrow="ALWAYS">
+                                                <Tab fx:id="tabParams" text="Parameters">
                                                     <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
+                                                              minWidth="-Infinity" styleClass="boxRequestParams"
+                                                              stylesheets="main-view.css" AnchorPane.bottomAnchor="0.0"
+                                                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                              AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                                        <columnConstraints>
+                                                            <ColumnConstraints percentWidth="30"/>
+                                                            <ColumnConstraints percentWidth="70"/>
+                                                        </columnConstraints>
+                                                    </GridPane>
+                                                </Tab>
+                                                <Tab fx:id="tabHeaders" text="Headers">
+                                                    <TableView editable="true" fx:id="tableHeaders">
+                                                        <columns>
+                                                            <TableColumn prefWidth="200" text="name">
+                                                                <cellValueFactory>
+                                                                    <PropertyValueFactory property="name"/>
+                                                                </cellValueFactory>
+                                                            </TableColumn>
+                                                            <TableColumn prefWidth="200" text="value">
+                                                                <cellValueFactory>
+                                                                    <PropertyValueFactory property="value"/>
+                                                                </cellValueFactory>
+                                                            </TableColumn>
+                                                        </columns>
+                                                        <items>
+                                                            <FXCollections fx:factory="observableArrayList">
+                                                                <RequestHeader name="Accept" value="application/json"/>
+                                                                <RequestHeader name="Content-type" value="application/json"/>
+                                                            </FXCollections>
+                                                        </items>
+                                                    </TableView>
+                                                    <!--<GridPane fx:id="boxHeaders" minHeight="-Infinity"
                                                               minWidth="-Infinity"
                                                               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                                               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
@@ -89,9 +125,13 @@
                                                             <ColumnConstraints percentWidth="30"/>
                                                             <ColumnConstraints percentWidth="70"/>
                                                         </columnConstraints>
-                                                    </GridPane>
+                                                        <Label text="Accept" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                        <TextField text="application/json" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                        <Label text="Content-type" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                        <TextField text="application/json" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    </GridPane>-->
                                                 </Tab>
-                                                <Tab text="Body" fx:id="tabBody">
+                                                <Tab fx:id="tabBody" text="Body">
                                                     <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
                                                                            AnchorPane.bottomAnchor="0.0"
                                                                            AnchorPane.leftAnchor="0.0"
@@ -100,12 +140,10 @@
                                                                            VBox.vgrow="ALWAYS">
                                                         <content>
                                                             <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
-                                                                      minWidth="-Infinity"
-                                                                      AnchorPane.bottomAnchor="0.0"
+                                                                      minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
                                                                       AnchorPane.leftAnchor="0.0"
                                                                       AnchorPane.rightAnchor="0.0"
-                                                                      AnchorPane.topAnchor="0.0"
-                                                                      VBox.vgrow="ALWAYS"/>
+                                                                      AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
                                                         </content>
                                                     </VirtualizedScrollPane>
                                                 </Tab>
@@ -117,16 +155,14 @@
                                            prefHeight="30"/>-->
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                         <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
-                                                               AnchorPane.bottomAnchor="0.0"
-                                                               AnchorPane.leftAnchor="0.0"
-                                                               AnchorPane.rightAnchor="0.0"
-                                                               AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                                               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                               VBox.vgrow="ALWAYS">
                                             <content>
                                                 <CodeArea fx:id="codeJsonResponse" minHeight="-Infinity"
-                                                          minWidth="-Infinity"
-                                                          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                                          VBox.vgrow="ALWAYS"/>
+                                                          minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
+                                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                          AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
                                             </content>
                                         </VirtualizedScrollPane>
                                     </AnchorPane>

@@ -18,6 +18,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import lombok.SneakyThrows;
@@ -64,6 +65,8 @@ public class MainController implements Initializable {
     Tab tabBody;
     @FXML
     Tab tabParams;
+    @FXML
+    TableView tableHeaders;
 
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
@@ -90,6 +93,8 @@ public class MainController implements Initializable {
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
                     onTreeItemSelect(newValue);
                 });
+        tableHeaders.getVisibleLeafColumn(0).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
     }
 
     private void onTreeItemSelect(TreeItem<String> newValue) {
@@ -110,7 +115,7 @@ public class MainController implements Initializable {
                 txtInput.setParamName(f.getName());
                 txtInput.setIn(f.getIn());
                 txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                if (m.getItems() != null) {
+                if (m.getItems() != null && m.getItems().size() > 0) {
 //                   txtInput.setTextFormatter(new TextFormatter<>(new ExpectedTextFilter("Hello, World!")));
                     //TODO instead of text field this can be dropdown.
                     txtInput.setPromptText(String.valueOf(m.getItems()));
@@ -301,9 +306,9 @@ public class MainController implements Initializable {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
 
         if (selectedItem.getValue().equals("GET")) {
-            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper));
+            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper,tableHeaders));
         } else if (selectedItem.getValue().equals("POST")) {
-            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper));
+            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper,tableHeaders));
         } else {
             showAlert("", "", selectedItem.getValue() + " not implemented yet");
             log.error(selectedItem.getValue() + " not implemented yet");
