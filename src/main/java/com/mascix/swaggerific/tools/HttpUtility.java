@@ -1,6 +1,7 @@
 package com.mascix.swaggerific.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mascix.swaggerific.ui.MainController;
 import com.mascix.swaggerific.ui.RequestHeader;
 import com.mascix.swaggerific.ui.STextField;
 import com.mascix.swaggerific.ui.TreeItemOperatinLeaf;
@@ -12,7 +13,18 @@ import javafx.scene.layout.GridPane;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.fxmisc.richtext.CodeArea;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -45,20 +57,20 @@ public class HttpUtility {
         );
     }
 
-    private static String[] getHeaders(TableView<RequestHeader> tableHeaders) {
+    private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
         List<String> headers = new ArrayList<>();
         tableHeaders.getItems().forEach(m -> {
             headers.add(m.getName());
             headers.add(m.getValue());
         });
-        return headers.toArray(new String[0]);
+        return headers.toArray(new String[headers.size()]);
     }
 
     @SneakyThrows
-    public void getRequest(TreeView treePaths, CodeArea codeJsonResponse, TextField txtAddress, GridPane boxRequestParams, ObjectMapper mapper, TableView<RequestHeader> tableHeaders) {
+    public void getRequest(TreeView treePaths, CodeArea codeJsonResponse, TextField txtAddress, GridPane boxRequestParams,
+                           ObjectMapper mapper, TableView<RequestHeader> tableHeaders, MainController parent) {
         TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
         URI uri = getUri(txtAddress, boxRequestParams);
-        log.info("uri:{}", uri);
         HttpClient client = HttpClient.newHttpClient();
 
         String[] headers = getHeaders(tableHeaders);
@@ -67,12 +79,40 @@ public class HttpUtility {
                 .headers(headers)
                 .build();
 
+        log.info("req:{}", request);
 
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            codeJsonResponse.replaceText(
+                    Json.pretty(mapper.readTree(httpResponse.body()))
+            );
+        } catch (Exception ex) {
+            log.error("response does not look like a json", ex);
+            parent.codeResponseXmlSettings(codeJsonResponse);
+            codeJsonResponse.replaceText(
+                    prettyPrintByTransformer(httpResponse.body(), 4, false)
+            );
+        }
+    }
 
-        codeJsonResponse.replaceText(
-                Json.pretty(mapper.readTree(httpResponse.body()))
-        );
+    public String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
+        try {
+            InputSource src = new InputSource(new StringReader(xmlString));
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src);
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute("indent-number", indent);
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, ignoreDeclaration ? "yes" : "no");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            Writer out = new StringWriter();
+            transformer.transform(new DOMSource(document), new StreamResult(out));
+            return out.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurs when pretty-printing xml:\n" + xmlString, e);
+        }
     }
 
     URI getUri(TextField txtAddress, GridPane boxRequestParams) {

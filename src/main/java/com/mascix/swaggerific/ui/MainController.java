@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -71,6 +72,7 @@ public class MainController implements Initializable {
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
     JsonColorizer jsonColorizer = new JsonColorizer();
+    static XmlColorizer xmlColorizer = new XmlColorizer();
     TreeItem<String> root = new TreeItem<>("base root");
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
@@ -82,19 +84,33 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        codeJsonRequest.getStylesheets().add(getCss("/css/json-highlighting.css"));
-        codeJsonRequest.setWrapText(true);
-        codeJsonRequest.textProperty().addListener((obs, oldText, newText) -> codeJsonRequest.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
-        codeJsonResponse.getStylesheets().add(getCss("/css/json-highlighting.css"));
-        codeJsonResponse.setWrapText(true);
-        codeJsonResponse.textProperty().addListener((obs, oldText, newText) -> codeJsonResponse.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
+        codeResponseJsonSettings(codeJsonRequest);
+        codeResponseJsonSettings(codeJsonResponse);
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
                     onTreeItemSelect(newValue);
                 });
+        tableHeaders.setItems(FXCollections.observableArrayList(
+                RequestHeader.builder().name("Accept").value("application/json").build(),
+                RequestHeader.builder().name("Content-type").value("application/json").build()
+        ));
         tableHeaders.getVisibleLeafColumn(0).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(0)).setOnEditCommit(evt -> evt.getRowValue().setName(evt.getNewValue()));
         tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> evt.getRowValue().setValue(evt.getNewValue()));
+    }
+
+    private void codeResponseJsonSettings(CodeArea area) {
+        area.getStylesheets().add(getCss("/css/json-highlighting.css"));
+        area.setWrapText(true);
+        area.textProperty().addListener((obs, oldText, newText) -> area.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
+    }
+
+    public static void codeResponseXmlSettings(CodeArea area) {
+        area.getStylesheets().add(getCss("/css/xml-highlighting.css"));
+        area.setWrapText(true);
+        area.textProperty().addListener((obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
     }
 
     private void onTreeItemSelect(TreeItem<String> newValue) {
@@ -132,8 +148,8 @@ public class MainController implements Initializable {
         }
     }
 
-    private String getCss(String css) {
-        return this.getClass().getResource(css).toString();
+    private static String getCss(String css) {
+        return MainController.class.getResource(css).toString();
     }
 
     public void showAlert(String title, String header, String content) {
@@ -306,9 +322,9 @@ public class MainController implements Initializable {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
 
         if (selectedItem.getValue().equals("GET")) {
-            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper,tableHeaders));
+            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper, tableHeaders, this));
         } else if (selectedItem.getValue().equals("POST")) {
-            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper,tableHeaders));
+            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper, tableHeaders));
         } else {
             showAlert("", "", selectedItem.getValue() + " not implemented yet");
             log.error(selectedItem.getValue() + " not implemented yet");
