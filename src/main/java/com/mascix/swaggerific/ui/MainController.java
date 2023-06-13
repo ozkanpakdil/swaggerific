@@ -9,6 +9,8 @@ import com.mascix.swaggerific.tools.HttpUtility;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -19,11 +21,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
 
@@ -37,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Slf4j
+@Data
 public class MainController implements Initializable {
 
     public Button btnSend;
@@ -92,13 +98,56 @@ public class MainController implements Initializable {
                     onTreeItemSelect(newValue);
                 });
         tableHeaders.setItems(FXCollections.observableArrayList(
-                RequestHeader.builder().name("Accept").value("application/json").build(),
-                RequestHeader.builder().name("Content-type").value("application/json").build()
+                RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON).build(),
+                RequestHeader.builder().checked(false).name(HttpHeaders.CONTENT_TYPE).value(MediaType.APPLICATION_JSON).build(),
+                RequestHeader.builder().checked(false).name("").value("").build()
         ));
-        tableHeaders.getVisibleLeafColumn(0).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
-        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(0)).setOnEditCommit(evt -> evt.getRowValue().setName(evt.getNewValue()));
+        TableColumn<RequestHeader, Boolean> checked = tableHeaders.getVisibleLeafColumn(0);
+        checked.setCellFactory(CheckBoxTableCell.forTableColumn(checked));
+        checked.setCellFactory(p -> {
+            CheckBox checkBox = new CheckBox();
+            TableCell<RequestHeader, Boolean> cell = new TableCell<>() {
+                @Override
+                public void updateItem(Boolean item, boolean empty) {
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        checkBox.setSelected(item);
+                        setGraphic(checkBox);
+                    }
+                }
+            };
+            checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                        if (cell.getTableRow().getItem() != null)
+                            cell.getTableRow().getItem().setChecked(isSelected);
+                    }
+            );
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            cell.setAlignment(Pos.CENTER);
+            return cell;
+        });
         tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
-        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> evt.getRowValue().setValue(evt.getNewValue()));
+        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
+            evt.getRowValue().setName(evt.getNewValue());
+            addTableRowIfAllfilled();
+        });
+        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
+            evt.getRowValue().setValue(evt.getNewValue());
+            addTableRowIfAllfilled();
+        });
+    }
+
+    private void addTableRowIfAllfilled() {
+        ObservableList<RequestHeader> any = tableHeaders.getItems();
+        long any1 = any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).count();
+        if (any1 == 0) {
+            tableHeaders.getItems().add(RequestHeader.builder().checked(true).build());
+        } else if (any1 > 1) {
+            tableHeaders.getItems().remove(
+                    any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).findFirst().get()
+            );
+        }
     }
 
     private void codeResponseJsonSettings(CodeArea area) {
@@ -322,7 +371,7 @@ public class MainController implements Initializable {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
 
         if (selectedItem.getValue().equals("GET")) {
-            Platform.runLater(() -> httpUtility.getRequest(treePaths, codeJsonResponse, txtAddress, boxRequestParams, mapper, tableHeaders, this));
+            Platform.runLater(() -> httpUtility.getRequest(mapper, this));
         } else if (selectedItem.getValue().equals("POST")) {
             Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper, tableHeaders));
         } else {

@@ -44,13 +44,14 @@ public class HttpUtility {
         String[] headers = getHeaders(tableHeaders);
         //TODO not finished, make sure data send in body
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .headers(headers)
-                .POST(HttpRequest.BodyPublishers.ofString(codeJsonRequest.getText()))
-                .build();
+                .POST(HttpRequest.BodyPublishers.ofString(codeJsonRequest.getText()));
 
-        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (headers.length > 0)
+            request.headers(headers);
+
+        HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
 
         codeJsonResponse.replaceText(
                 Json.pretty(mapper.readTree(httpResponse.body()))
@@ -60,36 +61,36 @@ public class HttpUtility {
     private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
         List<String> headers = new ArrayList<>();
         tableHeaders.getItems().forEach(m -> {
-            headers.add(m.getName());
-            headers.add(m.getValue());
+            if (m.getChecked()) {
+                headers.add(m.getName());
+                headers.add(m.getValue());
+            }
         });
-        return headers.toArray(new String[headers.size()]);
+        return headers.toArray(String[]::new);
     }
 
     @SneakyThrows
-    public void getRequest(TreeView treePaths, CodeArea codeJsonResponse, TextField txtAddress, GridPane boxRequestParams,
-                           ObjectMapper mapper, TableView<RequestHeader> tableHeaders, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
-        URI uri = getUri(txtAddress, boxRequestParams);
+    public void getRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(parent.getTxtAddress(), parent.getBoxRequestParams());
         HttpClient client = HttpClient.newHttpClient();
 
-        String[] headers = getHeaders(tableHeaders);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .headers(headers)
-                .build();
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri);
+        if (headers.length > 0)
+            request.headers(headers);
+        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), request);
 
-        log.info("req:{}", request);
-
-        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
         try {
-            codeJsonResponse.replaceText(
+            parent.getCodeJsonResponse().replaceText(
                     Json.pretty(mapper.readTree(httpResponse.body()))
             );
         } catch (Exception ex) {
             log.error("response does not look like a json", ex);
-            parent.codeResponseXmlSettings(codeJsonResponse);
-            codeJsonResponse.replaceText(
+            parent.codeResponseXmlSettings(parent.getCodeJsonResponse());
+            parent.getCodeJsonResponse().replaceText(
                     prettyPrintByTransformer(httpResponse.body(), 4, false)
             );
         }

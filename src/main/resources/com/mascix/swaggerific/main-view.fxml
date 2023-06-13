@@ -94,6 +94,11 @@
                                                 <Tab fx:id="tabHeaders" text="Headers">
                                                     <TableView editable="true" fx:id="tableHeaders">
                                                         <columns>
+                                                            <TableColumn prefWidth="31">
+                                                                <cellValueFactory>
+                                                                    <PropertyValueFactory property="checked"/>
+                                                                </cellValueFactory>
+                                                            </TableColumn>
                                                             <TableColumn prefWidth="200" text="name">
                                                                 <cellValueFactory>
                                                                     <PropertyValueFactory property="name"/>

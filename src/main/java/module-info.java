@@ -19,6 +19,8 @@ module com.mascix.swaggerific {
     requires org.slf4j;
     requires atlantafx.base;
     requires java.net.http;
+    requires jakarta.ws.rs;
+    requires org.apache.commons.lang3;
 //    requires swagger.parser.core;
 //    requires swagger.parser;
 //    requires swagger.parser.v2.converter;
