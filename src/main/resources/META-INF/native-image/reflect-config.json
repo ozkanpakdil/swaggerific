@@ -21,7 +21,13 @@
   "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
 },
 {
+  "name":"[Lio.swagger.v3.oas.models.parameters.Parameter;"
+},
+{
   "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Ljavafx.collections.transformation.SortedList$Element;"
 },
 {
   "name":"[Lsun.security.pkcs.SignerInfo;"
@@ -146,6 +152,20 @@
   ]
 },
 {
+  "name":"com.mascix.swaggerific.ui.RequestHeader",
+  "methods":[
+    {"name":"checkedProperty","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }, 
+    {"name":"getValue","parameterTypes":[] }
+  ],
+  "queriedMethods":[
+    {"name":"getChecked","parameterTypes":[] }, 
+    {"name":"setChecked","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setValue","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
   "name":"com.sun.crypto.provider.AESCipher$General",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -253,6 +273,10 @@
 },
 {
   "name":"com.sun.prism.shader.Mask_TextureSuper_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.Solid_Color_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
@@ -575,9 +599,73 @@
     {"name":"getUniqueItems","parameterTypes":[] }, 
     {"name":"getWriteOnly","parameterTypes":[] }, 
     {"name":"getXml","parameterTypes":[] }, 
+    {"name":"set$anchor","parameterTypes":["java.lang.String"] }, 
+    {"name":"set$comment","parameterTypes":["java.lang.String"] }, 
+    {"name":"set$id","parameterTypes":["java.lang.String"] }, 
     {"name":"set$ref","parameterTypes":["java.lang.String"] }, 
+    {"name":"set$schema","parameterTypes":["java.lang.String"] }, 
+    {"name":"setAdditionalItems","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setAdditionalProperties","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setAllOf","parameterTypes":["java.util.List"] }, 
+    {"name":"setAnyOf","parameterTypes":["java.util.List"] }, 
+    {"name":"setBooleanSchemaValue","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setConst","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setContains","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setContentEncoding","parameterTypes":["java.lang.String"] }, 
+    {"name":"setContentMediaType","parameterTypes":["java.lang.String"] }, 
+    {"name":"setContentSchema","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setDefault","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setDependentRequired","parameterTypes":["java.util.Map"] }, 
+    {"name":"setDependentSchemas","parameterTypes":["java.util.Map"] }, 
+    {"name":"setDeprecated","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setDiscriminator","parameterTypes":["io.swagger.v3.oas.models.media.Discriminator"] }, 
+    {"name":"setElse","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setEnum","parameterTypes":["java.util.List"] }, 
+    {"name":"setExample","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setExampleSetFlag","parameterTypes":["boolean"] }, 
+    {"name":"setExamples","parameterTypes":["java.util.List"] }, 
+    {"name":"setExclusiveMaximum","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setExclusiveMaximumValue","parameterTypes":["java.math.BigDecimal"] }, 
+    {"name":"setExclusiveMinimum","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setExclusiveMinimumValue","parameterTypes":["java.math.BigDecimal"] }, 
+    {"name":"setExtensions","parameterTypes":["java.util.Map"] }, 
+    {"name":"setExternalDocs","parameterTypes":["io.swagger.v3.oas.models.ExternalDocumentation"] }, 
+    {"name":"setFormat","parameterTypes":["java.lang.String"] }, 
+    {"name":"setIf","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
     {"name":"setItems","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
-    {"name":"setType","parameterTypes":["java.lang.String"] }
+    {"name":"setJsonSchema","parameterTypes":["java.util.Map"] }, 
+    {"name":"setJsonSchemaImpl","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setMaxContains","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMaxItems","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMaxLength","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMaxProperties","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMaximum","parameterTypes":["java.math.BigDecimal"] }, 
+    {"name":"setMinContains","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMinItems","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMinLength","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMinProperties","parameterTypes":["java.lang.Integer"] }, 
+    {"name":"setMinimum","parameterTypes":["java.math.BigDecimal"] }, 
+    {"name":"setMultipleOf","parameterTypes":["java.math.BigDecimal"] }, 
+    {"name":"setNot","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setNullable","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setOneOf","parameterTypes":["java.util.List"] }, 
+    {"name":"setPattern","parameterTypes":["java.lang.String"] }, 
+    {"name":"setPatternProperties","parameterTypes":["java.util.Map"] }, 
+    {"name":"setPrefixItems","parameterTypes":["java.util.List"] }, 
+    {"name":"setProperties","parameterTypes":["java.util.Map"] }, 
+    {"name":"setPropertyNames","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setReadOnly","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setRequired","parameterTypes":["java.util.List"] }, 
+    {"name":"setThen","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setTitle","parameterTypes":["java.lang.String"] }, 
+    {"name":"setType","parameterTypes":["java.lang.String"] }, 
+    {"name":"setTypes","parameterTypes":["java.util.Set"] }, 
+    {"name":"setUnevaluatedItems","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setUnevaluatedProperties","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setUniqueItems","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setWriteOnly","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setXml","parameterTypes":["io.swagger.v3.oas.models.media.XML"] }
   ]
 },
 {
@@ -608,11 +696,21 @@
     {"name":"getRequired","parameterTypes":[] }, 
     {"name":"getSchema","parameterTypes":[] }, 
     {"name":"getStyle","parameterTypes":[] }, 
+    {"name":"set$ref","parameterTypes":["java.lang.String"] }, 
+    {"name":"setAllowEmptyValue","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setAllowReserved","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setContent","parameterTypes":["io.swagger.v3.oas.models.media.Content"] }, 
+    {"name":"setDeprecated","parameterTypes":["java.lang.Boolean"] }, 
     {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setExample","parameterTypes":["java.lang.Object"] }, 
+    {"name":"setExamples","parameterTypes":["java.util.Map"] }, 
+    {"name":"setExplode","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setExtensions","parameterTypes":["java.util.Map"] }, 
     {"name":"setIn","parameterTypes":["java.lang.String"] }, 
     {"name":"setName","parameterTypes":["java.lang.String"] }, 
     {"name":"setRequired","parameterTypes":["java.lang.Boolean"] }, 
-    {"name":"setSchema","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }
+    {"name":"setSchema","parameterTypes":["io.swagger.v3.oas.models.media.Schema"] }, 
+    {"name":"setStyle","parameterTypes":["io.swagger.v3.oas.models.parameters.Parameter$StyleEnum"] }
   ]
 },
 {
@@ -982,7 +1080,9 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"getContent","parameterTypes":[] }, 
+    {"name":"getId","parameterTypes":[] }, 
     {"name":"setContent","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"setId","parameterTypes":["java.lang.String"] }, 
     {"name":"setText","parameterTypes":["java.lang.String"] }
   ]
 },
@@ -1001,6 +1101,33 @@
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
+  "name":"javafx.scene.control.TableColumn",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setCellValueFactory","parameterTypes":["javafx.util.Callback"] }
+  ]
+},
+{
+  "name":"javafx.scene.control.TableColumnBase",
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"setPrefWidth","parameterTypes":["double"] }, 
+    {"name":"setText","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"javafx.scene.control.TableView",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getColumns","parameterTypes":[] }, 
+    {"name":"setEditable","parameterTypes":["boolean"] }
+  ]
+},
+{
   "name":"javafx.scene.control.TextField",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -1015,6 +1142,12 @@
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"javafx.scene.control.cell.PropertyValueFactory",
+  "queryAllPublicMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"javafx.scene.effect.Effect"
