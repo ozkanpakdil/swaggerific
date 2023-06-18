@@ -218,7 +218,7 @@ public class MainController implements Initializable {
             } else {
                 tabRequestDetails.getSelectionModel().select(tabParams);
             }
-            txtAddress.setText(urlTarget + m.getParent().getValue().toString().substring(1));
+            txtAddress.setText(m.getUri() + m.getParent().getValue().toString().substring(1));
             AtomicInteger row = new AtomicInteger();
             m.getMethodParameters().forEach(f -> {
                 STextField txtInput = new STextField();
@@ -351,16 +351,19 @@ public class MainController implements Initializable {
         Platform.runLater(() -> setIsOffloading());
     }
 
+    @SneakyThrows
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-                                             URL urlSwagger, SwaggerModal jsonModal, String it2) {
+                                             URL urlSwagger, SwaggerModal jsonModal, String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
-            TreeItemOperatinLeaf it = TreeItemOperatinLeaf.builder().build();
+            TreeItemOperatinLeaf it = TreeItemOperatinLeaf.builder()
+                    .uri(urlTarget + parentVal.substring(1))
+                    .methodParameters(v.getParameters())
+                    .build();
             it.setValue(k.name());
-            it.setMethodParameters(v.getParameters());
             try {
                 List<String> enumList = StreamSupport.stream(jsonRoot
                                 .path("paths")
-                                .path(it2)
+                                .path(parentVal)
                                 .path(k.name().toLowerCase())
                                 .path("parameters")
                                 .get(0)

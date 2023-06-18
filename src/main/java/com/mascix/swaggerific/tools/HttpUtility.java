@@ -38,7 +38,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void postRequest(CodeArea codeJsonRequest, CodeArea codeJsonResponse, TextField txtAddress, GridPane boxRequestParams, ObjectMapper mapper, TableView<RequestHeader> tableHeaders) {
-        URI uri = getUri(txtAddress, boxRequestParams);
+        URI uri = getUri(txtAddress.getText(), boxRequestParams);
         log.info("uri:{}", uri);
         String[] headers = getHeaders(tableHeaders);
         //TODO not finished, make sure data send in body
@@ -71,7 +71,7 @@ public class HttpUtility {
     @SneakyThrows
     public void getRequest(ObjectMapper mapper, MainController parent) {
         TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
-        URI uri = getUri(parent.getTxtAddress(), parent.getBoxRequestParams());
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
         HttpClient client = HttpClient.newHttpClient();
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -79,7 +79,7 @@ public class HttpUtility {
                 .uri(uri);
         if (headers.length > 0)
             request.headers(headers);
-        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), request);
+        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
 
         HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
         try {
@@ -90,7 +90,7 @@ public class HttpUtility {
             log.error("response does not look like a json", ex);
             parent.codeResponseXmlSettings(parent.getCodeJsonResponse());
             parent.getCodeJsonResponse().replaceText(
-                    prettyPrintByTransformer(httpResponse.body(), 4, false)
+                    prettyPrintByTransformer(httpResponse.body(), 4, true)
             );
         }
     }
@@ -115,13 +115,13 @@ public class HttpUtility {
         }
     }
 
-    URI getUri(TextField txtAddress, GridPane boxRequestParams) {
+    URI getUri(String txtAddress, GridPane boxRequestParams) {
         String queryParams = boxRequestParams.getChildren().stream()
                 .filter(n -> n instanceof STextField && ((STextField) n).getIn().equals("query"))
                 .map(n -> ((STextField) n).getParamName() + "=" + ((STextField) n).getText())
                 .collect(Collectors.joining("&"));
 
-        String address = txtAddress.getText();
+        String address = txtAddress;
         AtomicReference<String> finalAddress = new AtomicReference<>(address);
 
         boxRequestParams.getChildren().stream()

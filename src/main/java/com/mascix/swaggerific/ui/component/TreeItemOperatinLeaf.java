@@ -12,4 +12,5 @@ import java.util.List;
 public class TreeItemOperatinLeaf extends TreeItem {
     private List<Parameter> methodParameters;
     private List<String> queryItems;
+    private String uri;
 }

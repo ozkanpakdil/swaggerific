@@ -41,9 +41,11 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
                 TreeItemOperatinLeaf x = (TreeItemOperatinLeaf) current;
                 out.writeObject(x.getQueryItems());
                 out.writeObject(mapper.writeValueAsString(x.getMethodParameters()));
+                out.writeObject(x.getUri());
             } else {
                 out.writeObject(List.of(""));
                 out.writeObject(mapper.writeValueAsString(new ArrayList<Parameter>()));
+                out.writeObject("");
             }
 
             // "schedule" serialisation of children.
@@ -65,6 +67,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
             final TreeItem<T> item;
             final List<String> items;
             final List<Parameter> parameters;
+            final String uri;
 
             Container(ObjectInputStream in) throws ClassNotFoundException, IOException {
                 // read the data for a single TreeItem here
@@ -72,6 +75,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
                 this.item = new TreeItem<>((T) in.readObject());
                 this.items = (List<String>) in.readObject();
                 this.parameters = List.of(mapper.readValue((String) in.readObject(), Parameter[].class));
+                this.uri = (String) in.readObject();
             }
         }
         in.defaultReadObject();
@@ -95,6 +99,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
                     tio.setValue(newContainer.item.getValue());
                     tio.setQueryItems(newContainer.items);
                     tio.setMethodParameters(newContainer.parameters);
+                    tio.setUri(newContainer.uri);
                     current.item.getChildren().add(tio);
                 } else {
                     current.item.getChildren().add(newContainer.item);
