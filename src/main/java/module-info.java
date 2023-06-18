@@ -21,7 +21,6 @@ module com.mascix.swaggerific {
     requires java.net.http;
     requires jakarta.ws.rs;
     requires org.apache.commons.lang3;
-    requires org.javassist;
 
 //    requires swagger.parser.core;
 //    requires swagger.parser;
