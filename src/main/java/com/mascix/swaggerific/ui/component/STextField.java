@@ -1,4 +1,4 @@
-package com.mascix.swaggerific.ui;
+package com.mascix.swaggerific.ui.component;
 
 import javafx.scene.control.TextField;
 import lombok.Data;

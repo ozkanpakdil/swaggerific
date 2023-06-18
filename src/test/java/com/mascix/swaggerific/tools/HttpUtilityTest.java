@@ -1,6 +1,6 @@
 package com.mascix.swaggerific.tools;
 
-import com.mascix.swaggerific.ui.STextField;
+import com.mascix.swaggerific.ui.component.STextField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;

@@ -1,3 +1,4 @@
+session.bin
 runPom.xml
 target/
 !**/src/main/**/target/

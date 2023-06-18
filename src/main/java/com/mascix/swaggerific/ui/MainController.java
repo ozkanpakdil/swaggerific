@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
+import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
+import com.mascix.swaggerific.ui.component.STextField;
+import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -32,7 +35,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +55,8 @@ import java.util.stream.StreamSupport;
 @Data
 public class MainController implements Initializable {
 
+    //TODO this can go to Preferences.userNodeForPackage in the future
+    public static final String SESSION = "session.bin";
     public Button btnSend;
     @FXML
     VBox mainBox;
@@ -97,11 +109,43 @@ public class MainController implements Initializable {
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
                     onTreeItemSelect(newValue);
                 });
+        treePaths.setCellFactory(treeView -> {
+            final Label label = new Label();
+            label.getStyleClass().add("highlight-on-hover");
+            TreeCell<String> cell = new TreeCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(label);
+                    }
+                }
+            };
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            cell.itemProperty().addListener((obs, oldItem, newItem) -> {
+                label.getStyleClass().clear();
+                label.getStyleClass().add("highlight-on-hover");
+                if (newItem != null) {
+                    label.setText(newItem);
+                    Arrays.stream(PathItem.HttpMethod.values()).toList().forEach(httpMethodName -> {
+                        if (newItem.equals(httpMethodName.name()) && label.getText().equals(newItem)) {
+                            label.getStyleClass().add(newItem);
+                            label.getStyleClass().add("myLeafLabel");
+                            log.debug("labelclass:{},{},{}", newItem, label.getText(), httpMethodName);
+                        }
+                    });
+                }
+            });
+            return cell;
+        });
         tableHeaders.setItems(FXCollections.observableArrayList(
-                RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON).build(),
-                RequestHeader.builder().checked(false).name(HttpHeaders.CONTENT_TYPE).value(MediaType.APPLICATION_JSON).build(),
-                RequestHeader.builder().checked(false).name("").value("").build()
-        ));
+                RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
+                        .build(),
+                RequestHeader.builder().checked(false).name(HttpHeaders.CONTENT_TYPE).value(MediaType.APPLICATION_JSON)
+                        .build(),
+                RequestHeader.builder().checked(false).name("").value("").build()));
         TableColumn<RequestHeader, Boolean> checked = tableHeaders.getVisibleLeafColumn(0);
         checked.setCellFactory(CheckBoxTableCell.forTableColumn(checked));
         checked.setCellFactory(p -> {
@@ -118,10 +162,9 @@ public class MainController implements Initializable {
                 }
             };
             checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                        if (cell.getTableRow().getItem() != null)
-                            cell.getTableRow().getItem().setChecked(isSelected);
-                    }
-            );
+                if (cell.getTableRow().getItem() != null)
+                    cell.getTableRow().getItem().setChecked(isSelected);
+            });
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             cell.setAlignment(Pos.CENTER);
             return cell;
@@ -145,45 +188,48 @@ public class MainController implements Initializable {
             tableHeaders.getItems().add(RequestHeader.builder().checked(true).build());
         } else if (any1 > 1) {
             tableHeaders.getItems().remove(
-                    any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).findFirst().get()
-            );
+                    any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).findFirst().get());
         }
     }
 
     private void codeResponseJsonSettings(CodeArea area) {
         area.getStylesheets().add(getCss("/css/json-highlighting.css"));
         area.setWrapText(true);
-        area.textProperty().addListener((obs, oldText, newText) -> area.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
+        area.textProperty().addListener(
+                (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
     }
 
     public static void codeResponseXmlSettings(CodeArea area) {
         area.getStylesheets().add(getCss("/css/xml-highlighting.css"));
         area.setWrapText(true);
-        area.textProperty().addListener((obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
+        area.textProperty().addListener(
+                (obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
     }
 
+    @SneakyThrows
     private void onTreeItemSelect(TreeItem<String> newValue) {
         if (newValue instanceof TreeItemOperatinLeaf) {
             boxRequestParams.getChildren().clear();
             TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
-            Optional<Parameter> body = m.getParameters().stream().filter(p -> p.getName().equals("body")).findAny();
+            Optional<Parameter> body = m.getMethodParameters().stream().filter(p -> p.getName().equals("body")).findAny();
             if (!body.isEmpty()) {// this function requires json body
                 tabRequestDetails.getSelectionModel().select(tabBody);
                 return;
             } else {
                 tabRequestDetails.getSelectionModel().select(tabParams);
             }
-            txtAddress.setText(urlTarget + m.getParent().getValue().substring(1));
+            txtAddress.setText(urlTarget + m.getParent().getValue().toString().substring(1));
             AtomicInteger row = new AtomicInteger();
-            m.getParameters().forEach(f -> {
+            m.getMethodParameters().forEach(f -> {
                 STextField txtInput = new STextField();
                 txtInput.setParamName(f.getName());
                 txtInput.setIn(f.getIn());
                 txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                if (m.getItems() != null && m.getItems().size() > 0) {
-//                   txtInput.setTextFormatter(new TextFormatter<>(new ExpectedTextFilter("Hello, World!")));
-                    //TODO instead of text field this can be dropdown.
-                    txtInput.setPromptText(String.valueOf(m.getItems()));
+                if (m.getQueryItems() != null && m.getQueryItems().size() > 0) {
+                    // txtInput.setTextFormatter(new TextFormatter<>(new ExpectedTextFilter("Hello,
+                    // World!")));
+                    // TODO instead of text field this can be dropdown.
+                    txtInput.setPromptText(String.valueOf(m.getQueryItems()));
                 }
                 Label lblInput = new Label();
                 lblInput.setText(f.getName());
@@ -192,8 +238,7 @@ public class MainController implements Initializable {
                 row.incrementAndGet();
             });
             codeJsonRequest.replaceText(
-                    Json.pretty(m.getParameters())
-            );
+                    Json.pretty(m.getMethodParameters()));
         }
     }
 
@@ -247,17 +292,17 @@ public class MainController implements Initializable {
         // Grey Background
         mainBox.setVisible(false);
         topPane.getChildren().add(0, boxLoader);
-//        Thread.sleep(100);
-//        children = mainBox.getChildren();
-//        Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
-//        mainBox.getChildren().setAll(loader);
-//        mainBox.setDisable(true);
-//        mainBox.setManaged(false);
-//        mainBox.setVisible(false);
-//        loader.setVisible(true);
-//        loader.setViewOrder(1);
-//        mainBox.getChildren().clear();
-//        mainBox.getChildren().add(loader);
+        // Thread.sleep(100);
+        // children = mainBox.getChildren();
+        // Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
+        // mainBox.getChildren().setAll(loader);
+        // mainBox.setDisable(true);
+        // mainBox.setManaged(false);
+        // mainBox.setVisible(false);
+        // loader.setVisible(true);
+        // loader.setViewOrder(1);
+        // mainBox.getChildren().clear();
+        // mainBox.getChildren().add(loader);
     }
 
     @SneakyThrows
@@ -265,13 +310,13 @@ public class MainController implements Initializable {
         statusBar.setText("Ok");
         topPane.getChildren().remove(boxLoader);
         mainBox.setVisible(true);
-//        Platform.runLater(()->{mainBox.getChildren().setAll(children);});
-//        mainBox.getChildren().setAll(children);
-//        loader.setViewOrder(0);
-//        loader.setVisible(false);
-//        mainBox.setDisable(false);
-//        mainBox.setManaged(true);
-//        mainBox.setViewOrder(1);
+        // Platform.runLater(()->{mainBox.getChildren().setAll(children);});
+        // mainBox.getChildren().setAll(children);
+        // loader.setViewOrder(0);
+        // loader.setVisible(false);
+        // mainBox.setDisable(false);
+        // mainBox.setManaged(true);
+        // mainBox.setViewOrder(1);
     }
 
     @SneakyThrows
@@ -280,42 +325,12 @@ public class MainController implements Initializable {
         URL urlApi = new URL(urlSwagger);
         urlTarget = urlSwagger.replace("swagger.json", "");
         treePaths.setRoot(root);
-        treePaths.setCellFactory(treeView -> {
-            final Label label = new Label();
-            label.getStyleClass().add("highlight-on-hover");
-            TreeCell<String> cell = new TreeCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setGraphic(null);
-                    } else {
-                        setGraphic(label);
-                    }
-                }
-            };
-            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            cell.itemProperty().addListener((obs, oldItem, newItem) -> {
-                        label.getStyleClass().clear();
-                        label.getStyleClass().add("highlight-on-hover");
-                        if (newItem != null) {
-                            label.setText(newItem);
-                            Arrays.stream(PathItem.HttpMethod.values()).toList().forEach(httpMethodName -> {
-                                if (newItem.equals(httpMethodName.name()) && label.getText().equals(newItem)) {
-                                    label.getStyleClass().add(newItem);
-                                    label.getStyleClass().add("myLeafLabel");
-                                    log.debug("labelclass:{},{},{}", newItem, label.getText(), httpMethodName);
-                                }
-                            });
-                        }
-                    }
-            );
-            return cell;
-        });
         try {
             jsonRoot = mapper.readTree(urlApi);
             jsonModal = mapper.readValue(urlApi, SwaggerModal.class);
-//            SwaggerParseResult result = new OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json", null, null);
+            // SwaggerParseResult result = new
+            // OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json",
+            // null, null);
             jsonModal.getTags().forEach(it -> {
                 TreeItem<String> tag = new TreeItem<>();
                 tag.setValue(it.getName());
@@ -336,11 +351,12 @@ public class MainController implements Initializable {
         Platform.runLater(() -> setIsOffloading());
     }
 
-    private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children, URL urlSwagger, SwaggerModal jsonModal, String it2) {
+    private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
+                                             URL urlSwagger, SwaggerModal jsonModal, String it2) {
         pathItem.readOperationsMap().forEach((k, v) -> {
-            TreeItemOperatinLeaf it = new TreeItemOperatinLeaf();
+            TreeItemOperatinLeaf it = TreeItemOperatinLeaf.builder().build();
             it.setValue(k.name());
-            it.setParameters(v.getParameters());
+            it.setMethodParameters(v.getParameters());
             try {
                 List<String> enumList = StreamSupport.stream(jsonRoot
                                 .path("paths")
@@ -353,9 +369,9 @@ public class MainController implements Initializable {
                                 .spliterator(), false)
                         .map(JsonNode::asText)
                         .collect(Collectors.toList());
-                it.setItems(enumList);
+                it.setQueryItems(enumList);
             } catch (Exception e) {
-// not nice, TODO fix this items extraction
+                // not nice, TODO fix this items extraction
             }
 
             children.add(it);
@@ -373,12 +389,45 @@ public class MainController implements Initializable {
         if (selectedItem.getValue().equals("GET")) {
             Platform.runLater(() -> httpUtility.getRequest(mapper, this));
         } else if (selectedItem.getValue().equals("POST")) {
-            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress, boxRequestParams, mapper, tableHeaders));
+            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress,
+                    boxRequestParams, mapper, tableHeaders));
         } else {
             showAlert("", "", selectedItem.getValue() + " not implemented yet");
             log.error(selectedItem.getValue() + " not implemented yet");
         }
     }
 
+    @SneakyThrows
+    public void shutdown() {
 
+        System.out.println(root.toString());
+
+        try {
+            FileOutputStream out = new FileOutputStream(SESSION);
+            ObjectOutputStream oos = new ObjectOutputStream(out);
+            oos.writeObject(new TreeItemSerialisationWrapper(root));
+            oos.flush();
+        } catch (Exception e) {
+            System.out.println("Problem serializing: " + e);
+        }
+
+        // String pretty = objectMapper.writeValueAsString(getRoot().getChildren());
+        // try {
+        // Files.writeString(Path.of("test.txt"), pretty);
+        // } catch (IOException e) {
+        // throw new RuntimeException(e);
+        // }
+    }
+
+    @SneakyThrows
+    public void onOpening() {
+        if (Paths.get(SESSION).toFile().isFile()) {
+            try (ObjectInputStream ois = new ObjectInputStream(
+                    new ByteArrayInputStream(Files.readAllBytes(Path.of(SESSION))))) {
+                root = (TreeItem<String>) ois.readObject();
+                treePaths.setRoot(root);
+                treePaths.setShowRoot(false);
+            }
+        }
+    }
 }

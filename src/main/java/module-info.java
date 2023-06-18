@@ -21,6 +21,8 @@ module com.mascix.swaggerific {
     requires java.net.http;
     requires jakarta.ws.rs;
     requires org.apache.commons.lang3;
+    requires org.javassist;
+
 //    requires swagger.parser.core;
 //    requires swagger.parser;
 //    requires swagger.parser.v2.converter;
@@ -34,4 +36,6 @@ module com.mascix.swaggerific {
     opens com.mascix.swaggerific.ui to javafx.fxml;
     exports com.mascix.swaggerific.data;
     opens com.mascix.swaggerific.data to javafx.fxml;
+    exports com.mascix.swaggerific.ui.component;
+    opens com.mascix.swaggerific.ui.component to javafx.fxml;
 }

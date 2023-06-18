@@ -2,8 +2,10 @@ package com.mascix.swaggerific;
 
 import atlantafx.base.theme.PrimerLight;
 import com.mascix.swaggerific.animation.Preloader;
+import com.mascix.swaggerific.ui.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -22,14 +24,15 @@ public class SwaggerApplication extends Application {
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
-//        scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-//        scene.getStylesheets().add(this.getClass().getResource("/css/main-view.css").toString());
+        Parent root = fxmlLoader.load();
+        MainController mainController = fxmlLoader.getController();
+        mainController.onOpening();
+        Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
         stage.setScene(scene);
+        stage.setOnHidden(e -> mainController.shutdown());
         stage.show();
-        // load all ui state
     }
 
     private void loadingWindowLookAndLocation() {
@@ -46,7 +49,6 @@ public class SwaggerApplication extends Application {
 
     @Override
     public void stop() {
-        // savin last state of the window
         Preferences userPrefs = Preferences.userNodeForPackage(getClass());
         userPrefs.putDouble("stage.x", primaryStage.getX());
         userPrefs.putDouble("stage.y", primaryStage.getY());

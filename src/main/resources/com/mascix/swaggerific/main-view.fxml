@@ -82,7 +82,7 @@
                                                 <Tab fx:id="tabParams" text="Parameters">
                                                     <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
                                                               minWidth="-Infinity" styleClass="boxRequestParams"
-                                                              stylesheets="main-view.css" AnchorPane.bottomAnchor="0.0"
+                                                              stylesheets="@main-view.css" AnchorPane.bottomAnchor="0.0"
                                                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                                               AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                                                         <columnConstraints>
