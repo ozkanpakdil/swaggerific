@@ -39,7 +39,7 @@ class HttpUtilityTest {
         txtField.setText("https://petstore.swagger.io/v2/pet/findByStatus");
         addParam("status", "sold", "query");
         addParam("any", "many", "query");
-        URI uri = testee.getUri(txtField, gridPane);
+        URI uri = testee.getUri(txtField.getText(), gridPane);
         assertEquals(URI.create("https://petstore.swagger.io/v2/pet/findByStatus?status=sold&any=many"), uri);
     }
 
@@ -47,7 +47,7 @@ class HttpUtilityTest {
     void getUriPath() {
         txtField.setText("https://petstore.swagger.io/v2/pet/{findByStatus}");
         addParam("findByStatus", "sold", "query");
-        URI uri = testee.getUri(txtField, gridPane);
+        URI uri = testee.getUri(txtField.getText(), gridPane);
         assertEquals(URI.create("https://petstore.swagger.io/v2/pet/sold?findByStatus=sold"), uri);
     }
 
