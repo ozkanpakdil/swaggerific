@@ -43,10 +43,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -226,8 +223,6 @@ public class MainController implements Initializable {
                 txtInput.setIn(f.getIn());
                 txtInput.setMinWidth(Region.USE_PREF_SIZE);
                 if (m.getQueryItems() != null && m.getQueryItems().size() > 0) {
-                    // txtInput.setTextFormatter(new TextFormatter<>(new ExpectedTextFilter("Hello,
-                    // World!")));
                     // TODO instead of text field this can be dropdown.
                     txtInput.setPromptText(String.valueOf(m.getQueryItems()));
                 }
@@ -328,9 +323,6 @@ public class MainController implements Initializable {
         try {
             jsonRoot = mapper.readTree(urlApi);
             jsonModal = mapper.readValue(urlApi, SwaggerModal.class);
-            // SwaggerParseResult result = new
-            // OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json",
-            // null, null);
             jsonModal.getTags().forEach(it -> {
                 TreeItem<String> tag = new TreeItem<>();
                 tag.setValue(it.getName());
@@ -360,29 +352,27 @@ public class MainController implements Initializable {
                     .methodParameters(v.getParameters())
                     .build();
             it.setValue(k.name());
-            try {
-                List<String> enumList = StreamSupport.stream(jsonRoot
-                                .path("paths")
-                                .path(parentVal)
-                                .path(k.name().toLowerCase())
-                                .path("parameters")
-                                .get(0)
-                                .path("items")
-                                .path("enum")
-                                .spliterator(), false)
-                        .map(JsonNode::asText)
-                        .collect(Collectors.toList());
-                it.setQueryItems(enumList);
-            } catch (Exception e) {
-                // not nice, TODO fix this items extraction
-            }
+            List<String> enumList = Optional.ofNullable(jsonRoot.path("paths")
+                            .path(parentVal)
+                            .path(k.name().toLowerCase())
+                            .path("parameters"))
+                    .filter(JsonNode::isArray)
+                    .map(parametersNode -> parametersNode.get(0))
+                    .map(itemsNode -> itemsNode.path("items").path("enum"))
+                    .filter(JsonNode::isArray)
+                    .map(enumNode -> StreamSupport.stream(enumNode.spliterator(), false)
+                            .map(JsonNode::asText)
+                            .collect(Collectors.toList()))
+                    .orElse(new ArrayList<>());
+
+            it.setQueryItems(enumList);
 
             children.add(it);
         });
     }
 
     public void treeOnClick(MouseEvent mouseEvent) {
-        if (root.getChildren().size() == 0)
+        if (root.getChildren().size() == 0)// if no item there open swagger.json loader
             menuFileOpenSwagger(null);
     }
 
@@ -400,29 +390,17 @@ public class MainController implements Initializable {
         }
     }
 
-    @SneakyThrows
     public void shutdown() {
-
-        System.out.println(root.toString());
-
         try {
             FileOutputStream out = new FileOutputStream(SESSION);
             ObjectOutputStream oos = new ObjectOutputStream(out);
             oos.writeObject(new TreeItemSerialisationWrapper(root));
             oos.flush();
         } catch (Exception e) {
-            System.out.println("Problem serializing: " + e);
+            log.error("Problem serializing", e);
         }
-
-        // String pretty = objectMapper.writeValueAsString(getRoot().getChildren());
-        // try {
-        // Files.writeString(Path.of("test.txt"), pretty);
-        // } catch (IOException e) {
-        // throw new RuntimeException(e);
-        // }
     }
 
-    @SneakyThrows
     public void onOpening() {
         if (Paths.get(SESSION).toFile().isFile()) {
             try (ObjectInputStream ois = new ObjectInputStream(
@@ -430,6 +408,8 @@ public class MainController implements Initializable {
                 root = (TreeItem<String>) ois.readObject();
                 treePaths.setRoot(root);
                 treePaths.setShowRoot(false);
+            } catch (Exception e) {
+                log.error("Problem deserializing", e);
             }
         }
     }
