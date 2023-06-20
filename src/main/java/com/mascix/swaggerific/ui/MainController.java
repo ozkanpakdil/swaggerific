@@ -223,7 +223,7 @@ public class MainController implements Initializable {
                 txtInput.setIn(f.getIn());
                 txtInput.setMinWidth(Region.USE_PREF_SIZE);
                 if (m.getQueryItems() != null && m.getQueryItems().size() > 0) {
-                    // TODO instead of text field this can be dropdown.
+                    // TODO instead of text field this should be dropdown || combobox || listview.
                     txtInput.setPromptText(String.valueOf(m.getQueryItems()));
                 }
                 Label lblInput = new Label();
