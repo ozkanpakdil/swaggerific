@@ -1,5 +1,5 @@
 .root {
-  -fx-font-size: .9em ;
+  -fx-font-size: .93em ;
 }
 .treePaths .tree-cell:hover .highlight-on-hover {
     -fx-text-fill: mediumblue;
@@ -12,6 +12,14 @@
     -fx-padding: .2em;
     -fx-border-width: .1em;
     -fx-border-color: black;
+}
+.tab-pane > .tab-header-area > .headers-region > .tab {
+    -fx-background-radius: 20;
+    -fx-pref-height: 1.82em;
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-radius: 20;
 }
 .split-pane > .split-pane-divider {
     -fx-padding: 0 0.3em 0 0.3em;
