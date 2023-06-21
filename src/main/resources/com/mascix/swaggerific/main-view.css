@@ -1,21 +1,21 @@
-.split-pane > .split-pane-divider {
-    -fx-padding: 0 0.3em 0 0.3em;
+.root {
+  -fx-font-size: .9em ;
 }
 .treePaths .tree-cell:hover .highlight-on-hover {
     -fx-text-fill: mediumblue;
 }
-
 .tree-cell:selected {
     -fx-font-weight: bold ;
     -fx-text-fill: blue ;
 }
-
 .myLeafLabel{
-    -fx-padding: 6px;
-    -fx-border-width: 1px;
+    -fx-padding: .2em;
+    -fx-border-width: .1em;
     -fx-border-color: black;
 }
-
+.split-pane > .split-pane-divider {
+    -fx-padding: 0 0.3em 0 0.3em;
+}
 .POST {
     -fx-background-color: #49cc90;
 }
@@ -34,7 +34,6 @@
 .PATCH {
     -fx-background-color: #50e3c2 ;
 }
-
 .boxRequestParams {
      -fx-border-width: 1px;
      -fx-border-color: black;
