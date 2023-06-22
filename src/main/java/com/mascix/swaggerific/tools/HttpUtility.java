@@ -115,14 +115,13 @@ public class HttpUtility {
         }
     }
 
-    URI getUri(String txtAddress, GridPane boxRequestParams) {
+    URI getUri(String uri, GridPane boxRequestParams) {
         String queryParams = boxRequestParams.getChildren().stream()
                 .filter(n -> n instanceof STextField && ((STextField) n).getIn().equals("query"))
                 .map(n -> ((STextField) n).getParamName() + "=" + ((STextField) n).getText())
                 .collect(Collectors.joining("&"));
 
-        String address = txtAddress;
-        AtomicReference<String> finalAddress = new AtomicReference<>(address);
+        AtomicReference<String> finalAddress = new AtomicReference<>(uri);
 
         boxRequestParams.getChildren().stream()
                 .filter(n -> n instanceof STextField && finalAddress.get().contains("{"))

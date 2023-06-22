@@ -23,11 +23,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -176,6 +180,10 @@ public class MainController implements Initializable {
             evt.getRowValue().setValue(evt.getNewValue());
             addTableRowIfAllfilled();
         });
+        txtAddress.textProperty().addListener((obs, oldWord, newWord) -> {
+            TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
+            selectedItem.setUri(newWord);
+        });
     }
 
     private void addTableRowIfAllfilled() {
@@ -215,7 +223,7 @@ public class MainController implements Initializable {
             } else {
                 tabRequestDetails.getSelectionModel().select(tabParams);
             }
-            txtAddress.setText(m.getUri() + m.getParent().getValue().toString().substring(1));
+            txtAddress.setText(m.getUri());
             AtomicInteger row = new AtomicInteger();
             m.getMethodParameters().forEach(f -> {
                 STextField txtInput = new STextField();
@@ -378,15 +386,18 @@ public class MainController implements Initializable {
 
     public void btnSendRequest(ActionEvent actionEvent) {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
-
-        if (selectedItem.getValue().equals("GET")) {
-            Platform.runLater(() -> httpUtility.getRequest(mapper, this));
-        } else if (selectedItem.getValue().equals("POST")) {
-            Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress,
-                    boxRequestParams, mapper, tableHeaders));
+        if (selectedItem instanceof TreeItemOperatinLeaf) {
+            if (selectedItem.getValue().equals("GET")) {
+                Platform.runLater(() -> httpUtility.getRequest(mapper, this));
+            } else if (selectedItem.getValue().equals("POST")) {
+                Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress,
+                        boxRequestParams, mapper, tableHeaders));
+            } else {
+                showAlert("", "", selectedItem.getValue() + " not implemented yet");
+                log.error(selectedItem.getValue() + " not implemented yet");
+            }
         } else {
-            showAlert("", "", selectedItem.getValue() + " not implemented yet");
-            log.error(selectedItem.getValue() + " not implemented yet");
+            showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }
     }
 
@@ -411,6 +422,20 @@ public class MainController implements Initializable {
             } catch (Exception e) {
                 log.error("Problem deserializing", e);
             }
+        }
+    }
+
+    public void openSettings(ActionEvent actionEvent) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
+            Parent root1 = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.initOwner(mainBox.getScene().getWindow());
+            stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

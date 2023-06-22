@@ -32,6 +32,11 @@
                 <MenuItem text="Copy"/>
                 <MenuItem text="Cut"/>
                 <MenuItem text="Paste"/>
+                <MenuItem text="Settings" onAction="#openSettings">
+                    <accelerator>
+                        <KeyCodeCombination alt="ANY" code="S" control="ANY" meta="UP" shift="ANY" shortcut="ANY"/>
+                    </accelerator>
+                </MenuItem>
             </Menu>
             <Menu text="Help">
                 <MenuItem disable="true" text="Search"/>
