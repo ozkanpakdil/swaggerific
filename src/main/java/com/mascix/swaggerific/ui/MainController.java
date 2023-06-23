@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -91,7 +92,7 @@ public class MainController implements Initializable {
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
     JsonColorizer jsonColorizer = new JsonColorizer();
-    static XmlColorizer xmlColorizer = new XmlColorizer();
+    XmlColorizer xmlColorizer = new XmlColorizer();
     TreeItem<String> root = new TreeItem<>("base root");
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
@@ -103,8 +104,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        codeResponseJsonSettings(codeJsonRequest);
-        codeResponseJsonSettings(codeJsonResponse);
+        codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
+        codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
@@ -197,16 +198,20 @@ public class MainController implements Initializable {
         }
     }
 
-    private void codeResponseJsonSettings(CodeArea area) {
-        area.getStylesheets().add(getCss("/css/json-highlighting.css"));
-        area.setWrapText(true);
+    private void codeResponseJsonSettings(CodeArea area, String cssName) {
+        editorSettingsForAll(area, cssName);
         area.textProperty().addListener(
                 (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
     }
 
-    public static void codeResponseXmlSettings(CodeArea area) {
-        area.getStylesheets().add(getCss("/css/xml-highlighting.css"));
+    private static void editorSettingsForAll(CodeArea area, String cssName) {
+        area.setParagraphGraphicFactory(LineNumberFactory.get(area));
+        area.getStylesheets().add(getCss(cssName));
         area.setWrapText(true);
+    }
+
+    public void codeResponseXmlSettings(CodeArea area, String cssName) {
+        editorSettingsForAll(area, cssName);
         area.textProperty().addListener(
                 (obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
     }
@@ -434,7 +439,7 @@ public class MainController implements Initializable {
             stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.
             stage.setScene(new Scene(root1));
             stage.show();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

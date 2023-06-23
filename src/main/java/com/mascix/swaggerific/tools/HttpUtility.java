@@ -88,7 +88,7 @@ public class HttpUtility {
             );
         } catch (Exception ex) {
             log.error("response does not look like a json", ex);
-            parent.codeResponseXmlSettings(parent.getCodeJsonResponse());
+            parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
             parent.getCodeJsonResponse().replaceText(
                     prettyPrintByTransformer(httpResponse.body(), 4, true)
             );
