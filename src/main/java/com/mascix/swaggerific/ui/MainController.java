@@ -430,17 +430,14 @@ public class MainController implements Initializable {
         }
     }
 
+    @SneakyThrows
     public void openSettings(ActionEvent actionEvent) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
-            Parent root1 = fxmlLoader.load();
-            Stage stage = new Stage();
-            stage.initOwner(mainBox.getScene().getWindow());
-            stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.
-            stage.setScene(new Scene(root1));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
+        Parent root1 = fxmlLoader.load();
+        Stage stage = new Stage();
+        stage.initOwner(mainBox.getScene().getWindow());
+        stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 }
