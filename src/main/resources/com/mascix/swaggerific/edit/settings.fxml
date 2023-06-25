@@ -17,7 +17,7 @@
             </rowConstraints>
             <children>
                 <Label text="Fontsize" />
-                <TextField fx:id="txtFontSize" text="25" GridPane.columnIndex="1" />
+                <TextField fx:id="txtFontSize" text="2em" GridPane.columnIndex="1" />
                 <Label text="Font Family" GridPane.rowIndex="1" />
                 <ComboBox fx:id="cmbFonts" onAction="#onChange" prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <Button fx:id="btnSetDefaults" onAction="#btnRestoreClick" text="Back to default" GridPane.columnIndex="0" GridPane.rowIndex="2" />
