@@ -9,13 +9,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
-public class SwaggerApplication extends Application {
+import static com.mascix.swaggerific.ui.edit.SettingsController.*;
 
+@Slf4j
+public class SwaggerApplication extends Application {
     private Stage primaryStage;
+    Preferences userPrefs = Preferences.userNodeForPackage(getClass());
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -25,22 +29,25 @@ public class SwaggerApplication extends Application {
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Parent root = fxmlLoader.load();
+        log.info("font size:"+userPrefs.get(FONT_SIZE, ".93em"));
+        log.info("font family:"+userPrefs.get(SELECTED_FONT, "Verdana"));
+        root.setStyle("-fx-font-size:" + userPrefs.get(FONT_SIZE, ".93em"));
+        root.setStyle("-fx-font-family:'" + userPrefs.get(SELECTED_FONT, "Verdana") + "'");
         MainController mainController = fxmlLoader.getController();
         mainController.onOpening();
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
         stage.setScene(scene);
-        stage.setOnHidden(e -> mainController.shutdown());
+        stage.setOnHidden(e -> mainController.onClose());
         stage.show();
     }
 
     private void loadingWindowLookAndLocation() {
-        Preferences userPrefs = Preferences.userNodeForPackage(getClass());
-        double x = userPrefs.getDouble("stage.x", 0);
-        double y = userPrefs.getDouble("stage.y", 0);
-        double w = userPrefs.getDouble("stage.width", 800);
-        double h = userPrefs.getDouble("stage.height", 600);
+        double x = userPrefs.getDouble(STAGE_X, 0);
+        double y = userPrefs.getDouble(STAGE_Y, 0);
+        double w = userPrefs.getDouble(STAGE_WIDTH, 800);
+        double h = userPrefs.getDouble(STAGE_HEIGHT, 600);
         primaryStage.setX(x);
         primaryStage.setY(y);
         primaryStage.setWidth(w);
@@ -50,10 +57,10 @@ public class SwaggerApplication extends Application {
     @Override
     public void stop() {
         Preferences userPrefs = Preferences.userNodeForPackage(getClass());
-        userPrefs.putDouble("stage.x", primaryStage.getX());
-        userPrefs.putDouble("stage.y", primaryStage.getY());
-        userPrefs.putDouble("stage.width", primaryStage.getWidth());
-        userPrefs.putDouble("stage.height", primaryStage.getHeight());
+        userPrefs.putDouble(STAGE_X, primaryStage.getX());
+        userPrefs.putDouble(STAGE_Y, primaryStage.getY());
+        userPrefs.putDouble(STAGE_WIDTH, primaryStage.getWidth());
+        userPrefs.putDouble(STAGE_HEIGHT, primaryStage.getHeight());
     }
 
     public static void main(String[] args) {

@@ -9,6 +9,7 @@ import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
+import com.mascix.swaggerific.ui.edit.SettingsController;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -28,6 +29,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
@@ -406,7 +409,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void shutdown() {
+    public void onClose() {
         try {
             FileOutputStream out = new FileOutputStream(SESSION);
             ObjectOutputStream oos = new ObjectOutputStream(out);
@@ -433,11 +436,20 @@ public class MainController implements Initializable {
     @SneakyThrows
     public void openSettings(ActionEvent actionEvent) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
-        Parent root1 = fxmlLoader.load();
+        Parent root = fxmlLoader.load();
+        SettingsController controller = fxmlLoader.getController();
         Stage stage = new Stage();
         stage.initOwner(mainBox.getScene().getWindow());
         stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.
-        stage.setScene(new Scene(root1));
+        Scene settingsScene = new Scene(root);
+        settingsScene.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            if (t.getCode() == KeyCode.ESCAPE) {
+                settingsScene.getWindow().hide();
+            }
+        });
+        controller.setMainWindow(this);
+        stage.setScene(settingsScene);
         stage.show();
+        stage.setOnHidden(e -> controller.onClose());
     }
 }

@@ -148,6 +148,7 @@
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
   ]
 },
@@ -155,14 +156,22 @@
   "name":"com.mascix.swaggerific.ui.RequestHeader",
   "methods":[
     {"name":"checkedProperty","parameterTypes":[] }, 
-    {"name":"getName","parameterTypes":[] }, 
-    {"name":"getValue","parameterTypes":[] }
-  ],
-  "queriedMethods":[
     {"name":"getChecked","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }, 
+    {"name":"getValue","parameterTypes":[] }, 
     {"name":"setChecked","parameterTypes":["java.lang.Boolean"] }, 
     {"name":"setName","parameterTypes":["java.lang.String"] }, 
     {"name":"setValue","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"com.mascix.swaggerific.ui.edit.SettingsController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"btnRestoreClick","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"onChange","parameterTypes":["javafx.event.ActionEvent"] }
   ]
 },
 {
@@ -257,6 +266,10 @@
 },
 {
   "name":"com.sun.prism.shader.DrawPgram_Color_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
+  "name":"com.sun.prism.shader.DrawRoundRect_Color_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
@@ -843,7 +856,7 @@
 },
 {
   "name":"java.lang.Module",
-  "queriedMethods":[
+  "methods":[
     {"name":"getDescriptor","parameterTypes":[] }, 
     {"name":"getLayer","parameterTypes":[] }, 
     {"name":"getName","parameterTypes":[] }, 
@@ -1003,6 +1016,17 @@
   "methods":[{"name":"setOnAction","parameterTypes":["javafx.event.EventHandler"] }]
 },
 {
+  "name":"javafx.scene.control.ComboBox",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"javafx.scene.control.ComboBoxBase",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"setOnAction","parameterTypes":["javafx.event.EventHandler"] }]
+},
+{
   "name":"javafx.scene.control.Control",
   "queryAllDeclaredMethods":true
 },
@@ -1135,7 +1159,8 @@
 },
 {
   "name":"javafx.scene.control.TextInputControl",
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"setText","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"javafx.scene.control.TreeView",
@@ -1178,16 +1203,14 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getBottomAnchor","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"getLeftAnchor","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"getRightAnchor","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"getTopAnchor","parameterTypes":["javafx.scene.Node"] }, 
     {"name":"setBottomAnchor","parameterTypes":["javafx.scene.Node","java.lang.Double"] }, 
     {"name":"setLeftAnchor","parameterTypes":["javafx.scene.Node","java.lang.Double"] }, 
     {"name":"setRightAnchor","parameterTypes":["javafx.scene.Node","java.lang.Double"] }, 
     {"name":"setTopAnchor","parameterTypes":["javafx.scene.Node","java.lang.Double"] }
-  ],
-  "queriedMethods":[
-    {"name":"getBottomAnchor","parameterTypes":["javafx.scene.Node"] }, 
-    {"name":"getLeftAnchor","parameterTypes":["javafx.scene.Node"] }, 
-    {"name":"getRightAnchor","parameterTypes":["javafx.scene.Node"] }, 
-    {"name":"getTopAnchor","parameterTypes":["javafx.scene.Node"] }
   ]
 },
 {
@@ -1196,7 +1219,10 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
-    {"name":"setPercentWidth","parameterTypes":["double"] }
+    {"name":"setHgrow","parameterTypes":["javafx.scene.layout.Priority"] }, 
+    {"name":"setMinWidth","parameterTypes":["double"] }, 
+    {"name":"setPercentWidth","parameterTypes":["double"] }, 
+    {"name":"setPrefWidth","parameterTypes":["double"] }
   ]
 },
 {
@@ -1209,7 +1235,12 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
-    {"name":"getColumnConstraints","parameterTypes":[] }
+    {"name":"getColumnConstraints","parameterTypes":[] }, 
+    {"name":"getColumnIndex","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"getRowConstraints","parameterTypes":[] }, 
+    {"name":"getRowIndex","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"setColumnIndex","parameterTypes":["javafx.scene.Node","java.lang.Integer"] }, 
+    {"name":"setRowIndex","parameterTypes":["javafx.scene.Node","java.lang.Integer"] }
   ]
 },
 {
@@ -1218,9 +1249,9 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getHgrow","parameterTypes":["javafx.scene.Node"] }, 
     {"name":"setHgrow","parameterTypes":["javafx.scene.Node","javafx.scene.layout.Priority"] }
-  ],
-  "queriedMethods":[{"name":"getHgrow","parameterTypes":["javafx.scene.Node"] }]
+  ]
 },
 {
   "name":"javafx.scene.layout.Pane",
@@ -1245,6 +1276,17 @@
   ]
 },
 {
+  "name":"javafx.scene.layout.RowConstraints",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setMinHeight","parameterTypes":["double"] }, 
+    {"name":"setPrefHeight","parameterTypes":["double"] }, 
+    {"name":"setVgrow","parameterTypes":["javafx.scene.layout.Priority"] }
+  ]
+},
+{
   "name":"javafx.scene.layout.StackPane",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -1256,11 +1298,11 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getVgrow","parameterTypes":["javafx.scene.Node"] }, 
     {"name":"setAlignment","parameterTypes":["javafx.geometry.Pos"] }, 
     {"name":"setMargin","parameterTypes":["javafx.scene.Node","javafx.geometry.Insets"] }, 
     {"name":"setVgrow","parameterTypes":["javafx.scene.Node","javafx.scene.layout.Priority"] }
-  ],
-  "queriedMethods":[{"name":"getVgrow","parameterTypes":["javafx.scene.Node"] }]
+  ]
 },
 {
   "name":"javafx.scene.shape.LineTo"
@@ -1314,6 +1356,9 @@
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.gtk.OS"
 },
 {
   "name":"org.fxmisc.flowless.VirtualizedScrollPane",
