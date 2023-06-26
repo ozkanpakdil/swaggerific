@@ -31,6 +31,7 @@ public class SwaggerApplication extends Application {
         Parent root = fxmlLoader.load();
         log.info("font size:"+userPrefs.get(FONT_SIZE, ".93em"));
         log.info("font family:"+userPrefs.get(SELECTED_FONT, "Verdana"));
+        //TODO this size change is not working, investigate.
         root.setStyle("-fx-font-size:" + userPrefs.get(FONT_SIZE, ".93em"));
         root.setStyle("-fx-font-family:'" + userPrefs.get(SELECTED_FONT, "Verdana") + "'");
         MainController mainController = fxmlLoader.getController();
