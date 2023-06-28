@@ -12,6 +12,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public class Preloader extends javafx.application.Preloader {
     Label label;
     ProgressBar bar;
@@ -27,21 +29,21 @@ public class Preloader extends javafx.application.Preloader {
         bar = new ProgressBar();
         bar.setProgress(0.50);
         bar.setScaleY(2.25);
-        BorderPane p = new BorderPane();
+        BorderPane borderPane = new BorderPane();
         BorderPane.setAlignment(label, Pos.CENTER);
         BorderPane.setAlignment(bar, Pos.CENTER);
-        p.setCenter(bar);
-        p.setTop(label);
-        p.getStyleClass().add("base-pane");
-        return new Scene(p, 800, 600);
+        borderPane.setCenter(bar);
+        borderPane.setTop(label);
+        borderPane.getStyleClass().add("base-pane");
+        return new Scene(borderPane, 800, 600);
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         this.basestage = stage;
         basestage.initStyle(StageStyle.UNDECORATED);
         Scene sc = createPreloaderScene();
-        sc.getStylesheets().addAll(this.getClass().getResource("/css/splashscreen.css").toString());
+        sc.getStylesheets().addAll(Objects.requireNonNull(getClass().getResource("/css/splashscreen.css")).toString());
         stage.setScene(sc);
         stage.show();
     }
@@ -50,8 +52,7 @@ public class Preloader extends javafx.application.Preloader {
     public void handleStateChangeNotification(StateChangeNotification scn) {
         if (scn.getType() == StateChangeNotification.Type.BEFORE_START) {
             if (basestage.isShowing()) {
-                FadeTransition ft = new FadeTransition(
-                        Duration.millis(1000), basestage.getScene().getRoot());
+                FadeTransition ft = new FadeTransition(Duration.millis(2000), basestage.getScene().getRoot());
                 ft.setFromValue(1.0);
                 ft.setToValue(0.0);
                 final Stage s = basestage;

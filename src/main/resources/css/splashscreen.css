@@ -5,6 +5,8 @@
 }
 
 .base-pane{
+    -fx-background-image: url("../images/preloader.jpg");
+    -fx-background-repeat: stretch;
     -fx-background-color: linear-gradient(to bottom right, red, blue);
     -fx-background-position: center center;
     -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.4) , 15, 0.0 , 0 , 1 );
