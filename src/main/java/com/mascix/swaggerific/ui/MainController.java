@@ -225,13 +225,13 @@ public class MainController implements Initializable {
             boxRequestParams.getChildren().clear();
             TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
             Optional<Parameter> body = m.getMethodParameters().stream().filter(p -> p.getName().equals("body")).findAny();
+            txtAddress.setText(m.getUri());
             if (!body.isEmpty()) {// this function requires json body
                 tabRequestDetails.getSelectionModel().select(tabBody);
                 return;
             } else {
                 tabRequestDetails.getSelectionModel().select(tabParams);
             }
-            txtAddress.setText(m.getUri());
             AtomicInteger row = new AtomicInteger();
             m.getMethodParameters().forEach(f -> {
                 STextField txtInput = new STextField();
@@ -398,8 +398,7 @@ public class MainController implements Initializable {
             if (selectedItem.getValue().equals("GET")) {
                 Platform.runLater(() -> httpUtility.getRequest(mapper, this));
             } else if (selectedItem.getValue().equals("POST")) {
-                Platform.runLater(() -> httpUtility.postRequest(codeJsonRequest, codeJsonResponse, txtAddress,
-                        boxRequestParams, mapper, tableHeaders));
+                Platform.runLater(() -> httpUtility.postRequest(mapper, this));
             } else {
                 showAlert("", "", selectedItem.getValue() + " not implemented yet");
                 log.error(selectedItem.getValue() + " not implemented yet");

@@ -37,22 +37,25 @@ import java.util.stream.Collectors;
 public class HttpUtility {
 
     @SneakyThrows
-    public void postRequest(CodeArea codeJsonRequest, CodeArea codeJsonResponse, TextField txtAddress, GridPane boxRequestParams, ObjectMapper mapper, TableView<RequestHeader> tableHeaders) {
-        URI uri = getUri(txtAddress.getText(), boxRequestParams);
-        log.info("uri:{}", uri);
-        String[] headers = getHeaders(tableHeaders);
+    public void postRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
         //TODO not finished, make sure data send in body
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(codeJsonRequest.getText()));
+                .POST(HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
         if (headers.length > 0)
             request.headers(headers);
 
+        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
+
         HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
 
-        codeJsonResponse.replaceText(
+        parent.getCodeJsonResponse().replaceText(
                 Json.pretty(mapper.readTree(httpResponse.body()))
         );
     }
