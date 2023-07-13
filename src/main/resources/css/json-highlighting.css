@@ -1,9 +1,11 @@
+.line-highlighter { -fx-highlight-fill: lightgray; }
+
 .json_curly {
     -fx-fill: grey;
 }
 
 .json_property {
-    -fx-fill: grey;
+    -fx-fill: lightcoral;
     -fx-font-weight: bold;
 }
 

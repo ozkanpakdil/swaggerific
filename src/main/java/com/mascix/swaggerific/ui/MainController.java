@@ -211,6 +211,7 @@ public class MainController implements Initializable {
         area.setParagraphGraphicFactory(LineNumberFactory.get(area));
         area.getStylesheets().add(getCss(cssName));
         area.setWrapText(true);
+        area.setLineHighlighterOn(true);
     }
 
     public void codeResponseXmlSettings(CodeArea area, String cssName) {
