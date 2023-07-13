@@ -1,4 +1,4 @@
-.line-highlighter { -fx-highlight-fill: lightgray; }
+.line-highlighter { -fx-highlight-fill: ghostwhite; }
 
 .json_curly {
     -fx-fill: grey;

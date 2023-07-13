@@ -1,3 +1,5 @@
+.line-highlighter { -fx-highlight-fill: ghostwhite; }
+
 .text {
     -fx-fill: white;
 }
