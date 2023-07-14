@@ -8,6 +8,7 @@
 <?import org.controlsfx.control.StatusBar?>
 <?import org.fxmisc.flowless.VirtualizedScrollPane?>
 <?import org.fxmisc.richtext.CodeArea?>
+<?import com.mascix.swaggerific.ui.textfx.CustomCodeArea?>
 <StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -145,7 +146,7 @@
                                                                AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
                                                                VBox.vgrow="ALWAYS">
                                             <content>
-                                                <CodeArea fx:id="codeJsonResponse" minHeight="-Infinity"
+                                                <CustomCodeArea fx:id="codeJsonResponse" minHeight="-Infinity"
                                                           minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
                                                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                                           AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>

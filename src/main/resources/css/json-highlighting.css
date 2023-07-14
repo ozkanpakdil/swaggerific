@@ -1,3 +1,10 @@
+/*.code-area .paragraph-box .text {
+    -fx-font-size: 18px;
+}*/
+.code-area .paragraph-box .text.match {
+    -rtfx-background-color: #00000033;
+}
+
 .line-highlighter { -fx-highlight-fill: ghostwhite; }
 
 .json_curly {

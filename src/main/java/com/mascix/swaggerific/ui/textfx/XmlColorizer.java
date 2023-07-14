@@ -1,4 +1,4 @@
-package com.mascix.swaggerific.ui;
+package com.mascix.swaggerific.ui.textfx;
 
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -14,15 +14,7 @@ public class XmlColorizer {
 
     private final Pattern ATTRIBUTES = Pattern.compile("(\\w+\\h*)(=)(\\h*\"[^\"]+\")");
 
-    private final int GROUP_OPEN_BRACKET = 2;
-    private final int GROUP_ELEMENT_NAME = 3;
-    private final int GROUP_ATTRIBUTES_SECTION = 4;
-    private final int GROUP_CLOSE_BRACKET = 5;
-    private final int GROUP_ATTRIBUTE_NAME = 1;
-    private final int GROUP_EQUAL_SYMBOL = 2;
-    private final int GROUP_ATTRIBUTE_VALUE = 3;
-
-    StyleSpans<Collection<String>> computeHighlighting(String text) {
+    public StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = XML_TAG.matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
@@ -33,9 +25,12 @@ public class XmlColorizer {
                 spansBuilder.add(Collections.singleton("comment"), matcher.end() - matcher.start());
             } else {
                 if (matcher.group("ELEMENT") != null) {
+                    int GROUP_ATTRIBUTES_SECTION = 4;
                     String attributesText = matcher.group(GROUP_ATTRIBUTES_SECTION);
 
+                    int GROUP_OPEN_BRACKET = 2;
                     spansBuilder.add(Collections.singleton("tagmark"), matcher.end(GROUP_OPEN_BRACKET) - matcher.start(GROUP_OPEN_BRACKET));
+                    int GROUP_ELEMENT_NAME = 3;
                     spansBuilder.add(Collections.singleton("anytag"), matcher.end(GROUP_ELEMENT_NAME) - matcher.end(GROUP_OPEN_BRACKET));
 
                     if (!attributesText.isEmpty()) {
@@ -45,8 +40,11 @@ public class XmlColorizer {
                         Matcher amatcher = ATTRIBUTES.matcher(attributesText);
                         while (amatcher.find()) {
                             spansBuilder.add(Collections.emptyList(), amatcher.start() - lastKwEnd);
+                            int GROUP_ATTRIBUTE_NAME = 1;
                             spansBuilder.add(Collections.singleton("attribute"), amatcher.end(GROUP_ATTRIBUTE_NAME) - amatcher.start(GROUP_ATTRIBUTE_NAME));
+                            int GROUP_EQUAL_SYMBOL = 2;
                             spansBuilder.add(Collections.singleton("tagmark"), amatcher.end(GROUP_EQUAL_SYMBOL) - amatcher.end(GROUP_ATTRIBUTE_NAME));
+                            int GROUP_ATTRIBUTE_VALUE = 3;
                             spansBuilder.add(Collections.singleton("avalue"), amatcher.end(GROUP_ATTRIBUTE_VALUE) - amatcher.end(GROUP_EQUAL_SYMBOL));
                             lastKwEnd = amatcher.end();
                         }
@@ -56,6 +54,7 @@ public class XmlColorizer {
 
                     lastKwEnd = matcher.end(GROUP_ATTRIBUTES_SECTION);
 
+                    int GROUP_CLOSE_BRACKET = 5;
                     spansBuilder.add(Collections.singleton("tagmark"), matcher.end(GROUP_CLOSE_BRACKET) - lastKwEnd);
                 }
             }

@@ -10,6 +10,10 @@ import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
+import com.mascix.swaggerific.ui.textfx.BracketHighlighter;
+import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
+import com.mascix.swaggerific.ui.textfx.JsonColorizer;
+import com.mascix.swaggerific.ui.textfx.XmlColorizer;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -65,8 +69,13 @@ public class MainController implements Initializable {
     public Button btnSend;
     @FXML
     VBox mainBox;
+
     @FXML
     CodeArea codeJsonRequest;
+
+    @FXML
+    CustomCodeArea codeJsonResponse;
+
     @FXML
     TreeView treePaths;
     @FXML
@@ -77,8 +86,6 @@ public class MainController implements Initializable {
     StatusBar statusBar;
     @FXML
     TextField txtAddress;
-    @FXML
-    CodeArea codeJsonResponse;
     @FXML
     GridPane boxRequestParams;
     @FXML
@@ -107,6 +114,34 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
+        codeJsonResponse.setOnKeyTyped(keyEvent -> {
+            // clear bracket highlighting
+            bracketHighlighter.clearBracket();
+
+            // get typed character
+            String character = keyEvent.getCharacter();
+
+            // add a ] if [ is typed
+            if (character.equals("[")) {
+                int position = codeJsonResponse.getCaretPosition();
+                codeJsonResponse.insert(position, "]", "loop");
+                codeJsonResponse.moveTo(position);
+            }
+            // remove next ] if ] is typed
+            else if (character.equals("]")) {
+                int position = codeJsonResponse.getCaretPosition();
+                if (position != codeJsonResponse.getLength()) {
+                    String nextChar = codeJsonResponse.getText(position, position + 1);
+                    if (nextChar.equals("]")) codeJsonResponse.deleteText(position, position + 1);
+                }
+            }
+
+            // refresh bracket highlighting
+            bracketHighlighter.highlightBracket();
+        });
+//        setCodeJsonResponse(codeArea);
         codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
         codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
         treePaths.getSelectionModel()
