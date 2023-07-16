@@ -2,7 +2,7 @@
     -fx-font-size: 18px;
 }*/
 .code-area .paragraph-box .text.match {
-    -rtfx-background-color: #00000033;
+    -rtfx-background-color: yellow;
 }
 
 .line-highlighter { -fx-highlight-fill: ghostwhite; }
