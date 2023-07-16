@@ -36,6 +36,9 @@ public class SwaggerApplication extends Application {
         root.setStyle("-fx-font-family:'" + userPrefs.get(SELECTED_FONT, "Verdana") + "'");
         MainController mainController = fxmlLoader.getController();
         mainController.onOpening();
+//        CustomCodeArea codeArea = new CustomCodeArea();
+//        BracketHighlighter bracketHighlighter = new BracketHighlighter(codeArea);
+//        mainController.setCodeJsonResponse(codeArea);
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));

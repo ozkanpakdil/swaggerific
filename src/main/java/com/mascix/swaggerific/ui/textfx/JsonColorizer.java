@@ -1,4 +1,4 @@
-package com.mascix.swaggerific.ui;
+package com.mascix.swaggerific.ui.textfx;
 
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;

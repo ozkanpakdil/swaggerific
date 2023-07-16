@@ -7,11 +7,9 @@ import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import io.swagger.v3.core.util.Json;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.fxmisc.richtext.CodeArea;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -85,12 +83,12 @@ public class HttpUtility {
         log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
 
         HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
-        try {
+        if (!httpResponse.body().startsWith("<")) {
             parent.getCodeJsonResponse().replaceText(
                     Json.pretty(mapper.readTree(httpResponse.body()))
             );
-        } catch (Exception ex) {
-            log.error("response does not look like a json", ex);
+        } else {
+            log.error("response does not look like a json");
             parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
             parent.getCodeJsonResponse().replaceText(
                     prettyPrintByTransformer(httpResponse.body(), 4, true)
