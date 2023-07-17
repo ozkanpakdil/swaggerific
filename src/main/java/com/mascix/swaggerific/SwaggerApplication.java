@@ -36,9 +36,6 @@ public class SwaggerApplication extends Application {
         root.setStyle("-fx-font-family:'" + userPrefs.get(SELECTED_FONT, "Verdana") + "'");
         MainController mainController = fxmlLoader.getController();
         mainController.onOpening();
-//        CustomCodeArea codeArea = new CustomCodeArea();
-//        BracketHighlighter bracketHighlighter = new BracketHighlighter(codeArea);
-//        mainController.setCodeJsonResponse(codeArea);
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
@@ -48,19 +45,14 @@ public class SwaggerApplication extends Application {
     }
 
     private void loadingWindowLookAndLocation() {
-        double x = userPrefs.getDouble(STAGE_X, 0);
-        double y = userPrefs.getDouble(STAGE_Y, 0);
-        double w = userPrefs.getDouble(STAGE_WIDTH, 800);
-        double h = userPrefs.getDouble(STAGE_HEIGHT, 600);
-        primaryStage.setX(x);
-        primaryStage.setY(y);
-        primaryStage.setWidth(w);
-        primaryStage.setHeight(h);
+        primaryStage.setX(userPrefs.getDouble(STAGE_X, 0));
+        primaryStage.setY(userPrefs.getDouble(STAGE_Y, 0));
+        primaryStage.setWidth(userPrefs.getDouble(STAGE_WIDTH, 800));
+        primaryStage.setHeight(userPrefs.getDouble(STAGE_HEIGHT, 600));
     }
 
     @Override
     public void stop() {
-        Preferences userPrefs = Preferences.userNodeForPackage(getClass());
         userPrefs.putDouble(STAGE_X, primaryStage.getX());
         userPrefs.putDouble(STAGE_Y, primaryStage.getY());
         userPrefs.putDouble(STAGE_WIDTH, primaryStage.getWidth());

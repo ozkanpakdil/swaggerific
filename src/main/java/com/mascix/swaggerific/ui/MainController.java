@@ -103,7 +103,7 @@ public class MainController implements Initializable {
     JsonNode jsonRoot;
     JsonColorizer jsonColorizer = new JsonColorizer();
     XmlColorizer xmlColorizer = new XmlColorizer();
-    TreeItem<String> root = new TreeItem<>("base root");
+    TreeItem<String> treeItemRoot = new TreeItem<>("base root");
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     private VBox boxLoader;
@@ -117,31 +117,24 @@ public class MainController implements Initializable {
 
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            // clear bracket highlighting
             bracketHighlighter.clearBracket();
-
-            // get typed character
+            /*
+            //TODO this bock may be used in json request in the future
             String character = keyEvent.getCharacter();
-
-            // add a ] if [ is typed
             if (character.equals("[")) {
                 int position = codeJsonResponse.getCaretPosition();
                 codeJsonResponse.insert(position, "]", "loop");
                 codeJsonResponse.moveTo(position);
-            }
-            // remove next ] if ] is typed
-            else if (character.equals("]")) {
+            } else if (character.equals("]")) {
                 int position = codeJsonResponse.getCaretPosition();
                 if (position != codeJsonResponse.getLength()) {
                     String nextChar = codeJsonResponse.getText(position, position + 1);
                     if (nextChar.equals("]")) codeJsonResponse.deleteText(position, position + 1);
                 }
-            }
+            }*/
 
-            // refresh bracket highlighting
             bracketHighlighter.highlightBracket();
         });
-//        setCodeJsonResponse(codeArea);
         codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
         codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
         treePaths.getSelectionModel()
@@ -368,10 +361,10 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
-        root.getChildren().clear();
+        treeItemRoot.getChildren().clear();
         URL urlApi = new URL(urlSwagger);
         urlTarget = urlSwagger.replace("swagger.json", "");
-        treePaths.setRoot(root);
+        treePaths.setRoot(treeItemRoot);
         try {
             jsonRoot = mapper.readTree(urlApi);
             jsonModal = mapper.readValue(urlApi, SwaggerModal.class);
@@ -386,7 +379,7 @@ public class MainController implements Initializable {
                         returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
                     }
                 });
-                root.getChildren().add(tag);
+                treeItemRoot.getChildren().add(tag);
             });
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -424,7 +417,7 @@ public class MainController implements Initializable {
     }
 
     public void treeOnClick(MouseEvent mouseEvent) {
-        if (root.getChildren().size() == 0)// if no item there open swagger.json loader
+        if (treeItemRoot.getChildren().size() == 0)// if no item there open swagger.json loader
             menuFileOpenSwagger(null);
     }
 
@@ -448,7 +441,7 @@ public class MainController implements Initializable {
         try {
             FileOutputStream out = new FileOutputStream(SESSION);
             ObjectOutputStream oos = new ObjectOutputStream(out);
-            oos.writeObject(new TreeItemSerialisationWrapper(root));
+            oos.writeObject(new TreeItemSerialisationWrapper(treeItemRoot));
             oos.flush();
         } catch (Exception e) {
             log.error("Problem serializing", e);
@@ -459,8 +452,8 @@ public class MainController implements Initializable {
         if (Paths.get(SESSION).toFile().isFile()) {
             try (ObjectInputStream ois = new ObjectInputStream(
                     new ByteArrayInputStream(Files.readAllBytes(Path.of(SESSION))))) {
-                root = (TreeItem<String>) ois.readObject();
-                treePaths.setRoot(root);
+                treeItemRoot = (TreeItem<String>) ois.readObject();
+                treePaths.setRoot(treeItemRoot);
                 treePaths.setShowRoot(false);
             } catch (Exception e) {
                 log.error("Problem deserializing", e);
