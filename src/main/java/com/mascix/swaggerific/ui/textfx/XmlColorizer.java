@@ -12,7 +12,8 @@ public class XmlColorizer {
     private static final Pattern XML_TAG = Pattern.compile("(?<ELEMENT>(</?\\h*)(\\w+)([^<>]*)(\\h*/?>))"
             + "|(?<COMMENT><!--[^<>]+-->)");
 
-    private final Pattern ATTRIBUTES = Pattern.compile("(\\w+\\h*)(=)(\\h*\"[^\"]+\")");
+    private final Pattern attributes = Pattern.compile("(\\w+\\h*)(=)(\\h*\"[^\"]+\")");
+    private String tagmark = "tagmark";
 
     public StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = XML_TAG.matcher(text);
@@ -25,37 +26,36 @@ public class XmlColorizer {
                 spansBuilder.add(Collections.singleton("comment"), matcher.end() - matcher.start());
             } else {
                 if (matcher.group("ELEMENT") != null) {
-                    int GROUP_ATTRIBUTES_SECTION = 4;
-                    String attributesText = matcher.group(GROUP_ATTRIBUTES_SECTION);
+                    int groupAttributesSection = 4;
+                    String attributesText = matcher.group(groupAttributesSection);
 
-                    int GROUP_OPEN_BRACKET = 2;
-                    spansBuilder.add(Collections.singleton("tagmark"), matcher.end(GROUP_OPEN_BRACKET) - matcher.start(GROUP_OPEN_BRACKET));
-                    int GROUP_ELEMENT_NAME = 3;
-                    spansBuilder.add(Collections.singleton("anytag"), matcher.end(GROUP_ELEMENT_NAME) - matcher.end(GROUP_OPEN_BRACKET));
+                    int groupOpenBracket = 2;
+                    spansBuilder.add(Collections.singleton(tagmark), matcher.end(groupOpenBracket) - matcher.start(groupOpenBracket));
+                    int groupElementName = 3;
+                    spansBuilder.add(Collections.singleton("anytag"), matcher.end(groupElementName) - matcher.end(groupOpenBracket));
 
                     if (!attributesText.isEmpty()) {
-
                         lastKwEnd = 0;
 
-                        Matcher amatcher = ATTRIBUTES.matcher(attributesText);
+                        Matcher amatcher = attributes.matcher(attributesText);
                         while (amatcher.find()) {
                             spansBuilder.add(Collections.emptyList(), amatcher.start() - lastKwEnd);
-                            int GROUP_ATTRIBUTE_NAME = 1;
-                            spansBuilder.add(Collections.singleton("attribute"), amatcher.end(GROUP_ATTRIBUTE_NAME) - amatcher.start(GROUP_ATTRIBUTE_NAME));
-                            int GROUP_EQUAL_SYMBOL = 2;
-                            spansBuilder.add(Collections.singleton("tagmark"), amatcher.end(GROUP_EQUAL_SYMBOL) - amatcher.end(GROUP_ATTRIBUTE_NAME));
-                            int GROUP_ATTRIBUTE_VALUE = 3;
-                            spansBuilder.add(Collections.singleton("avalue"), amatcher.end(GROUP_ATTRIBUTE_VALUE) - amatcher.end(GROUP_EQUAL_SYMBOL));
+                            int groupAttributeName = 1;
+                            spansBuilder.add(Collections.singleton("attribute"), amatcher.end(groupAttributeName) - amatcher.start(groupAttributeName));
+                            int groupEqualSymbol = 2;
+                            spansBuilder.add(Collections.singleton(tagmark), amatcher.end(groupEqualSymbol) - amatcher.end(groupAttributeName));
+                            int groupAttributeValue = 3;
+                            spansBuilder.add(Collections.singleton("avalue"), amatcher.end(groupAttributeValue) - amatcher.end(groupEqualSymbol));
                             lastKwEnd = amatcher.end();
                         }
                         if (attributesText.length() > lastKwEnd)
                             spansBuilder.add(Collections.emptyList(), attributesText.length() - lastKwEnd);
                     }
 
-                    lastKwEnd = matcher.end(GROUP_ATTRIBUTES_SECTION);
+                    lastKwEnd = matcher.end(groupAttributesSection);
 
-                    int GROUP_CLOSE_BRACKET = 5;
-                    spansBuilder.add(Collections.singleton("tagmark"), matcher.end(GROUP_CLOSE_BRACKET) - lastKwEnd);
+                    int groupCloseBracket = 5;
+                    spansBuilder.add(Collections.singleton(tagmark), matcher.end(groupCloseBracket) - lastKwEnd);
                 }
             }
             lastKwEnd = matcher.end();

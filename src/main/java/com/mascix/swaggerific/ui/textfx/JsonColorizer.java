@@ -9,10 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JsonColorizer {
-    static final Pattern JSON_REGEX = Pattern.compile("(?<JSONCURLY>\\{|\\})|" +
-            "(?<JSONPROPERTY>\\\".*\\\")\\s*:\\s*|" +
-            "(?<JSONVALUE>\\\".*\\\")|" +
-            "\\[(?<JSONARRAY>.*)\\]|" +
+    static final Pattern JSON_REGEX = Pattern.compile("(?<JSONCURLY>[{}])|" +
+            "(?<JSONPROPERTY>\".*\")\\s*:\\s*|" +
+            "(?<JSONVALUE>\".*\")|" +
+            "\\[(?<JSONARRAY>.*)]|" +
             "(?<JSONNUMBER>\\d+.?\\d*)|" +
             "(?<JSONBOOL>true|false)|" +
             "(?<JSONNULL>null)" +
@@ -23,16 +23,24 @@ public class JsonColorizer {
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         while (matcher.find()) {
-            String styleClass
-                    = matcher.group("JSONPROPERTY") != null ? "json_property"
-                    : matcher.group("JSONARRAY") != null ? "json_array"
-                    : matcher.group("JSONCURLY") != null ? "json_curly"
-                    : matcher.group("JSONBOOL") != null ? "json_bool"
-                    : matcher.group("JSONNULL") != null ? "json_null"
-                    : matcher.group("JSONNUMBER") != null ? "json_number"
-                    : matcher.group("JSONVALUE") != null ? "json_value"
-                    : matcher.group("TEXT") != null ? "text"
-                    : null;
+            String styleClass = null;
+            if (matcher.group("JSONPROPERTY") != null) {
+                styleClass = "json_property";
+            } else if (matcher.group("JSONARRAY") != null) {
+                styleClass = "json_array";
+            } else if (matcher.group("JSONCURLY") != null) {
+                styleClass = "json_curly";
+            } else if (matcher.group("JSONBOOL") != null) {
+                styleClass = "json_bool";
+            } else if (matcher.group("JSONNULL") != null) {
+                styleClass = "json_null";
+            } else if (matcher.group("JSONNUMBER") != null) {
+                styleClass = "json_number";
+            } else if (matcher.group("JSONVALUE") != null) {
+                styleClass = "json_value";
+            } else if (matcher.group("TEXT") != null) {
+                styleClass = "text";
+            }
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
             lastKwEnd = matcher.end();
