@@ -9,7 +9,7 @@ public class BracketHighlighter {
     private final List<BracketPair> bracketPairs = new ArrayList<>();
     private final List<String> LOOP_STYLE = Collections.singletonList("loop");
     private final List<String> MATCH_STYLE = Arrays.asList("match", "loop");
-    private final String BRACKET_PAIRS_REGEX = ".*[(){}\\[\\]<>].*";
+    private final String BRACKET_PAIRS_REGEX = "[(){}\\[\\]<>]";
 
     /**
      * Parameterized constructor
