@@ -163,6 +163,18 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.javafx.font.directwrite.DWRITE_MATRIX",
+  "fields":[
+    {"name":"dx"}, 
+    {"name":"dy"}, 
+    {"name":"m11"}, 
+    {"name":"m12"}, 
+    {"name":"m21"}, 
+    {"name":"m22"}
+  ],
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.javafx.font.directwrite.RECT",
   "fields":[
     {"name":"bottom"}, 
@@ -214,12 +226,31 @@
   ]
 },
 {
+  "name":"com.sun.javafx.iio.common.ImageLoaderImpl",
+  "methods":[{"name":"emitWarning","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"com.sun.javafx.iio.jpeg.JPEGImageLoader",
+  "methods":[
+    {"name":"setInputAttributes","parameterTypes":["int","int","int","int","int","byte[]"] }, 
+    {"name":"setOutputAttributes","parameterTypes":["int","int"] }, 
+    {"name":"updateImageProgress","parameterTypes":["int"] }
+  ]
+},
+{
   "name":"com.sun.prism.impl.PrismSettings",
   "fields":[
     {"name":"disableD3D9Ex"}, 
     {"name":"forceGPU"}, 
     {"name":"isVsyncEnabled"}, 
     {"name":"verbose"}
+  ]
+},
+{
+  "name":"java.io.InputStream",
+  "methods":[
+    {"name":"read","parameterTypes":["byte[]","int","int"] }, 
+    {"name":"skip","parameterTypes":["long"] }
   ]
 },
 {

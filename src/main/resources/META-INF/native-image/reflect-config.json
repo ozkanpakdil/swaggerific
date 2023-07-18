@@ -175,6 +175,12 @@
   ]
 },
 {
+  "name":"com.mascix.swaggerific.ui.textfx.CustomCodeArea",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.AESCipher$General",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
