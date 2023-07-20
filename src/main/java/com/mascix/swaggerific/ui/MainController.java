@@ -424,10 +424,22 @@ public class MainController implements Initializable {
     public void btnSendRequest(ActionEvent actionEvent) {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
         if (selectedItem instanceof TreeItemOperatinLeaf) {
-            if (selectedItem.getValue().equals("GET")) {
+            if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
                 Platform.runLater(() -> httpUtility.getRequest(mapper, this));
-            } else if (selectedItem.getValue().equals("POST")) {
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.POST.name())) {
                 Platform.runLater(() -> httpUtility.postRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.DELETE.name())) {
+                Platform.runLater(() -> httpUtility.deleteRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.HEAD.name())) {
+                Platform.runLater(() -> httpUtility.headRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.OPTIONS.name())) {
+                Platform.runLater(() -> httpUtility.optionsRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PATCH.name())) {
+                Platform.runLater(() -> httpUtility.patchRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PUT.name())) {
+                Platform.runLater(() -> httpUtility.putRequest(mapper, this));
+            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.TRACE.name())) {
+                Platform.runLater(() -> httpUtility.traceRequest(mapper, this));
             } else {
                 showAlert("", "", selectedItem.getValue() + " not implemented yet");
                 log.error(selectedItem.getValue() + " not implemented yet");
@@ -463,9 +475,9 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     public void openSettings(ActionEvent actionEvent) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
-        Parent root = fxmlLoader.load();
-        SettingsController controller = fxmlLoader.getController();
+        FXMLLoader settingsFxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
+        Parent root = settingsFxmlLoader.load();
+        SettingsController controller = settingsFxmlLoader.getController();
         Stage stage = new Stage();
         stage.initOwner(mainBox.getScene().getWindow());
         stage.initModality(Modality.WINDOW_MODAL); // make the settings window focused only.

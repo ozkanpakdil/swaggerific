@@ -1,11 +1,13 @@
 package com.mascix.swaggerific.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mascix.swaggerific.tools.exceptions.XmlFormattingException;
 import com.mascix.swaggerific.ui.MainController;
 import com.mascix.swaggerific.ui.RequestHeader;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.PathItem;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 import lombok.SneakyThrows;
@@ -19,6 +21,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -31,6 +34,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+/**
+ * Making the http calls.
+ * TODO: needs SOLIDification....
+ *  * parameters should get rid of the UI elements.
+ *  * HEAD, OPTIONS, PATCH,TRACE request can be one function.
+ */
 @Slf4j
 public class HttpUtility {
 
@@ -40,22 +49,108 @@ public class HttpUtility {
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
-        //TODO not finished, make sure data send in body
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
                 .POST(HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    private static void sendRequestAndShowResponse(ObjectMapper mapper, MainController parent, URI uri,
+                                                   String[] headers, HttpClient client, HttpRequest.Builder request)
+            throws IOException, InterruptedException {
         if (headers.length > 0)
             request.headers(headers);
-
         log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
-
         HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
-
         parent.getCodeJsonResponse().replaceText(
                 Json.pretty(mapper.readTree(httpResponse.body()))
         );
+    }
+
+    @SneakyThrows
+    public void deleteRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .DELETE();
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    @SneakyThrows
+    public void headRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .method(PathItem.HttpMethod.HEAD.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    @SneakyThrows
+    public void optionsRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .method(PathItem.HttpMethod.OPTIONS.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    @SneakyThrows
+    public void patchRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .method(PathItem.HttpMethod.PATCH.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    @SneakyThrows
+    public void putRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .PUT(HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+    }
+
+    @SneakyThrows
+    public void traceRequest(ObjectMapper mapper, MainController parent) {
+        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .method(PathItem.HttpMethod.TRACE.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
@@ -112,7 +207,7 @@ public class HttpUtility {
             transformer.transform(new DOMSource(document), new StreamResult(out));
             return out.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Error occurs when pretty-printing xml:\n" + xmlString, e);
+            throw new XmlFormattingException("Error occurs when pretty-printing xml:\n" + xmlString, e);
         }
     }
 
