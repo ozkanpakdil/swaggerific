@@ -44,9 +44,8 @@ import java.util.stream.Collectors;
 public class HttpUtility {
 
     @SneakyThrows
-    public void postRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void postRequest(ObjectMapper mapper, MainController parent, String _uri) {
+        URI uri = getUri(_uri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();

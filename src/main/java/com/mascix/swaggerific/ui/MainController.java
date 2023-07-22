@@ -423,11 +423,13 @@ public class MainController implements Initializable {
 
     public void btnSendRequest(ActionEvent actionEvent) {
         TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
+        TreeItemOperatinLeaf getSelectedItem = (TreeItemOperatinLeaf) getTreePaths().getSelectionModel().getSelectedItem();
+
         if (selectedItem instanceof TreeItemOperatinLeaf) {
             if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
                 Platform.runLater(() -> httpUtility.getRequest(mapper, this));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.POST.name())) {
-                Platform.runLater(() -> httpUtility.postRequest(mapper, this));
+                Platform.runLater(() -> httpUtility.postRequest(mapper, this,getSelectedItem.getUri()));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.DELETE.name())) {
                 Platform.runLater(() -> httpUtility.deleteRequest(mapper, this));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.HEAD.name())) {
