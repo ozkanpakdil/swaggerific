@@ -1,5 +1,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ozkanpakdil_swaggerific&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ozkanpakdil_swaggerific)
 
+https://user-images.githubusercontent.com/604405/248362302-bd6f76ed-64cc-4bcb-85d0-480c84ea06db.png
+
 # native build
 ```shell
 mvn gluonfx:build gluonfx:nativerun
