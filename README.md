@@ -3,6 +3,8 @@
 A user interface (UI) designed to interact with APIs using Swagger documentation.
 
 Features:
+- The UI is built using JavaFX.
+- Error handling and display of API responses implemented.
 - Retrieve and load Swagger JSON to fetch API documentation.
 - Display a list of functions (endpoints) on the left-hand side of the UI for easy navigation.
 - Allow users to select a specific function (endpoint) from the list.
@@ -11,8 +13,6 @@ Features:
 - Offer a testing functionality, enabling users to execute the selected function with the chosen method and data.
 
 Additional Considerations / not implemented features:
-- The UI will be built using JavaFX.
-- Error handling and display of API responses will be implemented.
 - Any necessary authentication or security features will be included.
 
 # look
