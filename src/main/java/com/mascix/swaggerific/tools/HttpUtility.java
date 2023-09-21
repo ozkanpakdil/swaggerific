@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 public class HttpUtility {
 
     @SneakyThrows
-    public void postRequest(ObjectMapper mapper, MainController parent, String _uri) {
-        URI uri = getUri(_uri, parent.getBoxRequestParams());
+    public void postRequest(ObjectMapper mapper, MainController parent, String pUri) {
+        URI uri = getUri(pUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -188,6 +188,7 @@ public class HttpUtility {
                     prettyPrintByTransformer(httpResponse.body(), 4, true)
             );
         }
+        parent.getCodeRawJsonResponse().setText(httpResponse.body());
     }
 
     public String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {

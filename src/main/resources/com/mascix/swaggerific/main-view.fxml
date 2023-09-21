@@ -141,7 +141,8 @@
                                            minWidth="-Infinity"
                                            prefHeight="30"/>-->
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="260.0" >
-                                        <TabPane >
+                                        <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                 AnchorPane.topAnchor="0.0">
                                             <Tab text="Pretty">
                                                 <VirtualizedScrollPane minHeight="-Infinity"
                                                                        minWidth="-Infinity"
@@ -163,24 +164,15 @@
                                                 </VirtualizedScrollPane>
                                             </Tab>
                                             <Tab text="Raw">
-                                                <VirtualizedScrollPane minHeight="-Infinity"
-                                                                       minWidth="-Infinity"
-                                                                       AnchorPane.bottomAnchor="0.0"
-                                                                       AnchorPane.leftAnchor="0.0"
-                                                                       AnchorPane.rightAnchor="0.0"
-                                                                       AnchorPane.topAnchor="0.0"
-                                                                       VBox.vgrow="ALWAYS">
-                                                    <content>
-                                                        <CustomCodeArea fx:id="codeRawJsonResponse"
-                                                                        minHeight="-Infinity"
-                                                                        minWidth="-Infinity"
-                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                        AnchorPane.leftAnchor="0.0"
-                                                                        AnchorPane.rightAnchor="0.0"
-                                                                        AnchorPane.topAnchor="0.0"
-                                                                        VBox.vgrow="ALWAYS"/>
-                                                    </content>
-                                                </VirtualizedScrollPane>
+                                                <TextArea fx:id="codeRawJsonResponse"
+                                                          minHeight="-Infinity"
+                                                          minWidth="-Infinity"
+                                                          AnchorPane.bottomAnchor="0.0"
+                                                          AnchorPane.leftAnchor="0.0"
+                                                          AnchorPane.rightAnchor="0.0"
+                                                          AnchorPane.topAnchor="0.0"
+                                                          wrapText="true"
+                                                          VBox.vgrow="ALWAYS"/>
                                             </Tab>
                                         </TabPane>
 

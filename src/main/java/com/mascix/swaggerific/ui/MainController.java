@@ -75,6 +75,8 @@ public class MainController implements Initializable {
 
     @FXML
     CustomCodeArea codeJsonResponse;
+    @FXML
+    TextArea codeRawJsonResponse;
 
     @FXML
     TreeView treePaths;
