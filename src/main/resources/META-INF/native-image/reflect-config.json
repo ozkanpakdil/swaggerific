@@ -147,6 +147,7 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"handleAboutAction","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
