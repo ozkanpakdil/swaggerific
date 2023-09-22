@@ -134,14 +134,18 @@
                                                         </content>
                                                     </VirtualizedScrollPane>
                                                 </Tab>
+                                                <Tab text="Authorization">
+                                                    <fx:include source="./edit/authorization.fxml"/>
+                                                </Tab>
                                             </TabPane>
                                         </VBox>
                                     </AnchorPane>
                                     <!--<Label fx:id="lblResponse" text="== Response ==" maxHeight="23"
                                            minWidth="-Infinity"
                                            prefHeight="30"/>-->
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="260.0" >
-                                        <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="260.0">
+                                        <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                                 AnchorPane.rightAnchor="0.0"
                                                  AnchorPane.topAnchor="0.0">
                                             <Tab text="Pretty">
                                                 <VirtualizedScrollPane minHeight="-Infinity"

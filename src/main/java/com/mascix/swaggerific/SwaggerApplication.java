@@ -24,16 +24,15 @@ public class SwaggerApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         this.primaryStage = stage;
+        String fontSize = userPrefs.get(FONT_SIZE, ".93em");
+        String selectedFont = userPrefs.get(SELECTED_FONT, "Verdana");
 
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Parent root = fxmlLoader.load();
-        log.info("font size:" + userPrefs.get(FONT_SIZE, ".93em"));
-        log.info("font family:" + userPrefs.get(SELECTED_FONT, "Verdana"));
-        //TODO this size change is not working, investigate.
-        root.setStyle("-fx-font-size:" + userPrefs.get(FONT_SIZE, ".93em"));
-        root.setStyle("-fx-font-family:'" + userPrefs.get(SELECTED_FONT, "Verdana") + "'");
+        log.info("font size:" + fontSize);
+        log.info("font family:" + selectedFont);
         MainController mainController = fxmlLoader.getController();
         mainController.onOpening();
         Scene scene = new Scene(root, 800, 600);
@@ -42,6 +41,11 @@ public class SwaggerApplication extends Application {
         stage.setScene(scene);
         stage.setOnHidden(e -> mainController.onClose());
         stage.show();
+        //TODO this size change is not working, investigate. // below font change is not working on application start :(
+        root.setStyle("-fx-font-size:" + fontSize+";");
+        root.setStyle("-fx-font-family:'" + selectedFont + "';");
+        mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize+";");
+        mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
     }
 
     private void loadingWindowLookAndLocation() {

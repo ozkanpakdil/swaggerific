@@ -45,6 +45,7 @@ public class SettingsController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         List<String> families = Font.getFamilies();
         cmbFonts.setItems(FXCollections.observableArrayList(families));
+        txtFontSize.setText(userPrefs.get(FONT_SIZE,"0.93em"));
     }
 
     public void onChange(ActionEvent actionEvent) {
@@ -75,10 +76,10 @@ public class SettingsController implements Initializable {
         if (fontsValue != null && !fontsValue.isBlank()) {
             userPrefs.put(SELECTED_FONT, fontsValue);
             mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + fontsValue + "';");
-            log.info("saving fontfamily:" + fontsValue);
+            log.info("saving font family:" + fontsValue);
         }
         if (!txtFontSize.getText().isEmpty()) {
-            log.debug("saving fontsize:" + txtFontSize.getText());
+            log.debug("saving font size:" + txtFontSize.getText());
             userPrefs.put(FONT_SIZE, txtFontSize.getText());
             mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + txtFontSize.getText());
         }
