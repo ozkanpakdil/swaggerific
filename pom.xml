@@ -149,16 +149,23 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- icon sets -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
             <version>12.3.1</version>
         </dependency>
         <dependency>
-            <groupId>org.kordamp.bootstrapfx</groupId>
-            <artifactId>bootstrapfx-core</artifactId>
-            <version>0.4.0</version>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-typicons-pack</artifactId>
+            <version>12.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <!-- icon sets -->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -214,6 +221,31 @@
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
                 </configuration>
+            </plugin>
+
+<!--
+
+shade plugin is required for ikonli https://kordamp.org/ikonli/#_creating_a_fat_jar
+not working for now, which is affecting settings form.
+
+-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    </transformers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>com.gluonhq</groupId>
