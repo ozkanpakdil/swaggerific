@@ -9,6 +9,8 @@ module com.mascix.swaggerific {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
+    requires org.kordamp.ikonli.fontawesome;
+    requires org.kordamp.ikonli.fontawesome5;
     requires com.fasterxml.jackson.databind;
     requires io.swagger.v3.oas.models;
     requires io.swagger.v3.core;

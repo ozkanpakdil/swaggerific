@@ -165,6 +165,16 @@
             <artifactId>ikonli-fontawesome-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-bootstrapicons-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
         <!-- icon sets -->
 
         <dependency>
@@ -223,19 +233,20 @@
                 </configuration>
             </plugin>
 
-<!--
+            <!--
 
-shade plugin is required for ikonli https://kordamp.org/ikonli/#_creating_a_fat_jar
-not working for now, which is affecting settings form.
+            shade plugin is required for ikonli https://kordamp.org/ikonli/#_creating_a_fat_jar
+            not working for now, which is affecting settings form.
 
--->
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
                 <configuration>
                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                     </transformers>
                 </configuration>
                 <executions>
