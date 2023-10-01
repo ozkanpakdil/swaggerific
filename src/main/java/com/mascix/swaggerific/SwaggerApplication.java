@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
+import static com.mascix.swaggerific.ui.edit.General.*;
 import static com.mascix.swaggerific.ui.edit.SettingsController.*;
 
 @Slf4j

@@ -494,6 +494,7 @@ public class MainController implements Initializable {
         controller.setMainWindow(this);
         stage.setScene(settingsScene);
         stage.show();
-        stage.setOnHidden(e -> controller.onClose());
+
+//        stage.setOnHidden(e -> controller.onClose());
     }
 }

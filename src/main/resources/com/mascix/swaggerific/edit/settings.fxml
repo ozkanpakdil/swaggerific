@@ -1,51 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
+<AnchorPane prefHeight="640.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.edit.SettingsController">
 
-<AnchorPane prefHeight="299.0" prefWidth="426.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.edit.SettingsController">
-
-    <SplitPane dividerPositions="0.25" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <AnchorPane maxWidth="300">
-            <TilePane fx:id="tilePane" hgap="10" vgap="10">
+    <SplitPane dividerPositions="0.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane maxWidth="-Infinity">
+            <TilePane fx:id="tilePane" hgap="10" vgap="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <!-- Define your list items with images and text -->
                 <children>
                     <VBox>
-                        <FontIcon iconLiteral="fa-camera" />
-                        <Label text="Item 1" />
-                        <Separator />
-                        <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32" selectionEnd="0" />
-                        <Label text="Item 2" />
-                        <Separator />
-                        <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-plus" iconSize="32" selectionEnd="0" />
-                        <Label text="Item 3" />
-                  <padding>
-                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                  </padding>
+                        <Button fx:id="btnGeneral" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#clickGeneral" text="General">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-gear" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnThemes" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#clickThemes" text="Themes">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnShortcuts" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                text="Shortcuts">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-arrow-up" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnData" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Data">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-database" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnAddons" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Addons">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-puzzle-piece" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnCertificates" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                text="Certificates">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-certificate" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnProxy" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Proxy">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnUpdate" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Update">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnAbout" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="About">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </padding>
                     </VBox>
                 </children>
             </TilePane>
         </AnchorPane>
-        <AnchorPane>
-            <GridPane layoutX="113.0" layoutY="100.0" style="-fx-padding: 1em;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                </rowConstraints>
-                <Label text="Fontsize" />
-                <TextField fx:id="txtFontSize" GridPane.columnIndex="1" />
-                <Label text="Font Family" GridPane.rowIndex="1" />
-                <ComboBox fx:id="cmbFonts" onAction="#onChange" prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <Button onAction="#btnRestoreClick" text="Back to default" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <HBox fx:id="fontPreview" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            </GridPane>
+        <AnchorPane fx:id="leftPane">
+
         </AnchorPane>
     </SplitPane>
 </AnchorPane>
