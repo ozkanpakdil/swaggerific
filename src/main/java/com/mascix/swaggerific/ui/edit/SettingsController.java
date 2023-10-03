@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.TilePane;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class SettingsController {
     @FXML
     Button btnAbout;
     @FXML
-    Pane leftPane;
+    Pane rightPane;
 
     public void setMainWindow(MainController mainController) {
         this.mainController = mainController;
@@ -48,20 +47,17 @@ public class SettingsController {
     private MainController mainController;
 
 
-    public void clickGeneral(ActionEvent actionEvent)  {
-        loadSettingsPane("/com/mascix/swaggerific/edit/settings/General.fxml");
+    public void clickGeneral(ActionEvent actionEvent) {
+        Button source = (Button) actionEvent.getSource();
+        loadSettingsPane("/com/mascix/swaggerific/edit/settings/%s.fxml".formatted(source.getText()));
     }
 
-    private void loadSettingsPane(String name)  {
-        leftPane.getChildren().clear();
+    private void loadSettingsPane(String name) {
+        rightPane.getChildren().clear();
         try {
-            leftPane.getChildren().add(new FXMLLoader(getClass().getResource(name)).load());
+            rightPane.getChildren().add(new FXMLLoader(getClass().getResource(name)).load());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void clickThemes(ActionEvent actionEvent) {
-        loadSettingsPane("/com/mascix/swaggerific/edit/settings/Themes.fxml");
     }
 }

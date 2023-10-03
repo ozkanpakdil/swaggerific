@@ -9,7 +9,7 @@
 
     <SplitPane dividerPositions="0.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <AnchorPane maxWidth="-Infinity">
+        <AnchorPane maxWidth="150">
             <TilePane fx:id="tilePane" hgap="10" vgap="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <!-- Define your list items with images and text -->
@@ -23,7 +23,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnThemes" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                onAction="#clickThemes" text="Themes">
+                                onAction="#clickGeneral" text="Themes">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
                                           selectionEnd="0"/>
@@ -31,19 +31,22 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnShortcuts" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#clickGeneral"
                                 text="Shortcuts">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-arrow-up" iconSize="32" selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
-                        <Button fx:id="btnData" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Data">
+                        <Button fx:id="btnData" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Data"
+                                onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-database" iconSize="32" selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
-                        <Button fx:id="btnAddons" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Addons">
+                        <Button fx:id="btnAddons" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Addons"
+                                onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-puzzle-piece" iconSize="32"
                                           selectionEnd="0"/>
@@ -51,28 +54,31 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnCertificates" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                text="Certificates">
+                                text="Certificates" onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-certificate" iconSize="32"
                                           selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
-                        <Button fx:id="btnProxy" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Proxy">
+                        <Button fx:id="btnProxy" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Proxy"
+                                onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
                                           selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
-                        <Button fx:id="btnUpdate" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Update">
+                        <Button fx:id="btnUpdate" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Update"
+                                onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
                                           selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
-                        <Button fx:id="btnAbout" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="About">
+                        <Button fx:id="btnAbout" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="About"
+                                onAction="#clickGeneral">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
                                           selectionEnd="0"/>
@@ -86,7 +92,7 @@
                 </children>
             </TilePane>
         </AnchorPane>
-        <AnchorPane fx:id="leftPane">
+        <AnchorPane fx:id="rightPane">
 
         </AnchorPane>
     </SplitPane>

@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane style="-fx-padding: 1em;" AnchorPane.bottomAnchor="0.0" fx:controller="com.mascix.swaggerific.ui.edit.General"
+<GridPane style="-fx-padding: 1em;" fx:controller="com.mascix.swaggerific.ui.edit.General" AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
           xmlns:fx="http://javafx.com/fxml/1">
     <columnConstraints>
