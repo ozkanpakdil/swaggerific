@@ -44,3 +44,10 @@ jobs:
         with:
           name: Package
           path: staging
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            staging/*
+        id: "automatic_releases"
