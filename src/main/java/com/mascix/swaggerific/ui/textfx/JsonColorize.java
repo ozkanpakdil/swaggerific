@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class JsonColorizer {
+public class JsonColorize {
     static final Pattern JSON_REGEX = Pattern.compile("(?<JSONCURLY>[{}])|" +
             "(?<JSONPROPERTY>\".*\")\\s*:\\s*|" +
             "(?<JSONVALUE>\".*\")|" +
@@ -19,7 +19,7 @@ public class JsonColorizer {
             "(?<TEXT>.*)");
 
     public StyleSpans<Collection<String>> computeHighlighting(String text) {
-        Matcher matcher = JsonColorizer.JSON_REGEX.matcher(text);
+        Matcher matcher = JsonColorize.JSON_REGEX.matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         while (matcher.find()) {

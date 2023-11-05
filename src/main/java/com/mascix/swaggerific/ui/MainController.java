@@ -12,7 +12,7 @@ import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
 import com.mascix.swaggerific.ui.textfx.BracketHighlighter;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
-import com.mascix.swaggerific.ui.textfx.JsonColorizer;
+import com.mascix.swaggerific.ui.textfx.JsonColorize;
 import com.mascix.swaggerific.ui.textfx.XmlColorizer;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
@@ -103,7 +103,7 @@ public class MainController implements Initializable {
 
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
-    JsonColorizer jsonColorizer = new JsonColorizer();
+    JsonColorize jsonColorize = new JsonColorize();
     XmlColorizer xmlColorizer = new XmlColorizer();
     TreeItem<String> treeItemRoot = new TreeItem<>("base root");
     String urlTarget;
@@ -207,12 +207,12 @@ public class MainController implements Initializable {
         tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
             evt.getRowValue().setName(evt.getNewValue());
-            addTableRowIfAllfilled();
+            addTableRowIfFulfilled();
         });
         tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
             evt.getRowValue().setValue(evt.getNewValue());
-            addTableRowIfAllfilled();
+            addTableRowIfFulfilled();
         });
         txtAddress.textProperty().addListener((obs, oldWord, newWord) -> {
             TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
@@ -220,7 +220,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private void addTableRowIfAllfilled() {
+    private void addTableRowIfFulfilled() {
         ObservableList<RequestHeader> any = tableHeaders.getItems();
         long any1 = any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).count();
         if (any1 == 0) {
@@ -234,7 +234,7 @@ public class MainController implements Initializable {
     private void codeResponseJsonSettings(CodeArea area, String cssName) {
         editorSettingsForAll(area, cssName);
         area.textProperty().addListener(
-                (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorizer.computeHighlighting(newText)));
+                (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorize.computeHighlighting(newText)));
     }
 
     private static void editorSettingsForAll(CodeArea area, String cssName) {
