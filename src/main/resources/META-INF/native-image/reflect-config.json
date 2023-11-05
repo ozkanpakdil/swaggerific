@@ -166,6 +166,10 @@
   ]
 },
 {
+  "name":"com.mascix.swaggerific.ui.edit.AuthorizationController",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.mascix.swaggerific.ui.edit.SettingsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -1156,6 +1160,15 @@
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"getColumns","parameterTypes":[] }, 
     {"name":"setEditable","parameterTypes":["boolean"] }
+  ]
+},
+{
+  "name":"javafx.scene.control.TextArea",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setWrapText","parameterTypes":["boolean"] }
   ]
 },
 {
