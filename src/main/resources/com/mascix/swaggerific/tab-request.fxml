@@ -115,7 +115,7 @@
                         </content>
                     </VirtualizedScrollPane>
                 </Tab>
-                <Tab text="Raw" styleClass="tabRaw">
+                <Tab text="Raw" fx:id="tabRaw">
                     <TextArea fx:id="codeRawJsonResponse"
                               minHeight="-Infinity"
                               minWidth="-Infinity"
