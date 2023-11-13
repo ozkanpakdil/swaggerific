@@ -83,9 +83,9 @@ class SwaggerGuiTest {
         robot.push(KeyCode.ENTER);
         robot.sleep(500);
         robot.clickOn("#treePaths");
+        robot.push(KeyCode.HOME);
+        robot.push(KeyCode.RIGHT);
         robot.push(KeyCode.DOWN);
-        robot.push(KeyCode.RIGHT);
-        robot.push(KeyCode.RIGHT);
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.RIGHT);
@@ -93,9 +93,7 @@ class SwaggerGuiTest {
         Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
         Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
         CAPTURE_SUPPORT.saveImage(image,captureFile);
-        log.info("testtest");
-        log.info("swagroot:"+robot.lookup(".root").query());
-        /*robot.clickOn("#status").write("sold");
+        robot.clickOn("#status").write("sold");
 //        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
         robot.clickOn(".btnSend");
 
@@ -103,6 +101,6 @@ class SwaggerGuiTest {
 
         robot.clickOn(".tabRaw");
         // or (lookup by css class):
-        FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));*/
+        FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));
     }
 }
