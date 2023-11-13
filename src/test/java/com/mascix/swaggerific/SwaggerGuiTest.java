@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,7 @@ import static org.testfx.api.FxService.serviceContext;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 
 @ExtendWith(ApplicationExtension.class)
+@Slf4j
 class SwaggerGuiTest {
 
     private static MockServerClient mockServer;
@@ -77,7 +79,7 @@ class SwaggerGuiTest {
     @Test
     void click_treeview_call_get(FxRobot robot) {
         robot.push(KeyCode.CONTROL, KeyCode.O);
-        robot.write("http://127.0.0.1:1080/petstore-swagger.json");
+        robot.write("http://127.0.0.1:"+mockServer.getPort()+"/petstore-swagger.json");
         robot.push(KeyCode.ENTER);
         robot.sleep(500);
         robot.clickOn("#treePaths");
@@ -91,7 +93,8 @@ class SwaggerGuiTest {
         Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
         Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
         CAPTURE_SUPPORT.saveImage(image,captureFile);
-        System.out.println("root:"+robot.lookup(".root").query());
+        log.info("testtest");
+        log.info("swagroot:"+robot.lookup(".root").query());
         robot.clickOn("#status").write("sold");
 //        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
         robot.clickOn(".btnSend");
