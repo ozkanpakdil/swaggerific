@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
-<?import org.fxmisc.flowless.VirtualizedScrollPane?>
-<?import org.fxmisc.richtext.CodeArea?>
-<?import com.mascix.swaggerific.ui.textfx.CustomCodeArea?>
 <StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -56,138 +51,11 @@
                               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                    <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                             prefHeight="370.0" prefWidth="396.0" tabClosingPolicy="UNAVAILABLE"
+                    <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+                             minWidth="-Infinity"
+                             prefHeight="370.0" prefWidth="396.0"
                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                              AnchorPane.topAnchor="0.0">
-                        <Tab text="Untitled Tab 1">
-                            <AnchorPane prefHeight="180.0" prefWidth="200.0">
-                                <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity"
-                                           orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0"
-                                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <AnchorPane fx:id="ancText" VBox.vgrow="ALWAYS">
-                                        <VBox fx:id="boxParams" AnchorPane.bottomAnchor="0.0"
-                                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                              AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-                                            <HBox>
-                                                <AnchorPane HBox.hgrow="ALWAYS">
-                                                    <TextField fx:id="txtAddress" minWidth="-Infinity"
-                                                               AnchorPane.leftAnchor="0.0"
-                                                               AnchorPane.rightAnchor="0.0"/>
-                                                </AnchorPane>
-                                                <Button fx:id="btnSend" onAction="#btnSendRequest" text="Send"/>
-                                                <VBox.margin>
-                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
-                                                </VBox.margin>
-                                                <padding>
-                                                    <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
-                                                </padding>
-                                            </HBox>
-                                            <TabPane fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE"
-                                                     VBox.vgrow="ALWAYS">
-                                                <Tab fx:id="tabParams" text="Parameters">
-                                                    <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
-                                                              minWidth="-Infinity" styleClass="boxRequestParams"
-                                                              stylesheets="@main-view.css" AnchorPane.bottomAnchor="0.0"
-                                                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                                              AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-                                                        <columnConstraints>
-                                                            <ColumnConstraints percentWidth="30"/>
-                                                            <ColumnConstraints percentWidth="70"/>
-                                                        </columnConstraints>
-                                                    </GridPane>
-                                                </Tab>
-                                                <Tab fx:id="tabHeaders" text="Headers">
-                                                    <TableView editable="true" fx:id="tableHeaders">
-                                                        <columns>
-                                                            <TableColumn prefWidth="31">
-                                                                <cellValueFactory>
-                                                                    <PropertyValueFactory property="checked"/>
-                                                                </cellValueFactory>
-                                                            </TableColumn>
-                                                            <TableColumn prefWidth="200" text="name">
-                                                                <cellValueFactory>
-                                                                    <PropertyValueFactory property="name"/>
-                                                                </cellValueFactory>
-                                                            </TableColumn>
-                                                            <TableColumn prefWidth="200" text="value">
-                                                                <cellValueFactory>
-                                                                    <PropertyValueFactory property="value"/>
-                                                                </cellValueFactory>
-                                                            </TableColumn>
-                                                        </columns>
-                                                    </TableView>
-                                                </Tab>
-                                                <Tab fx:id="tabBody" text="Body">
-                                                    <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity"
-                                                                           AnchorPane.bottomAnchor="0.0"
-                                                                           AnchorPane.leftAnchor="0.0"
-                                                                           AnchorPane.rightAnchor="0.0"
-                                                                           AnchorPane.topAnchor="0.0"
-                                                                           VBox.vgrow="ALWAYS">
-                                                        <content>
-                                                            <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity"
-                                                                      minWidth="-Infinity" AnchorPane.bottomAnchor="0.0"
-                                                                      AnchorPane.leftAnchor="0.0"
-                                                                      AnchorPane.rightAnchor="0.0"
-                                                                      AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
-                                                        </content>
-                                                    </VirtualizedScrollPane>
-                                                </Tab>
-                                                <Tab text="Authorization">
-                                                    <fx:include source="./edit/authorization.fxml"/>
-                                                </Tab>
-                                            </TabPane>
-                                        </VBox>
-                                    </AnchorPane>
-                                    <!--<Label fx:id="lblResponse" text="== Response ==" maxHeight="23"
-                                           minWidth="-Infinity"
-                                           prefHeight="30"/>-->
-                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="260.0">
-                                        <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                 AnchorPane.rightAnchor="0.0"
-                                                 AnchorPane.topAnchor="0.0">
-                                            <Tab text="Pretty">
-                                                <VirtualizedScrollPane minHeight="-Infinity"
-                                                                       minWidth="-Infinity"
-                                                                       AnchorPane.bottomAnchor="0.0"
-                                                                       AnchorPane.leftAnchor="0.0"
-                                                                       AnchorPane.rightAnchor="0.0"
-                                                                       AnchorPane.topAnchor="0.0"
-                                                                       VBox.vgrow="ALWAYS">
-                                                    <content>
-                                                        <CustomCodeArea fx:id="codeJsonResponse"
-                                                                        minHeight="-Infinity"
-                                                                        minWidth="-Infinity"
-                                                                        AnchorPane.bottomAnchor="0.0"
-                                                                        AnchorPane.leftAnchor="0.0"
-                                                                        AnchorPane.rightAnchor="0.0"
-                                                                        AnchorPane.topAnchor="0.0"
-                                                                        VBox.vgrow="ALWAYS"/>
-                                                    </content>
-                                                </VirtualizedScrollPane>
-                                            </Tab>
-                                            <Tab text="Raw">
-                                                <TextArea fx:id="codeRawJsonResponse"
-                                                          minHeight="-Infinity"
-                                                          minWidth="-Infinity"
-                                                          AnchorPane.bottomAnchor="0.0"
-                                                          AnchorPane.leftAnchor="0.0"
-                                                          AnchorPane.rightAnchor="0.0"
-                                                          AnchorPane.topAnchor="0.0"
-                                                          wrapText="true"
-                                                          VBox.vgrow="ALWAYS"/>
-                                            </Tab>
-                                        </TabPane>
-
-                                    </AnchorPane>
-                                </SplitPane>
-                            </AnchorPane>
-                        </Tab>
-                        <Tab text="Untitled Tab 2">
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
-                        </Tab>
                     </TabPane>
                 </AnchorPane>
             </SplitPane>

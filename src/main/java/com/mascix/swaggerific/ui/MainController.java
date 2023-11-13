@@ -7,21 +7,12 @@ import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
 import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
-import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
-import com.mascix.swaggerific.ui.textfx.BracketHighlighter;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
-import com.mascix.swaggerific.ui.textfx.JsonColorize;
-import com.mascix.swaggerific.ui.textfx.XmlColorizer;
-import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,21 +22,20 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -56,7 +46,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -66,79 +55,29 @@ public class MainController implements Initializable {
 
     //TODO this can go to Preferences.userNodeForPackage in the future
     public static final String SESSION = "session.bin";
-    public Button btnSend;
+    public TabPane tabRequests;
     @FXML
     VBox mainBox;
-
-    @FXML
-    CodeArea codeJsonRequest;
-
-    @FXML
-    CustomCodeArea codeJsonResponse;
-    @FXML
-    TextArea codeRawJsonResponse;
-
     @FXML
     TreeView treePaths;
-    @FXML
-    AnchorPane ancText;
     @FXML
     StackPane topPane;
     @FXML
     StatusBar statusBar;
-    @FXML
-    TextField txtAddress;
-    @FXML
-    GridPane boxRequestParams;
-    @FXML
-    VBox boxParams;
-    @FXML
-    TabPane tabRequestDetails;
-    @FXML
-    Tab tabBody;
-    @FXML
-    Tab tabParams;
-    @FXML
-    TableView tableHeaders;
-
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
-    JsonColorize jsonColorize = new JsonColorize();
-    XmlColorizer xmlColorizer = new XmlColorizer();
     TreeItem<String> treeItemRoot = new TreeItem<>("base root");
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     private VBox boxLoader;
     ObjectMapper mapper = new ObjectMapper();
-    private HttpUtility httpUtility = new HttpUtility();
+    HttpUtility httpUtility = new HttpUtility();
 
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            bracketHighlighter.clearBracket();
-            /*
-            //TODO this bock may be used in json request in the future
-            String character = keyEvent.getCharacter();
-            if (character.equals("[")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "]", "loop");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("]")) {
-                int position = codeJsonResponse.getCaretPosition();
-                if (position != codeJsonResponse.getLength()) {
-                    String nextChar = codeJsonResponse.getText(position, position + 1);
-                    if (nextChar.equals("]")) codeJsonResponse.deleteText(position, position + 1);
-                }
-            }*/
-
-            bracketHighlighter.highlightBracket();
-        });
-        codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
-        codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
@@ -175,117 +114,32 @@ public class MainController implements Initializable {
             });
             return cell;
         });
-        tableHeaders.setItems(FXCollections.observableArrayList(
-                RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
-                        .build(),
-                RequestHeader.builder().checked(false).name(HttpHeaders.CONTENT_TYPE).value(MediaType.APPLICATION_JSON)
-                        .build(),
-                RequestHeader.builder().checked(false).name("").value("").build()));
-        TableColumn<RequestHeader, Boolean> checked = tableHeaders.getVisibleLeafColumn(0);
-        checked.setCellFactory(CheckBoxTableCell.forTableColumn(checked));
-        checked.setCellFactory(p -> {
-            CheckBox checkBox = new CheckBox();
-            TableCell<RequestHeader, Boolean> cell = new TableCell<>() {
-                @Override
-                public void updateItem(Boolean item, boolean empty) {
-                    if (empty) {
-                        setGraphic(null);
-                    } else {
-                        checkBox.setSelected(item);
-                        setGraphic(checkBox);
-                    }
-                }
-            };
-            checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (cell.getTableRow().getItem() != null)
-                    cell.getTableRow().getItem().setChecked(isSelected);
-            });
-            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            cell.setAlignment(Pos.CENTER);
-            return cell;
-        });
-        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
-        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
-            evt.getRowValue().setName(evt.getNewValue());
-            addTableRowIfFulfilled();
-        });
-        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
-        ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
-            evt.getRowValue().setValue(evt.getNewValue());
-            addTableRowIfFulfilled();
-        });
-        txtAddress.textProperty().addListener((obs, oldWord, newWord) -> {
-            TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) treePaths.getSelectionModel().getSelectedItem();
-            selectedItem.setUri(newWord);
-        });
     }
 
-    private void addTableRowIfFulfilled() {
-        ObservableList<RequestHeader> any = tableHeaders.getItems();
-        long any1 = any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).count();
-        if (any1 == 0) {
-            tableHeaders.getItems().add(RequestHeader.builder().checked(true).build());
-        } else if (any1 > 1) {
-            tableHeaders.getItems().remove(
-                    any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).findFirst().get());
+    @SneakyThrows
+    private void handleTreeViewItemClick(String tabName, TreeItemOperatinLeaf leaf) {
+        if (tabRequests.getTabs().stream().filter(f->f.getId().equals(tabName)).findAny().isEmpty()) {
+            FXMLLoader tab = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/tab-request.fxml"));
+            Tab newTab = new Tab(tabName);
+            newTab.setContent(tab.load());
+            TabRequestController controller = tab.getController();
+            controller.setMainController(this, tabName, leaf);
+            newTab.setUserData(controller);
+            newTab.setId(tabName);
+            tabRequests.getTabs().add(newTab);
+            tabRequests.getSelectionModel().select(newTab);
+        } else {
+            tabRequests.getTabs().stream()
+                    .filter(f -> f.getId().equals(tabName)).findAny()
+                    .ifPresent(p -> tabRequests.getSelectionModel().select(p));
         }
-    }
-
-    private void codeResponseJsonSettings(CodeArea area, String cssName) {
-        editorSettingsForAll(area, cssName);
-        area.textProperty().addListener(
-                (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorize.computeHighlighting(newText)));
-    }
-
-    private static void editorSettingsForAll(CodeArea area, String cssName) {
-        area.setParagraphGraphicFactory(LineNumberFactory.get(area));
-        area.getStylesheets().add(getCss(cssName));
-        area.setWrapText(true);
-        area.setLineHighlighterOn(true);
-    }
-
-    public void codeResponseXmlSettings(CodeArea area, String cssName) {
-        editorSettingsForAll(area, cssName);
-        area.textProperty().addListener(
-                (obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
     }
 
     @SneakyThrows
     private void onTreeItemSelect(TreeItem<String> newValue) {
-        if (newValue instanceof TreeItemOperatinLeaf) {
-            boxRequestParams.getChildren().clear();
-            TreeItemOperatinLeaf m = (TreeItemOperatinLeaf) newValue;
-            Optional<Parameter> body = m.getMethodParameters().stream().filter(p -> p.getName().equals("body")).findAny();
-            txtAddress.setText(m.getUri());
-            if (!body.isEmpty()) {// this function requires json body
-                tabRequestDetails.getSelectionModel().select(tabBody);
-                return;
-            } else {
-                tabRequestDetails.getSelectionModel().select(tabParams);
-            }
-            AtomicInteger row = new AtomicInteger();
-            m.getMethodParameters().forEach(f -> {
-                STextField txtInput = new STextField();
-                txtInput.setParamName(f.getName());
-                txtInput.setIn(f.getIn());
-                txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                if (m.getQueryItems() != null && m.getQueryItems().size() > 0) {
-                    // TODO instead of text field this should be dropdown || combobox || listview.
-                    txtInput.setPromptText(String.valueOf(m.getQueryItems()));
-                }
-                Label lblInput = new Label();
-                lblInput.setText(f.getName());
-                boxRequestParams.add(lblInput, 0, row.get());
-                boxRequestParams.add(txtInput, 1, row.get());
-                row.incrementAndGet();
-            });
-            codeJsonRequest.replaceText(
-                    Json.pretty(m.getMethodParameters()));
+        if (newValue instanceof TreeItemOperatinLeaf m) {
+            handleTreeViewItemClick(m.getUri(), m);
         }
-    }
-
-    private static String getCss(String css) {
-        return MainController.class.getResource(css).toString();
     }
 
     public void showAlert(String title, String header, String content) {
@@ -423,36 +277,6 @@ public class MainController implements Initializable {
             menuFileOpenSwagger(null);
     }
 
-    public void btnSendRequest(ActionEvent actionEvent) {
-        TreeItem<String> selectedItem = (TreeItem<String>) treePaths.getSelectionModel().getSelectedItem();
-        TreeItemOperatinLeaf getSelectedItem = (TreeItemOperatinLeaf) getTreePaths().getSelectionModel().getSelectedItem();
-
-        if (selectedItem instanceof TreeItemOperatinLeaf) {
-            if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
-                Platform.runLater(() -> httpUtility.getRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.POST.name())) {
-                Platform.runLater(() -> httpUtility.postRequest(mapper, this,getSelectedItem.getUri()));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.DELETE.name())) {
-                Platform.runLater(() -> httpUtility.deleteRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.HEAD.name())) {
-                Platform.runLater(() -> httpUtility.headRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.OPTIONS.name())) {
-                Platform.runLater(() -> httpUtility.optionsRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PATCH.name())) {
-                Platform.runLater(() -> httpUtility.patchRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PUT.name())) {
-                Platform.runLater(() -> httpUtility.putRequest(mapper, this));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.TRACE.name())) {
-                Platform.runLater(() -> httpUtility.traceRequest(mapper, this));
-            } else {
-                showAlert("", "", selectedItem.getValue() + " not implemented yet");
-                log.error(selectedItem.getValue() + " not implemented yet");
-            }
-        } else {
-            showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
-        }
-    }
-
     public void onClose() {
         try {
             FileOutputStream out = new FileOutputStream(SESSION);
@@ -496,5 +320,33 @@ public class MainController implements Initializable {
         stage.show();
 
 //        stage.setOnHidden(e -> controller.onClose());
+    }
+
+    public GridPane getBoxRequestParams() {
+        return getSelectedTab().boxRequestParams;
+    }
+
+    private TabRequestController getSelectedTab() {
+        return (TabRequestController) tabRequests.getSelectionModel().getSelectedItem().getUserData();
+    }
+
+    public TableView getTableHeaders() {
+        return getSelectedTab().tableHeaders;
+    }
+
+    public CodeArea getCodeJsonRequest() {
+        return getSelectedTab().codeJsonRequest;
+    }
+
+    public CustomCodeArea getCodeJsonResponse() {
+        return getSelectedTab().codeJsonResponse;
+    }
+
+    public TextArea getCodeRawJsonResponse() {
+        return getSelectedTab().codeRawJsonResponse;
+    }
+
+    public void codeResponseXmlSettings(CustomCodeArea codeJsonResponse, String cssPath) {
+        getSelectedTab().codeResponseXmlSettings(codeJsonResponse, cssPath);
     }
 }
