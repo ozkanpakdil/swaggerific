@@ -91,7 +91,7 @@ class SwaggerGuiTest {
         Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
         Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
         CAPTURE_SUPPORT.saveImage(image,captureFile);
-        System.out.println(robot.lookup(".root").query());
+        System.out.println("root:"+robot.lookup(".root").query());
         robot.clickOn("#status").write("sold");
 //        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
         robot.clickOn(".btnSend");
