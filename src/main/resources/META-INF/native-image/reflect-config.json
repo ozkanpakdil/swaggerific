@@ -166,7 +166,28 @@
   ]
 },
 {
+  "name":"com.mascix.swaggerific.ui.TabRequestController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }
+  ]
+},
+{
   "name":"com.mascix.swaggerific.ui.edit.AuthorizationController",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.mascix.swaggerific.ui.edit.Certificates",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.mascix.swaggerific.ui.edit.General",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -176,8 +197,15 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"btnRestoreClick","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"clickGeneral","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"onChange","parameterTypes":["javafx.event.ActionEvent"] }
   ]
+},
+{
+  "name":"com.mascix.swaggerific.ui.edit.Themes",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"com.mascix.swaggerific.ui.textfx.CustomCodeArea",
@@ -211,6 +239,10 @@
 },
 {
   "name":"com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.HmacCore$HmacSHA384",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -994,6 +1026,7 @@
 },
 {
   "name":"javafx.scene.Node",
+  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"getId","parameterTypes":[] }, 
@@ -1001,7 +1034,9 @@
     {"name":"setId","parameterTypes":["java.lang.String"] }, 
     {"name":"setLayoutX","parameterTypes":["double"] }, 
     {"name":"setLayoutY","parameterTypes":["double"] }, 
-    {"name":"setOnMouseClicked","parameterTypes":["javafx.event.EventHandler"] }
+    {"name":"setOnMouseClicked","parameterTypes":["javafx.event.EventHandler"] }, 
+    {"name":"setPickOnBounds","parameterTypes":["boolean"] }, 
+    {"name":"setStyle","parameterTypes":["java.lang.String"] }
   ]
 },
 {
@@ -1009,6 +1044,7 @@
 },
 {
   "name":"javafx.scene.Parent",
+  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"getStylesheets","parameterTypes":[] }]
 },
@@ -1027,6 +1063,12 @@
   "methods":[{"name":"setOnAction","parameterTypes":["javafx.event.EventHandler"] }]
 },
 {
+  "name":"javafx.scene.control.CheckBox",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"javafx.scene.control.ComboBox",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -1039,6 +1081,7 @@
 },
 {
   "name":"javafx.scene.control.Control",
+  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true
 },
 {
@@ -1050,7 +1093,11 @@
 {
   "name":"javafx.scene.control.Labeled",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"setText","parameterTypes":["java.lang.String"] }]
+  "methods":[
+    {"name":"setGraphic","parameterTypes":["javafx.scene.Node"] }, 
+    {"name":"setMnemonicParsing","parameterTypes":["boolean"] }, 
+    {"name":"setText","parameterTypes":["java.lang.String"] }
+  ]
 },
 {
   "name":"javafx.scene.control.Menu",
@@ -1093,6 +1140,11 @@
   ]
 },
 {
+  "name":"javafx.scene.control.Separator",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"javafx.scene.control.SeparatorMenuItem",
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
@@ -1123,6 +1175,7 @@
 },
 {
   "name":"javafx.scene.control.TabPane",
+  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[
@@ -1201,7 +1254,16 @@
   "name":"javafx.scene.image.Image"
 },
 {
-  "name":"javafx.scene.image.ImageView"
+  "name":"javafx.scene.image.ImageView",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setFitHeight","parameterTypes":["double"] }, 
+    {"name":"setFitWidth","parameterTypes":["double"] }, 
+    {"name":"setImage","parameterTypes":["javafx.scene.image.Image"] }, 
+    {"name":"setPreserveRatio","parameterTypes":["boolean"] }
+  ]
 },
 {
   "name":"javafx.scene.input.KeyCode",
@@ -1284,6 +1346,7 @@
 },
 {
   "name":"javafx.scene.layout.Region",
+  "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"setMaxHeight","parameterTypes":["double"] }, 
@@ -1313,6 +1376,16 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"javafx.scene.layout.TilePane",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setHgap","parameterTypes":["double"] }, 
+    {"name":"setVgap","parameterTypes":["double"] }
+  ]
+},
+{
   "name":"javafx.scene.layout.VBox",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -1323,6 +1396,10 @@
     {"name":"setMargin","parameterTypes":["javafx.scene.Node","javafx.geometry.Insets"] }, 
     {"name":"setVgrow","parameterTypes":["javafx.scene.Node","javafx.scene.layout.Priority"] }
   ]
+},
+{
+  "name":"javafx.scene.paint.Paint",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"javafx.scene.shape.LineTo"
@@ -1343,13 +1420,16 @@
   "name":"javafx.scene.shape.SVGPath"
 },
 {
-  "name":"javafx.scene.shape.Shape"
+  "name":"javafx.scene.shape.Shape",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"javafx.scene.text.Font"
 },
 {
-  "name":"javafx.scene.text.Text"
+  "name":"javafx.scene.text.Text",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"setSelectionEnd","parameterTypes":["int"] }]
 },
 {
   "name":"javafx.scene.transform.Transform"
@@ -1404,6 +1484,17 @@
 {
   "name":"org.fxmisc.richtext.StyledTextArea",
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"org.kordamp.ikonli.javafx.FontIcon",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setIconColor","parameterTypes":["javafx.scene.paint.Paint"] }, 
+    {"name":"setIconLiteral","parameterTypes":["java.lang.String"] }, 
+    {"name":"setIconSize","parameterTypes":["int"] }
+  ]
 },
 {
   "name":"sun.misc.Unsafe",
@@ -1491,6 +1582,10 @@
 },
 {
   "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA384withRSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
