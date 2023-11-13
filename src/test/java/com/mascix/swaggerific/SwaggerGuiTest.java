@@ -79,8 +79,7 @@ class SwaggerGuiTest {
         robot.push(KeyCode.CONTROL, KeyCode.O);
         robot.write("http://127.0.0.1:1080/petstore-swagger.json");
         robot.push(KeyCode.ENTER);
-        robot.sleep(100);
-        System.out.println(robot.lookup("#treePaths").query());
+        robot.sleep(500);
         robot.clickOn("#treePaths");
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.RIGHT);
@@ -92,12 +91,11 @@ class SwaggerGuiTest {
         Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
         Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
         CAPTURE_SUPPORT.saveImage(image,captureFile);
+        System.out.println(robot.lookup(".root").query());
         robot.clickOn("#status").write("sold");
 //        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
         robot.clickOn(".btnSend");
 
-//        FxAssert.verifyThat((NodeQuery) swaggerApplication, LabeledMatchers.hasText("click me!"));
-        // or (lookup by css id):
         FxAssert.verifyThat("#codeJsonResponse", isEnabled());
 
         robot.clickOn(".tabRaw");
