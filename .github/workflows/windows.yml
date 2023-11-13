@@ -52,5 +52,6 @@ jobs:
           prerelease: true
           title: "Windows Development Build"
           files: |
-            staging/*
+            staging/*.exe
+            staging/*.msi
         id: "automatic_releases"
