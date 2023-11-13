@@ -87,7 +87,15 @@ jobs:
         with:
           name: PackageAppStore
           path: ${{ steps.outputfilestore.outputs.path }}
-
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest_macos"
+          prerelease: true
+          title: "MacOS Development Build"
+          files: |
+            staging/*.pkg
+        id: "automatic_releases"
 #      - name: Upload App Store TestFlight
 #        uses: Apple-Actions/upload-testflight-build@master
 #        with:
