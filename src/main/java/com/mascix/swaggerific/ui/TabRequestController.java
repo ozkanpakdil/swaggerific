@@ -109,6 +109,7 @@ public class TabRequestController extends TabPane {
         leaf.getMethodParameters().forEach(f -> {
             STextField txtInput = new STextField();
             txtInput.setParamName(f.getName());
+            txtInput.setId(f.getName());
             txtInput.setIn(f.getIn());
             txtInput.setMinWidth(Region.USE_PREF_SIZE);
             if (leaf.getQueryItems() != null && leaf.getQueryItems().size() > 0) {

@@ -24,11 +24,11 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
-            <Menu text="Edit">
+            <Menu text="Edit" styleClass="menuEdit" >
                 <MenuItem text="Copy"/>
                 <MenuItem text="Cut"/>
                 <MenuItem text="Paste"/>
-                <MenuItem text="Settings" onAction="#openSettings">
+                <MenuItem text="Settings" onAction="#openSettings" styleClass="menuSettings">
                     <accelerator>
                         <KeyCodeCombination alt="ANY" code="S" control="ANY" meta="UP" shift="ANY" shortcut="ANY"/>
                     </accelerator>

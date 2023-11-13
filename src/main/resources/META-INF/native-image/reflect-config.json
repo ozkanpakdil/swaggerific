@@ -1123,6 +1123,7 @@
   "queryAllPublicConstructors":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getStyleClass","parameterTypes":[] }, 
     {"name":"setAccelerator","parameterTypes":["javafx.scene.input.KeyCombination"] }, 
     {"name":"setDisable","parameterTypes":["boolean"] }, 
     {"name":"setOnAction","parameterTypes":["javafx.event.EventHandler"] }, 

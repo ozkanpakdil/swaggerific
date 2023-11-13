@@ -26,7 +26,7 @@
                                    AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0"/>
                     </AnchorPane>
-                    <Button onAction="#btnSendRequest" text="Send"/>
+                    <Button onAction="#btnSendRequest" text="Send" styleClass="btnSend"/>
                     <VBox.margin>
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                     </VBox.margin>
@@ -115,7 +115,7 @@
                         </content>
                     </VirtualizedScrollPane>
                 </Tab>
-                <Tab text="Raw">
+                <Tab text="Raw" styleClass="tabRaw">
                     <TextArea fx:id="codeRawJsonResponse"
                               minHeight="-Infinity"
                               minWidth="-Infinity"
