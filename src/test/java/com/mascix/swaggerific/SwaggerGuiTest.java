@@ -1,7 +1,9 @@
 package com.mascix.swaggerific;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -13,20 +15,26 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.TextInputControlMatchers;
+import org.testfx.service.support.CaptureSupport;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Objects;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.testfx.api.FxService.serviceContext;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 
 @ExtendWith(ApplicationExtension.class)
 class SwaggerGuiTest {
 
     private static MockServerClient mockServer;
+    private static final CaptureSupport CAPTURE_SUPPORT = serviceContext().getCaptureSupport();
 
     /**
      * Will be called with {@code @Before} semantics, i. e. before each test method.
@@ -43,7 +51,7 @@ class SwaggerGuiTest {
                         request()
                                 .withMethod("GET")
                                 .withPath("/petstore-swagger.json")
-                        )
+                )
                 .respond(
                         response()
                                 .withStatusCode(200)
@@ -81,6 +89,9 @@ class SwaggerGuiTest {
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.RIGHT);
         robot.push(KeyCode.DOWN);
+        Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
+        Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
+        CAPTURE_SUPPORT.saveImage(image,captureFile);
         robot.clickOn("#status").write("sold");
 //        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
         robot.clickOn(".btnSend");

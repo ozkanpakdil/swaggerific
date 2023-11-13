@@ -38,6 +38,7 @@ jobs:
           target/gluonfx/x86_64-windows/swaggerific.exe || exit /b
           cp -r target/gluonfx/x86_64-windows/*.exe staging
           cp -r target/gluonfx/x86_64-windows/*.msi staging
+          cp -r screenshot**.png staging
 
       - name: Upload
         uses: actions/upload-artifact@v2
