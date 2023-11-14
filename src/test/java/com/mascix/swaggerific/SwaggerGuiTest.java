@@ -90,17 +90,17 @@ class SwaggerGuiTest {
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.RIGHT);
         robot.push(KeyCode.DOWN);
+//        getScreenShotOfTheTest(robot); // maybe used in the future
+        robot.clickOn("#status").write("sold");
+        robot.clickOn(".btnSend");
+        FxAssert.verifyThat("#codeJsonResponse", isEnabled());
+        robot.clickOn("#tabRaw");
+        FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));
+    }
+
+    private static void getScreenShotOfTheTest(FxRobot robot) {
         Image image = robot.capture(Screen.getPrimary().getBounds()).getImage();
         Path captureFile = Paths.get("screenshot" + new Date().getTime() + ".png");
         CAPTURE_SUPPORT.saveImage(image,captureFile);
-        robot.clickOn("#status").write("sold");
-//        robot.push(KeyCode.S,KeyCode.O,KeyCode.L,KeyCode.D);
-        robot.clickOn(".btnSend");
-
-        FxAssert.verifyThat("#codeJsonResponse", isEnabled());
-
-        robot.clickOn("#tabRaw");
-        // or (lookup by css class):
-        FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));
     }
 }
