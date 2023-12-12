@@ -25,7 +25,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -34,6 +33,7 @@ import javafx.stage.Stage;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
 
@@ -69,7 +69,7 @@ public class MainController implements Initializable {
     TreeItem<String> treeItemRoot = new TreeItem<>("base root");
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
-    private VBox boxLoader;
+    VBox boxLoader;
     ObjectMapper mapper = new ObjectMapper();
     HttpUtility httpUtility = new HttpUtility();
 
@@ -241,7 +241,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
         treePaths.setShowRoot(false);
-        Platform.runLater(() -> setIsOffloading());
+        Platform.runLater(this::setIsOffloading);
     }
 
     @SneakyThrows
@@ -263,7 +263,7 @@ public class MainController implements Initializable {
                     .filter(JsonNode::isArray)
                     .map(enumNode -> StreamSupport.stream(enumNode.spliterator(), false)
                             .map(JsonNode::asText)
-                            .collect(Collectors.toList()))
+                            .toList())
                     .orElse(new ArrayList<>());
 
             it.setQueryItems(enumList);
@@ -330,7 +330,7 @@ public class MainController implements Initializable {
         return (TabRequestController) tabRequests.getSelectionModel().getSelectedItem().getUserData();
     }
 
-    public TableView getTableHeaders() {
+    public TableView<RequestHeader> getTableHeaders() {
         return getSelectedTab().tableHeaders;
     }
 
@@ -348,5 +348,9 @@ public class MainController implements Initializable {
 
     public void codeResponseXmlSettings(CustomCodeArea codeJsonResponse, String cssPath) {
         getSelectedTab().codeResponseXmlSettings(codeJsonResponse, cssPath);
+    }
+
+    public void onChangeTrimConfig(ActionEvent actionEvent) {
+        throw new NotImplementedException("Trim config changed");
     }
 }

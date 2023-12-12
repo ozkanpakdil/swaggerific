@@ -6,12 +6,14 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.net.URL;
 import java.util.List;
@@ -83,5 +85,13 @@ public class General implements Initializable {
         cmbFonts.getSelectionModel().select(-1);
         userPrefs.remove(FONT_SIZE);
         userPrefs.remove(SELECTED_FONT);
+    }
+
+    public void onChangeTrimConfig(ActionEvent actionEvent) {
+        mainController.onChangeTrimConfig(actionEvent);
+    }
+
+    public void onChangeSSLConfig(ActionEvent actionEvent) {
+        throw new NotImplementedException("not implemented yet");
     }
 }

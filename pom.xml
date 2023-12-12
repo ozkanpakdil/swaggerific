@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
-        <javafx.version>20</javafx.version>
+        <javafx.version>21</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <gluonfx.plugin.version>1.0.21</gluonfx.plugin.version>
         <mainClass>com.mascix.swaggerific/com.mascix.swaggerific.SwaggerApplication</mainClass>

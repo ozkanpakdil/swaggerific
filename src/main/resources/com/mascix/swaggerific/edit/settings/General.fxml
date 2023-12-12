@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import atlantafx.base.controls.ToggleSwitch?>
 <GridPane style="-fx-padding: 1em;" fx:controller="com.mascix.swaggerific.ui.edit.General" AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
           xmlns:fx="http://javafx.com/fxml/1">
@@ -14,12 +15,14 @@
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
     </rowConstraints>
-    <Label text="Fontsize"/>
-    <TextField fx:id="txtFontSize" GridPane.columnIndex="1"/>
-    <Label text="Font Family" GridPane.rowIndex="1"/>
-    <ComboBox fx:id="cmbFonts" onAction="#onChange" prefWidth="Infinity" GridPane.columnIndex="1"
-              GridPane.rowIndex="1"/>
-    <Button onAction="#btnRestoreClick" text="Back to default" GridPane.columnIndex="0"
-            GridPane.rowIndex="2"/>
-    <HBox fx:id="fontPreview" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <Label text="Trim keys and values in request body" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+    <ToggleSwitch fx:id="chkTrim" onMouseClicked="#onChangeTrimConfig" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <Label text="SSL certificate verification" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <ToggleSwitch fx:id="chkSSLVerification" onMouseClicked="#onChangeSSLConfig" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+    <Label text="Fontsize" GridPane.rowIndex="2"/>
+    <TextField fx:id="txtFontSize" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <Label text="Font Family" GridPane.rowIndex="3"/>
+    <ComboBox fx:id="cmbFonts" onAction="#onChange" prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <Button onAction="#btnRestoreClick" text="Back to default" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <HBox fx:id="fontPreview" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 </GridPane>

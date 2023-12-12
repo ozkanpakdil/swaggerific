@@ -3,6 +3,7 @@ module com.mascix.swaggerific {
     requires javafx.graphics;
     requires javafx.fxml;
     requires javafx.web;
+    requires javafx.base;
     requires javafx.media;
     requires javafx.swing;
 

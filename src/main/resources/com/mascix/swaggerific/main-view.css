@@ -45,3 +45,9 @@
      -fx-border-color: black;
      -fx-padding: 3px;
 }
+
+.toggle-switch {
+    -fx-skin: "impl.jfxtras.styles.jmetro8.MetroToggleSwitchSkin";
+    -thumb-move-animation-time: 100;
+    -toggle-display: left;
+}

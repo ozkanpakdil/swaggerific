@@ -155,7 +155,7 @@ public class HttpUtility {
     private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
         List<String> headers = new ArrayList<>();
         tableHeaders.getItems().forEach(m -> {
-            if (m.getChecked()) {
+            if (Boolean.TRUE.equals(m.getChecked())) {
                 headers.add(m.getName());
                 headers.add(m.getValue());
             }
@@ -213,7 +213,7 @@ public class HttpUtility {
 
     URI getUri(String uri, GridPane boxRequestParams) {
         String queryParams = boxRequestParams.getChildren().stream()
-                .filter(n -> n instanceof STextField && ((STextField) n).getIn().equals("query"))
+                .filter(n -> n instanceof STextField ns && ns.getIn().equals("query"))
                 .map(n -> ((STextField) n).getParamName() + "=" + ((STextField) n).getText())
                 .collect(Collectors.joining("&"));
 
