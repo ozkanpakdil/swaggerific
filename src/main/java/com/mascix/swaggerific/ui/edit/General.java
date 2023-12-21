@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
@@ -92,6 +93,30 @@ public class General implements Initializable {
     }
 
     public void onChangeSSLConfig(ActionEvent actionEvent) {
-        throw new NotImplementedException("not implemented yet");
+        throw new NotImplementedException();
+    }
+
+    public void onChangeSendNoCacheHeader(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
+    }
+
+    public void onChangeSendSwaggerTokenHeader(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
+    }
+
+    public void onChangeAutomaticallyFallowRedirects(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
+    }
+
+    public void onChangeAlwayOpenSideBarItemInNewTab(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
+    }
+
+    public void onChangeAlwaysAskWhenClosingUnsavedTabs(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
+    }
+
+    public void onChangeSendAnonymousUsageData(MouseEvent mouseEvent) {
+        throw new NotImplementedException();
     }
 }
