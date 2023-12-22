@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-<AnchorPane prefHeight="640.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+<AnchorPane prefHeight="1024.0" prefWidth="768.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.edit.SettingsController">
 
     <SplitPane dividerPositions="0.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -12,18 +12,17 @@
         <AnchorPane maxWidth="150">
             <TilePane fx:id="tilePane" hgap="10" vgap="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <!-- Define your list items with images and text -->
                 <children>
                     <VBox>
                         <Button fx:id="btnGeneral" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                onAction="#clickGeneral" text="General">
+                                onAction="#changeSelectedSetting" text="General">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-gear" iconSize="32" selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
                         <Button fx:id="btnThemes" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                onAction="#clickGeneral" text="Themes">
+                                onAction="#changeSelectedSetting" text="Themes">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
                                           selectionEnd="0"/>
@@ -31,7 +30,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnShortcuts" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                onAction="#clickGeneral"
+                                onAction="#changeSelectedSetting"
                                 text="Shortcuts">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-arrow-up" iconSize="32" selectionEnd="0"/>
@@ -39,14 +38,14 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnData" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Data"
-                                onAction="#clickGeneral">
+                                onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-database" iconSize="32" selectionEnd="0"/>
                             </graphic>
                         </Button>
                         <Separator/>
                         <Button fx:id="btnAddons" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Addons"
-                                onAction="#clickGeneral">
+                                onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-puzzle-piece" iconSize="32"
                                           selectionEnd="0"/>
@@ -54,7 +53,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnCertificates" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
-                                text="Certificates" onAction="#clickGeneral">
+                                text="Certificates" onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-certificate" iconSize="32"
                                           selectionEnd="0"/>
@@ -62,7 +61,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnProxy" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Proxy"
-                                onAction="#clickGeneral">
+                                onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
                                           selectionEnd="0"/>
@@ -70,7 +69,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnUpdate" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Update"
-                                onAction="#clickGeneral">
+                                onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
                                           selectionEnd="0"/>
@@ -78,7 +77,7 @@
                         </Button>
                         <Separator/>
                         <Button fx:id="btnAbout" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="About"
-                                onAction="#clickGeneral">
+                                onAction="#changeSelectedSetting">
                             <graphic>
                                 <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
                                           selectionEnd="0"/>

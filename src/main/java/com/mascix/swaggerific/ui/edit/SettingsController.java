@@ -1,6 +1,7 @@
 package com.mascix.swaggerific.ui.edit;
 
 import com.mascix.swaggerific.ui.MainController;
+import com.mascix.swaggerific.ui.exception.LoadFxmlRuntimeException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,7 +48,7 @@ public class SettingsController {
     private MainController mainController;
 
 
-    public void clickGeneral(ActionEvent actionEvent) {
+    public void changeSelectedSetting(ActionEvent actionEvent) {
         Button source = (Button) actionEvent.getSource();
         loadSettingsPane("/com/mascix/swaggerific/edit/settings/%s.fxml".formatted(source.getText()));
     }
@@ -57,7 +58,7 @@ public class SettingsController {
         try {
             rightPane.getChildren().add(new FXMLLoader(getClass().getResource(name)).load());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LoadFxmlRuntimeException(e);
         }
     }
 }

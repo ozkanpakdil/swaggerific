@@ -46,4 +46,6 @@ module com.mascix.swaggerific {
     opens com.mascix.swaggerific.ui.edit to javafx.fxml;
     exports com.mascix.swaggerific.ui.textfx;
     opens com.mascix.swaggerific.ui.textfx to javafx.fxml;
+    exports com.mascix.swaggerific.ui.exception;
+    opens com.mascix.swaggerific.ui.exception to javafx.fxml;
 }
