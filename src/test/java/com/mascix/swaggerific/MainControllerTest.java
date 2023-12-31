@@ -43,9 +43,7 @@ class MainControllerTest {
         File file = new File("src/test/resources/petstore-swagger.json");
         try {
             JsonNode jsonNode = mapper.readTree(file);
-            jsonNode.fieldNames().forEachRemaining(c -> {
-                System.out.println(c);
-            });
+            jsonNode.fieldNames().forEachRemaining(System.out::println);
             List<String> enumList = StreamSupport.stream(jsonNode
                             .path("paths")
                             .path("/pet/findByStatus")

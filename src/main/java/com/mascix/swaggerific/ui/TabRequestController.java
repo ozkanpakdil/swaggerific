@@ -64,12 +64,17 @@ public class TabRequestController extends TabPane {
 
     private void addTableRowIfFulfilled() {
         ObservableList<RequestHeader> any = tableHeaders.getItems();
-        long any1 = any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).count();
+        long any1 = any.stream()
+                .filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue()))
+                .count();
         if (any1 == 0) {
             tableHeaders.getItems().add(RequestHeader.builder().checked(true).build());
         } else if (any1 > 1) {
             tableHeaders.getItems().remove(
-                    any.stream().filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue())).findFirst().get());
+                    any.stream()
+                            .filter(f -> StringUtils.isAllEmpty(f.getName(), f.getValue()))
+                            .findFirst()
+            );
         }
     }
 
@@ -100,7 +105,7 @@ public class TabRequestController extends TabPane {
         boxRequestParams.getChildren().clear();
         Optional<Parameter> body = leaf.getMethodParameters().stream().filter(p -> p.getName().equals("body")).findAny();
         txtAddress.setText(uri);
-        if (!body.isEmpty()) {// this function requires json body
+        if (body.isPresent()) {// this function requires json body
             tabRequestDetails.getSelectionModel().select(tabBody);
         } else {
             tabRequestDetails.getSelectionModel().select(tabParams);

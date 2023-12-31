@@ -11,7 +11,7 @@
             <Menu text="File">
                 <MenuItem onAction="#menuFileOpenSwagger" text="Open Swagger JSON URL">
                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="O" control="ANY" meta="UP" shift="UP" shortcut="UP"/>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                     </accelerator>
                 </MenuItem>
                 <MenuItem text="Open"/>
@@ -30,7 +30,7 @@
                 <MenuItem text="Paste"/>
                 <MenuItem text="Settings" onAction="#openSettings" styleClass="menuSettings">
                     <accelerator>
-                        <KeyCodeCombination alt="ANY" code="S" control="ANY" meta="UP" shift="ANY" shortcut="ANY"/>
+                        <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="ANY" shortcut="ANY"/>
                     </accelerator>
                 </MenuItem>
             </Menu>
