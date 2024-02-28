@@ -26,7 +26,7 @@
                                    AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0"/>
                     </AnchorPane>
-                    <Button onAction="#btnSendRequest" text="Send" styleClass="btnSend"/>
+                    <Button onAction="#btnSendRequest" text="_Send" styleClass="btnSend" mnemonicParsing="true" />
                     <VBox.margin>
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                     </VBox.margin>
