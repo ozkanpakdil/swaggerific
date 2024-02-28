@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
-import com.mascix.swaggerific.ui.textfx.BracketHighlighter;
-import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
-import com.mascix.swaggerific.ui.textfx.JsonColorize;
-import com.mascix.swaggerific.ui.textfx.XmlColorizer;
+import com.mascix.swaggerific.ui.textfx.*;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -181,6 +178,17 @@ public class TabRequestController extends TabPane {
 
             bracketHighlighter.highlightBracket();
         });
+
+        SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
+        codeJsonResponse.setOnKeyTyped(keyEvent -> {
+            selectedHighlighter.clearHighlighted();
+            selectedHighlighter.highlightSelectedText();
+        });
+        codeJsonResponse.setOnMouseClicked(keyEvent -> {
+            selectedHighlighter.clearHighlighted();
+            selectedHighlighter.highlightSelectedText();
+        });
+
         codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
         codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
         tableHeaders.setItems(FXCollections.observableArrayList(
