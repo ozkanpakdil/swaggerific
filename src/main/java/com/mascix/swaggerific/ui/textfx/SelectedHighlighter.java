@@ -24,7 +24,8 @@ public class SelectedHighlighter {
 
         int index = 0;
         while ((index = text.indexOf(selectedText, index)) != -1) {
-            SelectedTextCoordination pair = new SelectedTextCoordination(index, index + selectedText.length(), List.copyOf(codeArea.getStyleAtPosition(index)));
+            SelectedTextCoordination pair = new SelectedTextCoordination(index, index + selectedText.length(),
+                    List.copyOf(codeArea.getStyleAtPosition(index)));
             codeArea.setStyle(pair.start, pair.end, matchStyle);
             index += selectedText.length();
             bracketPairList.add(pair);

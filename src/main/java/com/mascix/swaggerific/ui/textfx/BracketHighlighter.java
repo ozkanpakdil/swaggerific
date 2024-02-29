@@ -10,7 +10,7 @@ public class BracketHighlighter {
     private final CustomCodeArea codeArea;
     private final List<BracketPair> bracketPairList = new ArrayList<>();
     private final List<String> matchStyle = List.of("match");
-    private static final String bracketPairsRegex = "[(){}\\[\\]<>]";
+    private final String bracketPairsRegex = "[(){}\\[\\]<>]";
 
     /**
      * Parameterized constructor
@@ -26,18 +26,18 @@ public class BracketHighlighter {
     /**
      * Highlight the matching bracket at new caret position
      *
-     * @param newVal the new caret position
+     * @param start the new caret position
      */
-    private void highlightBracket(int newVal) {
-        this.clearBracket();
-        String prevChar = (newVal > 0) ? codeArea.getText(newVal - 1, newVal) : "";
-        if (prevChar.matches(bracketPairsRegex)) --newVal;
-        Integer other = getMatchingBracket(newVal);
+    private void highlightBracket(int start) {
+        clearBracket();
+        String prevChar = (start > 0) ? codeArea.getText(start - 1, start) : "";
+        if (prevChar.matches(bracketPairsRegex)) --start;
+        Integer end = getMatchingBracket(start);
 
-        if (other != null) {
-            BracketPair pair = new BracketPair(newVal, other, List.copyOf(codeArea.getStyleAtPosition(newVal)));
+        if (end != null) {
+            BracketPair pair = new BracketPair(start, end, List.copyOf(codeArea.getStyleAtPosition(end)));
             styleBrackets(pair, matchStyle);
-            this.bracketPairList.add(pair);
+            bracketPairList.add(pair);
         }
     }
 
@@ -80,8 +80,7 @@ public class BracketHighlighter {
      * Highlight the matching bracket at current caret position
      */
     public void highlightBracket() {
-        clearBracket();
-        this.highlightBracket(codeArea.getCaretPosition());
+        highlightBracket(codeArea.getCaretPosition());
     }
 
     /**
@@ -90,8 +89,8 @@ public class BracketHighlighter {
     public void clearBracket() {
         Iterator<BracketPair> iterator = this.bracketPairList.iterator();
         while (iterator.hasNext()) {
-            BracketPair next = iterator.next();
-            styleBrackets(next, next.styleAtPosition());
+            BracketPair pair = iterator.next();
+            styleBrackets(pair, pair.styleAtPosition());
             iterator.remove();
         }
     }
