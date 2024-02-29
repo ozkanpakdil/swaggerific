@@ -2,14 +2,15 @@ package com.mascix.swaggerific.ui.textfx;
 
 import javafx.application.Platform;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class BracketHighlighter {
     private final CustomCodeArea codeArea;
     private final List<BracketPair> bracketPairList = new ArrayList<>();
-    private final List<String> loopStyle = Collections.singletonList("loop");
-    private final List<String> matchStyle = Arrays.asList("match", "loop");
-    private final String bracketPairsRegex = "[(){}\\[\\]<>]";
+    private final List<String> matchStyle = List.of("match");
+    private static final String bracketPairsRegex = "[(){}\\[\\]<>]";
 
     /**
      * Parameterized constructor
@@ -19,7 +20,6 @@ public class BracketHighlighter {
     public BracketHighlighter(CustomCodeArea codeArea) {
         this.codeArea = codeArea;
         this.codeArea.addTextInsertionListener((start, end, text) -> clearBracket());
-        //this.codeArea.textProperty().addListener((obs, oldVal, newVal) -> initializeBrackets(newVal)); // Let's not process all the text every time ;-)
         this.codeArea.caretPositionProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(() -> highlightBracket(newVal)));
     }
 
@@ -35,7 +35,7 @@ public class BracketHighlighter {
         Integer other = getMatchingBracket(newVal);
 
         if (other != null) {
-            BracketPair pair = new BracketPair(newVal, other);
+            BracketPair pair = new BracketPair(newVal, other, List.copyOf(codeArea.getStyleAtPosition(newVal)));
             styleBrackets(pair, matchStyle);
             this.bracketPairList.add(pair);
         }
@@ -80,6 +80,7 @@ public class BracketHighlighter {
      * Highlight the matching bracket at current caret position
      */
     public void highlightBracket() {
+        clearBracket();
         this.highlightBracket(codeArea.getCaretPosition());
     }
 
@@ -89,7 +90,8 @@ public class BracketHighlighter {
     public void clearBracket() {
         Iterator<BracketPair> iterator = this.bracketPairList.iterator();
         while (iterator.hasNext()) {
-            styleBrackets(iterator.next(), loopStyle);
+            BracketPair next = iterator.next();
+            styleBrackets(next, next.styleAtPosition());
             iterator.remove();
         }
     }
@@ -108,27 +110,6 @@ public class BracketHighlighter {
         }
     }
 
-    /**
-     * Class representing a pair of matching bracket indices
-     */
-    static class BracketPair {
-        private final int start;
-        private final int end;
-        public BracketPair(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        public int getStart() {
-            return start;
-        }
-
-        @Override
-        public String toString() {
-            return "BracketPair{" +
-                    "start=" + start +
-                    ", end=" + end +
-                    '}';
-        }
+    record BracketPair(int start, int end, List<String> styleAtPosition) {
     }
 }

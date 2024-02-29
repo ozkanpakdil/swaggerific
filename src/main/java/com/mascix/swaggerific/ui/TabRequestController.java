@@ -165,7 +165,6 @@ public class TabRequestController extends TabPane {
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            bracketHighlighter.clearBracket();
             /*
             //TODO this bock may be used in json request in the future
             String character = keyEvent.getCharacter();
@@ -185,14 +184,7 @@ public class TabRequestController extends TabPane {
         });
 
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            selectedHighlighter.clearHighlighted();
-            selectedHighlighter.highlightSelectedText();
-        });
-        codeJsonResponse.setOnMouseClicked(keyEvent -> {
-            selectedHighlighter.clearHighlighted();
-            selectedHighlighter.highlightSelectedText();
-        });
+        codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
 
         codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
         codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
