@@ -3,6 +3,9 @@
 }*/
 .code-area .paragraph-box .text.match {
     -rtfx-background-color: yellow;
+    /* maybe do more coloring */
+    border-style: dotted;
+    border-color: blue;
 }
 
 .line-highlighter { -fx-highlight-fill: ghostwhite; }

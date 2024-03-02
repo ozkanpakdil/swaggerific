@@ -10,7 +10,7 @@ public class BracketHighlighter {
     private final CustomCodeArea codeArea;
     private final List<BracketPair> bracketPairList = new ArrayList<>();
     private final List<String> matchStyle = List.of("match");
-    private final String bracketPairsRegex = "[(){}\\[\\]<>]";
+    private static final String BRACKET_PAIRS_REGEX = "[(){}\\[\\]<>]";
 
     /**
      * Parameterized constructor
@@ -29,12 +29,13 @@ public class BracketHighlighter {
      * @param start the new caret position
      */
     private void highlightBracket(int start) {
-        clearBracket();
         String prevChar = (start > 0) ? codeArea.getText(start - 1, start) : "";
-        if (prevChar.matches(bracketPairsRegex)) --start;
+        if (prevChar.matches(BRACKET_PAIRS_REGEX)) --start;
         Integer end = getMatchingBracket(start);
 
         if (end != null) {
+            // NOTE - clearBracket() because bracket changed.
+            clearBracket();
             BracketPair pair = new BracketPair(start, end, List.copyOf(codeArea.getStyleAtPosition(end)));
             styleBrackets(pair, matchStyle);
             bracketPairList.add(pair);
@@ -103,7 +104,7 @@ public class BracketHighlighter {
     private void styleBracket(int pos, List<String> styles) {
         if (pos < codeArea.getLength()) {
             String text = codeArea.getText(pos, pos + 1);
-            if (text.matches(bracketPairsRegex)) {
+            if (text.matches(BRACKET_PAIRS_REGEX)) {
                 codeArea.setStyle(pos, pos + 1, styles);
             }
         }

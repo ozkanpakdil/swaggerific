@@ -180,7 +180,7 @@ public class TabRequestController extends TabPane {
                 }
             }*/
 
-            bracketHighlighter.highlightBracket();
+//            bracketHighlighter.highlightBracket();
         });
 
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
