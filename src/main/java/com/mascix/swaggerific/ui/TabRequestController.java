@@ -132,6 +132,7 @@ public class TabRequestController extends TabPane {
         TreeItem<String> selectedItem = (TreeItem<String>) mainController.treePaths.getSelectionModel().getSelectedItem();
         TreeItemOperatinLeaf getSelectedItem = (TreeItemOperatinLeaf) mainController.getTreePaths().getSelectionModel().getSelectedItem();
 
+        mainController.setIsOnloading();
         if (selectedItem instanceof TreeItemOperatinLeaf) {
             ObjectMapper mapper = mainController.getMapper();
             HttpUtility httpUtility = mainController.getHttpUtility();
@@ -158,6 +159,7 @@ public class TabRequestController extends TabPane {
         } else {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }
+        mainController.setIsOffloading();
     }
 
     public void setMainController(MainController parent, String uri, TreeItemOperatinLeaf leaf) {

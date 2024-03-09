@@ -1,5 +1,8 @@
 package com.mascix.swaggerific.ui;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +10,7 @@ import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
 import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
+import com.mascix.swaggerific.ui.component.TextAreaAppender;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
@@ -36,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.controlsfx.control.StatusBar;
 import org.fxmisc.richtext.CodeArea;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -46,7 +51,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -64,6 +68,9 @@ public class MainController implements Initializable {
     StackPane topPane;
     @FXML
     StatusBar statusBar;
+    @FXML
+    private TextArea console;
+
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
     TreeItem<String> treeItemRoot = new TreeItem<>("base root");
@@ -114,11 +121,27 @@ public class MainController implements Initializable {
             });
             return cell;
         });
+        TextAreaAppender textAreaAppender = new TextAreaAppender(console);
+
+// Create an encoder and set its pattern
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        encoder.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
+        encoder.start();
+
+// Set the encoder in your appender
+        textAreaAppender.setEncoder(encoder);
+        textAreaAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
+        textAreaAppender.start();
+
+// Get the root logger and add your appender
+        Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.addAppender(textAreaAppender);
     }
 
     @SneakyThrows
     private void handleTreeViewItemClick(String tabName, TreeItemOperatinLeaf leaf) {
-        if (tabRequests.getTabs().stream().filter(f->f.getId().equals(tabName)).findAny().isEmpty()) {
+        if (tabRequests.getTabs().stream().filter(f -> f.getId().equals(tabName)).findAny().isEmpty()) {
             FXMLLoader tab = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/tab-request.fxml"));
             Tab newTab = new Tab(tabName);
             newTab.setContent(tab.load());
@@ -180,7 +203,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    private void setIsOnloading() {
+    void setIsOnloading() {
         statusBar.setText("Loading...");
         ProgressIndicator pi = new ProgressIndicator();
         boxLoader = new VBox(pi);
@@ -202,7 +225,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    private void setIsOffloading() {
+    void setIsOffloading() {
         statusBar.setText("Ok");
         topPane.getChildren().remove(boxLoader);
         mainBox.setVisible(true);
@@ -352,5 +375,11 @@ public class MainController implements Initializable {
 
     public void onChangeTrimConfig(ActionEvent actionEvent) {
         throw new NotImplementedException("Trim config changed");
+    }
+
+    @FXML
+    public void handleStatusBarClick(MouseEvent event) {
+        console.setVisible(!console.isVisible());
+        console.setManaged(console.isVisible());
     }
 }

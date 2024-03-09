@@ -96,6 +96,8 @@ class SwaggerGuiTest {
         FxAssert.verifyThat("#codeJsonResponse", isEnabled());
         robot.clickOn("#tabRaw");
         FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));
+        robot.clickOn("#statusBar");
+        robot.clickOn("#statusBar");
     }
 
     private static void getScreenShotOfTheTest(FxRobot robot) {

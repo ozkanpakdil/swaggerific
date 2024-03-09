@@ -60,6 +60,7 @@
                 </AnchorPane>
             </SplitPane>
         </AnchorPane>
-        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity"/>
+        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity" onMouseClicked="#handleStatusBarClick"/>
+        <TextArea fx:id="console" layoutX="0.0" layoutY="343.0" prefHeight="200.0" prefWidth="-Infinity" visible="false" managed="false"/>
     </VBox>
 </StackPane>
