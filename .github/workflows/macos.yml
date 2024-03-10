@@ -12,14 +12,14 @@ jobs:
         uses: gluonhq/setup-graalvm@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-#      - name: Developer ID Application certificate
-#        uses: Apple-Actions/import-codesign-certs@v1
-#        with:
-#          keychain: ${{ github.run_id }}
-#          keychain-password: ${{ github.run_id }}
-#          p12-file-base64: ${{ secrets.GLUON_MACOS_CERTIFICATES_FILE_BASE64 }}
-#          p12-password: ${{ secrets.GLUON_MACOS_CERTIFICATES_PASSWORD }}
+
+      #      - name: Developer ID Application certificate
+      #        uses: Apple-Actions/import-codesign-certs@v1
+      #        with:
+      #          keychain: ${{ github.run_id }}
+      #          keychain-password: ${{ github.run_id }}
+      #          p12-file-base64: ${{ secrets.GLUON_MACOS_CERTIFICATES_FILE_BASE64 }}
+      #          p12-password: ${{ secrets.GLUON_MACOS_CERTIFICATES_PASSWORD }}
 
       - name: Make staging directory
         run: mkdir staging
@@ -34,42 +34,42 @@ jobs:
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging
+          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging/
 
-#      - name: Notarize Installer
-#        uses: erwin1/xcode-notarize@main
-#        with:
-#          product-path: ${{ steps.outputfile.outputs.path }}
-#          appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
-#          appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-#          primary-bundle-id: com.gluonhq.hello.HelloGluonApp
-#          asc-provider: ${{ secrets.GLUON_MACSIGN_PREFIX }}
-#          verbose: false
+      #      - name: Notarize Installer
+      #        uses: erwin1/xcode-notarize@main
+      #        with:
+      #          product-path: ${{ steps.outputfile.outputs.path }}
+      #          appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
+      #          appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
+      #          primary-bundle-id: com.gluonhq.hello.HelloGluonApp
+      #          asc-provider: ${{ secrets.GLUON_MACSIGN_PREFIX }}
+      #          verbose: false
 
-      - name: Upload (pkg)
+      - name: Upload
         uses: actions/upload-artifact@v2
         with:
           name: Package
           path: staging
 
-#      - name: Provisioning Profile
-#        id: provisioning
-#        uses: Apple-Actions/download-provisioning-profiles@v1.0.1
-#        with:
-#          bundle-id: com.gluonhq.hello.HelloGluonApp
-#          profile-type: 'MAC_APP_STORE'
-#          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
-#          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
-#          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
+      #      - name: Provisioning Profile
+      #        id: provisioning
+      #        uses: Apple-Actions/download-provisioning-profiles@v1.0.1
+      #        with:
+      #          bundle-id: com.gluonhq.hello.HelloGluonApp
+      #          profile-type: 'MAC_APP_STORE'
+      #          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
+      #          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
+      #          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
 
-#      - name: 3rd Party Mac certificate
-#        uses: Apple-Actions/import-codesign-certs@v1
-#        with:
-#          keychain: ${{ github.run_id }}
-#          keychain-password: ${{ github.run_id }}
-#          create-keychain: false
-#          p12-file-base64: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_FILE_BASE64 }}
-#          p12-password: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_PASSWORD }}
+      #      - name: 3rd Party Mac certificate
+      #        uses: Apple-Actions/import-codesign-certs@v1
+      #        with:
+      #          keychain: ${{ github.run_id }}
+      #          keychain-password: ${{ github.run_id }}
+      #          create-keychain: false
+      #          p12-file-base64: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_FILE_BASE64 }}
+      #          p12-password: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_PASSWORD }}
 
       # - name: Gluon Package Store
       #   id: outputfilestore
@@ -77,11 +77,11 @@ jobs:
       #     ./mvnw -ntp -Pdesktop gluonfx:package
       #     echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
-#      - name: Upload (pkg store)
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: PackageAppStore
-#          path: ${{ steps.outputfilestore.outputs.path }}
+      #      - name: Upload (pkg store)
+      #        uses: actions/upload-artifact@v2
+      #        with:
+      #          name: PackageAppStore
+      #          path: ${{ steps.outputfilestore.outputs.path }}
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -89,7 +89,7 @@ jobs:
           prerelease: true
           title: "MacOS Development Build"
           files: |
-            staging/*
+            staging/swaggerific.app
         id: "automatic_releases"
 #      - name: Upload App Store TestFlight
 #        uses: Apple-Actions/upload-testflight-build@master
