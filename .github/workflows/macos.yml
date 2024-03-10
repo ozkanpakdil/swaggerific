@@ -32,8 +32,8 @@ jobs:
       - name: Gluon Build and Package
         id: outputfile
         run: |
-          ./mvnw -Pdesktop,mac gluonfx:build gluonfx:package
-          echo ::set-output name=path::target/gluonfx/x86_64-darwin/HelloGluon-1.0.0.pkg
+          ./mvnw -ntp -Pdesktop,mac gluonfx:build gluonfx:package
+          echo ::set-output name=path::target/gluonfx/x86_64-darwin/swaggerific-1.0.0.pkg
 
 #      - name: Notarize Installer
 #        uses: erwin1/xcode-notarize@main
