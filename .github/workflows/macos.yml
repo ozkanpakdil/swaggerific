@@ -77,11 +77,11 @@ jobs:
       #     ./mvnw -ntp -Pdesktop gluonfx:package
       #     echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
-      - name: Upload (pkg store)
-        uses: actions/upload-artifact@v2
-        with:
-          name: PackageAppStore
-          path: ${{ steps.outputfilestore.outputs.path }}
+#      - name: Upload (pkg store)
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: PackageAppStore
+#          path: ${{ steps.outputfilestore.outputs.path }}
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
