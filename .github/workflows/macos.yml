@@ -32,7 +32,7 @@ jobs:
       - name: Gluon Build and Package
         id: outputfile
         run: |
-          ./mvnw -ntp -Pdesktop,mac gluonfx:build gluonfx:package
+          ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
           echo ::set-output name=path::target/gluonfx/x86_64-darwin/swaggerific-1.0.0.pkg
 
 #      - name: Notarize Installer
@@ -70,11 +70,11 @@ jobs:
 #          p12-file-base64: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_FILE_BASE64 }}
 #          p12-password: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_PASSWORD }}
 
-      - name: Gluon Package Store
-        id: outputfilestore
-        run: |
-          ./mvnw -ntp -Pdesktop gluonfx:package
-          echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
+      # - name: Gluon Package Store
+      #   id: outputfilestore
+      #   run: |
+      #     ./mvnw -ntp -Pdesktop gluonfx:package
+      #     echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
       - name: Upload (pkg store)
         uses: actions/upload-artifact@v2
