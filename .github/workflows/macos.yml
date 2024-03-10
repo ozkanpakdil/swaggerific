@@ -32,8 +32,10 @@ jobs:
       - name: Gluon Build and Package
         id: outputfile
         run: |
+          set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          echo ::set-output name=path::target/gluonfx/x86_64-darwin/swaggerific-1.0.0.pkg
+          chmod +x 
+          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging
 
 #      - name: Notarize Installer
 #        uses: erwin1/xcode-notarize@main
@@ -49,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Package
-          path: ${{ steps.outputfile.outputs.path }}
+          path: staging
 
 #      - name: Provisioning Profile
 #        id: provisioning
@@ -88,7 +90,7 @@ jobs:
           prerelease: true
           title: "MacOS Development Build"
           files: |
-            staging/*.pkg
+            staging/*
         id: "automatic_releases"
 #      - name: Upload App Store TestFlight
 #        uses: Apple-Actions/upload-testflight-build@master
