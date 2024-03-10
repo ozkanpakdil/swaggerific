@@ -34,7 +34,6 @@ jobs:
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          chmod +x 
           cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging
 
 #      - name: Notarize Installer
