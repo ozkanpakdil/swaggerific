@@ -1,9 +1,7 @@
 name: macOS
-
 on:
   push:
     branches: [ main ]
-
 jobs:
   build:
     runs-on: macos-latest
