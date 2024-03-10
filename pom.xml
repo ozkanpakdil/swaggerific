@@ -295,6 +295,9 @@
                         <list>statusbar</list>
                         <list>storage</list>
                     </attachList>
+                    <releaseConfiguration>
+                        <skipSigning>true</skipSigning>
+                    </releaseConfiguration>
                 </configuration>
             </plugin>
         </plugins>
@@ -304,12 +307,6 @@
             <id>linux</id>
             <properties>
                 <gluonfx.target>linux</gluonfx.target>
-            </properties>
-        </profile>
-        <profile>
-            <id>ios</id>
-            <properties>
-                <gluonfx.target>ios</gluonfx.target>
             </properties>
         </profile>
     </profiles>
