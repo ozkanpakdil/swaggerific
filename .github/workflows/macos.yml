@@ -73,7 +73,7 @@ jobs:
       - name: Gluon Package Store
         id: outputfilestore
         run: |
-          ./mvnw -Pdesktop,macstore gluonfx:package
+          ./mvnw -Pdesktop gluonfx:package
           echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
       - name: Upload (pkg store)
