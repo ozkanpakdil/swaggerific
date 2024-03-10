@@ -34,7 +34,10 @@ jobs:
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging/
+          find target/
+          hdiutil create -volname Swaggerific -srcfolder target/gluonfx/x86_64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
+          cp -r swaggerific.dmg staging/
+#          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging/
 
       #      - name: Notarize Installer
       #        uses: erwin1/xcode-notarize@main
@@ -89,7 +92,7 @@ jobs:
           prerelease: true
           title: "MacOS Development Build"
           files: |
-            staging/swaggerific.app
+            staging/swaggerific.dmg
         id: "automatic_releases"
 #      - name: Upload App Store TestFlight
 #        uses: Apple-Actions/upload-testflight-build@master
