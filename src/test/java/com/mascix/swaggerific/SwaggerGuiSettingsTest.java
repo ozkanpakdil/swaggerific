@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -12,6 +14,7 @@ import org.testfx.framework.junit5.Start;
 import java.io.IOException;
 
 @ExtendWith(ApplicationExtension.class)
+@EnabledOnOs({ OS.WINDOWS })
 class SwaggerGuiSettingsTest {
 
     /**

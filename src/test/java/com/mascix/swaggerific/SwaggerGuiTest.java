@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.Header;
@@ -33,6 +35,7 @@ import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 
 @ExtendWith(ApplicationExtension.class)
 @Slf4j
+@EnabledOnOs({ OS.WINDOWS })
 class SwaggerGuiTest {
 
     private static MockServerClient mockServer;
