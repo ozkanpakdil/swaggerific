@@ -4,6 +4,8 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
+<?import org.dockfx.DockNode?>
+<?import org.dockfx.DockPane?>
 <StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -17,6 +19,11 @@
                 <MenuItem text="Open"/>
                 <MenuItem text="Save"/>
                 <MenuItem text="Save As"/>
+                <MenuItem text="Enable Debug Window" onAction="#openDebugConsole">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                    </accelerator>
+                </MenuItem>
                 <SeparatorMenuItem/>
                 <MenuItem onAction="#menuFileExit" text="Exit">
                     <accelerator>
@@ -24,7 +31,7 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
-            <Menu text="Edit" styleClass="menuEdit" >
+            <Menu text="Edit" styleClass="menuEdit">
                 <MenuItem text="Copy"/>
                 <MenuItem text="Cut"/>
                 <MenuItem text="Paste"/>
@@ -41,26 +48,41 @@
                 <MenuItem onAction="#handleAboutAction" text="About"/>
             </Menu>
         </MenuBar>
-        <AnchorPane prefHeight="600" prefWidth="800" VBox.vgrow="ALWAYS">
-            <SplitPane dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
-                       AnchorPane.bottomAnchor="0.0"
-                       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <AnchorPane minWidth="200.0" prefWidth="332.0" maxWidth="300">
-                    <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
-                              prefWidth="200.0" styleClass="treePaths" AnchorPane.bottomAnchor="0.0"
-                              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                    <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                             minWidth="-Infinity"
-                             prefHeight="370.0" prefWidth="396.0"
-                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                             AnchorPane.topAnchor="0.0">
-                    </TabPane>
-                </AnchorPane>
-            </SplitPane>
-        </AnchorPane>
-        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity" onMouseClicked="#handleStatusBarClick"/>
-        <TextArea fx:id="console" layoutX="0.0" layoutY="343.0" prefHeight="200.0" prefWidth="-Infinity" visible="false" managed="false"/>
+        <DockPane fx:id="dockPaneMain" VBox.vgrow="ALWAYS">
+            <DockNode fx:id="mainNode" dockPosition="CENTER" VBox.vgrow="ALWAYS">
+                <contents>
+                    <AnchorPane prefHeight="600" prefWidth="800" VBox.vgrow="ALWAYS">
+                        <SplitPane dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
+                                   AnchorPane.bottomAnchor="0.0"
+                                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <AnchorPane minWidth="200.0" prefWidth="332.0" maxWidth="300">
+                                <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
+                                          prefWidth="200.0" styleClass="treePaths" AnchorPane.bottomAnchor="0.0"
+                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                          AnchorPane.topAnchor="0.0"/>
+                            </AnchorPane>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity"
+                                         minHeight="-Infinity"
+                                         minWidth="-Infinity"
+                                         prefHeight="370.0" prefWidth="396.0"
+                                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                         AnchorPane.rightAnchor="0.0"
+                                         AnchorPane.topAnchor="0.0">
+                                </TabPane>
+                            </AnchorPane>
+                        </SplitPane>
+                    </AnchorPane>
+                </contents>
+            </DockNode>
+            <DockNode title="Debug Console" fx:id="debugDockNode" dockPosition="BOTTOM">
+                <contents>
+                    <TextArea fx:id="console" layoutX="0.0" layoutY="343.0" prefHeight="200.0" prefWidth="-Infinity"
+                              styleClass="debugWindowText" wrapText="true"/>
+                </contents>
+            </DockNode>
+        </DockPane>
+        <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity"
+                   onMouseClicked="#openDebugConsole"/>
     </VBox>
 </StackPane>

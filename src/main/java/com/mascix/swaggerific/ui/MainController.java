@@ -39,6 +39,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.controlsfx.control.StatusBar;
+import org.dockfx.DockNode;
+import org.dockfx.DockPane;
+import org.dockfx.DockPosition;
 import org.fxmisc.richtext.CodeArea;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +72,14 @@ public class MainController implements Initializable {
     @FXML
     StatusBar statusBar;
     @FXML
-    private TextArea console;
+    TextArea console;
+    @FXML
+    DockNode mainNode;
+    @FXML
+    DockNode debugDockNode;
+    @FXML
+    DockPane dockPaneMain;
+    DockNode storedDockNode;
 
     SwaggerModal jsonModal;
     JsonNode jsonRoot;
@@ -121,6 +131,14 @@ public class MainController implements Initializable {
             });
             return cell;
         });
+
+        configureLoggerTextBox();
+
+        mainNode.setDockPane(dockPaneMain);
+        debugDockNode.setDockPane(dockPaneMain);
+    }
+
+    private void configureLoggerTextBox() {
         TextAreaAppender textAreaAppender = new TextAreaAppender(console);
 
 // Create an encoder and set its pattern
@@ -378,8 +396,17 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    public void handleStatusBarClick(MouseEvent event) {
-        console.setVisible(!console.isVisible());
-        console.setManaged(console.isVisible());
+    public void openDebugConsole() {
+        if (debugDockNode != null && debugDockNode.isVisible()) {
+            storedDockNode = debugDockNode;
+            debugDockNode.setVisible(!debugDockNode.isVisible());
+            dockPaneMain.undock(debugDockNode);
+        } else if (storedDockNode != null) {
+            debugDockNode = storedDockNode;
+            debugDockNode.setVisible(true);
+            dockPaneMain.dock(debugDockNode, DockPosition.BOTTOM);
+            storedDockNode = null;
+        }
+
     }
 }

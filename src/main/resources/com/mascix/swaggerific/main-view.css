@@ -1,3 +1,7 @@
+.debugWindowText {
+    -fx-font-size: .8em ;
+}
+
 .root {
   -fx-font-size: .93em ;
 }
