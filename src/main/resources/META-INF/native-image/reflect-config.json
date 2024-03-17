@@ -105,66 +105,74 @@
 {
   "name":"com.mascix.swaggerific.Loader",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.MainController",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.SwaggerApplication",
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"main","parameterTypes":["java.lang.String[]"] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.SwaggerModal",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setBasePath","parameterTypes":["java.lang.String"] }, {"name":"setHost","parameterTypes":["java.lang.String"] }, {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, {"name":"setSwagger","parameterTypes":["java.lang.String"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.animation.Preloader",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.data.SwaggerModal",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setBasePath","parameterTypes":["java.lang.String"] }, {"name":"setHost","parameterTypes":["java.lang.String"] }, {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, {"name":"setSwagger","parameterTypes":["java.lang.String"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.splashscreen.Preloader",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.MainController",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"handleAboutAction","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.RequestHeader",
-  "methods":[{"name":"checkedProperty","parameterTypes":[] }, {"name":"getChecked","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getValue","parameterTypes":[] }, {"name":"nameProperty","parameterTypes":[] }, {"name":"setChecked","parameterTypes":["java.lang.Boolean"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setValue","parameterTypes":["java.lang.String"] }, {"name":"valueProperty","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.TabRequestController",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.AuthorizationController",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.Certificates",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.General",
@@ -175,20 +183,20 @@
 {
   "name":"com.mascix.swaggerific.ui.edit.SettingsController",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"btnRestoreClick","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"clickGeneral","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"onChange","parameterTypes":["javafx.event.ActionEvent"] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.Themes",
   "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.textfx.CustomCodeArea",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
@@ -1105,19 +1113,21 @@
 },
 {
   "name":"org.dockfx.DockNode",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setContents","parameterTypes":["javafx.scene.Node"] }, {"name":"setDockPosition","parameterTypes":["org.dockfx.DockPosition"] }, {"name":"setTitle","parameterTypes":["java.lang.String"] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.dockfx.DockPane",
-  "queryAllDeclaredMethods":true,
-  "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.dockfx.DockPosition",
-  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+  "allDeclaredFields":true,
+  "allDeclaredMethods" : true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.eclipse.swt.internal.gtk.OS"

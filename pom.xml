@@ -14,7 +14,7 @@
         <junit.version>5.9.2</junit.version>
         <javafx.version>21</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.22</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.21</gluonfx.plugin.version>
         <mainClass>com.mascix.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
