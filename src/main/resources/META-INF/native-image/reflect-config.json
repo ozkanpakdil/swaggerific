@@ -105,74 +105,70 @@
 {
   "name":"com.mascix.swaggerific.Loader",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.MainController",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.SwaggerApplication",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"main","parameterTypes":["java.lang.String[]"] }]
 },
 {
   "name":"com.mascix.swaggerific.SwaggerModal",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.animation.Preloader",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"com.mascix.swaggerific.data.SwaggerModal",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setBasePath","parameterTypes":["java.lang.String"] }, {"name":"setHost","parameterTypes":["java.lang.String"] }, {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, {"name":"setSwagger","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"com.mascix.swaggerific.splashscreen.Preloader",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.MainController",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"openDebugConsole","parameterTypes":[] }]
 },
 {
   "name":"com.mascix.swaggerific.ui.RequestHeader",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"checkedProperty","parameterTypes":[] }, {"name":"getChecked","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getValue","parameterTypes":[] }, {"name":"nameProperty","parameterTypes":[] }, {"name":"setChecked","parameterTypes":["java.lang.Boolean"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setValue","parameterTypes":["java.lang.String"] }, {"name":"valueProperty","parameterTypes":[] }]
 },
 {
   "name":"com.mascix.swaggerific.ui.TabRequestController",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.AuthorizationController",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.Certificates",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.General",
@@ -183,20 +179,19 @@
 {
   "name":"com.mascix.swaggerific.ui.edit.SettingsController",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.edit.Themes",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true
 },
 {
   "name":"com.mascix.swaggerific.ui.textfx.CustomCodeArea",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"com.sun.crypto.provider.AESCipher$General",
@@ -1114,20 +1109,22 @@
 {
   "name":"org.dockfx.DockNode",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setContents","parameterTypes":["javafx.scene.Node"] }, {"name":"setDockPosition","parameterTypes":["org.dockfx.DockPosition"] }, {"name":"setTitle","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"org.dockfx.DockPane",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"org.dockfx.DockPosition",
   "allDeclaredFields":true,
-  "allDeclaredMethods" : true,
-  "queryAllDeclaredMethods":true
+  "allDeclaredMethods":true,
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"org.eclipse.swt.internal.gtk.OS"

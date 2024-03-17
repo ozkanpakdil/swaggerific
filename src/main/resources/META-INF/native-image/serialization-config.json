@@ -235,6 +235,9 @@
       "name":"java.util.ImmutableCollections$List12"
     },
     {
+      "name":"java.util.ImmutableCollections$ListN"
+    },
+    {
       "name":"java.util.Locale"
     },
     {
