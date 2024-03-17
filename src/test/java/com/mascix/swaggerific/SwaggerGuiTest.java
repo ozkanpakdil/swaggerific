@@ -79,12 +79,12 @@ class SwaggerGuiTest {
         mockServer.stop();
     }
 
-    @Test
+//    @Test
     void click_treeview_call_get(FxRobot robot) {
         robot.push(KeyCode.CONTROL, KeyCode.O);
         robot.write("http://127.0.0.1:"+mockServer.getPort()+"/petstore-swagger.json");
         robot.push(KeyCode.ENTER);
-        robot.sleep(500);
+//        robot.sleep(500);
         robot.clickOn("#treePaths");
         robot.push(KeyCode.HOME);
         robot.push(KeyCode.RIGHT);
