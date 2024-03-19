@@ -15,7 +15,7 @@
         <javafx.version>21</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <gluonfx.plugin.version>1.0.22</gluonfx.plugin.version>
-        <mainClass>com.mascix.swaggerific.SwaggerApplication</mainClass>
+        <mainClass>swaggerific/com.mascix.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>io.github.ozkanpakdil</groupId>
             <artifactId>dockfx</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
 
         <dependency>
