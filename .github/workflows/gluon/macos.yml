@@ -1,4 +1,4 @@
-name: macOS
+name: Gluon macOS
 on:
   push:
     branches: [ main ]

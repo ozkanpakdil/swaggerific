@@ -1,4 +1,4 @@
-name: iOS
+name: Gluon iOS
 
 on:
   push:

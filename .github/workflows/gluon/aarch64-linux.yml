@@ -1,4 +1,4 @@
-name: Embedded - AArch64 Linux
+name: Gluon Embedded - AArch64 Linux
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Windows
+name: GraalVM Windows
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Windows
+name: Gluon Windows
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: macOS
+name: GraalVM macOS
 on:
   push:
     branches: [ main ]

@@ -1,4 +1,4 @@
-name: Linux
+name: Gluon Linux
 on:
   push:
     branches: [ main ]
