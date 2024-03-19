@@ -21,7 +21,7 @@ jobs:
           java-version: '22'
           distribution: 'graalvm'
           github-token:
-            ${{ secrets.GITHUB_TOKEN }}- name: Install libraries
+            ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make staging directory
         run: mkdir staging

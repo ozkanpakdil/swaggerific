@@ -12,7 +12,8 @@ jobs:
           java-version: '22'
           distribution: 'graalvm'
           github-token:
-            ${{ secrets.GITHUB_TOKEN }}- name: Install libraries
+            ${{ secrets.GITHUB_TOKEN }}
+      - name: Install libraries
         run: |
           sudo apt update
           sudo apt install -y libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
