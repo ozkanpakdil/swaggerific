@@ -16,12 +16,10 @@ jobs:
       - name: Visual Studio shell
         uses: egor-tensin/vs-shell@v1
 
-      - uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '22'
-          distribution: 'graalvm'
-          github-token:
-            ${{ secrets.GITHUB_TOKEN }}- name: Install libraries
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make staging directory
         run: mkdir staging

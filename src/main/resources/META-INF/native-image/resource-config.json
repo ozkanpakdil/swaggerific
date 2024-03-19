@@ -115,6 +115,8 @@
   }, {
     "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Mask_TextureSuper.frag\\E"
   }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_Color.frag\\E"
+  }, {
     "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureFirstPassLCD.frag\\E"
   }, {
     "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureRGB.frag\\E"
@@ -128,6 +130,8 @@
     "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/Blend_SRC_ATOP.frag\\E"
   }, {
     "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/InvertMask.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_16.frag\\E"
   }, {
     "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_20.frag\\E"
   }, {
@@ -149,6 +153,8 @@
   }, {
     "pattern":"javafx.graphics:\\Qlibprism_es2.so\\E"
   }, {
+    "pattern":"javafx.web:\\Qlibjfxwebkit.so\\E"
+  }, {
     "pattern":"org.controlsfx.controls:\\Qorg/controlsfx/control/statusbar.css\\E"
   }, {
     "pattern":"org.dockfx:\\Qorg/dockfx/default.css\\E"
@@ -159,7 +165,37 @@
   }, {
     "pattern":"org.fxmisc.richtext:\\Qorg/fxmisc/richtext/styled-text-area.css\\E"
   }, {
+    "pattern":"org.kordamp.ikonli.core:\\QMETA-INF/resources/ikonli/0.0.0/fonts/ikonli.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-brands-400.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-regular-400.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-solid-900.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome:\\QMETA-INF/resources/fontawesome/4.7.0/fonts/fontawesome-webfont.ttf\\E"
+  }, {
     "pattern":"swaggerific:\\Qapplogo.png\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/About.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Addons.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Certificates.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Data.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/General.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Proxy.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Shortcuts.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Themes.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/Update.fxml\\E"
   }, {
     "pattern":"swaggerific:\\Qcom/mascix/swaggerific/main-view.fxml\\E"
   }, {
