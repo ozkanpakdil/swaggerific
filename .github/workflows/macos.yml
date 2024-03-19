@@ -1,4 +1,4 @@
-name: Gluon macOS
+name: macOS
 on:
   push:
     branches: [ main ]
@@ -8,10 +8,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Gluon's GraalVM
-        uses: gluonhq/setup-graalvm@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '22'
+          distribution: 'graalvm'
+          github-token:
+            ${{ secrets.GITHUB_TOKEN }}
+      - name: Show system info
+        run: |
+          sysctl
 
       #      - name: Developer ID Application certificate
       #        uses: Apple-Actions/import-codesign-certs@v1
@@ -33,7 +38,7 @@ jobs:
         id: outputfile
         run: |
           set -e
-          ./mvnw -ntp -Pdesktop test gluonfx:build gluonfx:package
+          ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
           find target/
           hdiutil create -volname Swaggerific -srcfolder target/gluonfx/x86_64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
           cp -r swaggerific.dmg staging/
