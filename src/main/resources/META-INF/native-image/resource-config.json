@@ -1,251 +1,187 @@
 {
   "resources":{
-  "includes":[
-    {
-      "pattern":"\\QMETA-INF/fonts.mf\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.nio.charset.spi.CharsetProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
-    }, 
-    {
-      "pattern":"\\Qapplogo.png\\E"
-    }, 
-    {
-      "pattern":"\\Qatlantafx/base/theme/primer-light.bss\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/mascix/swaggerific/main-view.fxml\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/mascix/swaggerific/tab-request.fxml\\E"
-    }, 
-    {
-      "pattern":"\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
-    }, 
-    {
-      "pattern":"\\Qcss/json-highlighting.css\\E"
-    }, 
-    {
-      "pattern":"\\Qcss/splashscreen.css\\E"
-    }, 
-    {
-      "pattern":"\\Qlogback-test.scmo\\E"
-    }, 
-    {
-      "pattern":"\\Qlogback-test.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qlogback.scmo\\E"
-    }, 
-    {
-      "pattern":"\\Qlogback.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/controlsfx/control/statusbar.css\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/bottom.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/close.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/default.css\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/docknode.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/left.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/maximize.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/restore.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/right.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/dockfx/top.png\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/fxmisc/richtext/code-area.css\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/fxmisc/richtext/styled-text-area.css\\E"
-    }, 
-    {
-      "pattern":"atlantafx.base:\\Qatlantafx/base/theme/primer-light.bss\\E"
-    }, 
-    {
-      "pattern":"com.mascix.swaggerific:\\Qcom/mascix/swaggerific/main-view.fxml\\E"
-    }, 
-    {
-      "pattern":"com.mascix.swaggerific:\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
-    }, 
-    {
-      "pattern":"com.mascix.swaggerific:\\Qcss/splashscreen.css\\E"
-    }, 
-    {
-      "pattern":"dockfx:\\Qorg/dockfx/docknode.png\\E"
-    }, 
-    {
-      "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
-    }, 
-    {
-      "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/ubidi.icu\\E"
-    }, 
-    {
-      "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/uprops.icu\\E"
-    }, 
-    {
-      "pattern":"java.base:\\Qsun/net/idn/uidna.spp\\E"
-    }, 
-    {
-      "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
-    }, 
-    {
-      "pattern":"javafx.base:\\Qcom/sun/javafx/reflect/Trampoline.class\\E"
-    }, 
-    {
-      "pattern":"javafx.controls:\\Qcom/sun/javafx/scene/control/skin/modena/modena.bss\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/glass/utils/NativeLibLoader.class\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/DrawPgram_Color.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillPgram_Color.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillPgram_LinearGradient_PAD.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillRoundRect_Color.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Mask_TextureSuper.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureFirstPassLCD.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureRGB.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureSecondPassLCD.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Texture_Color.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Texture_LinearGradient_PAD.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/Blend_SRC_ATOP.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/InvertMask.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_20.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_32.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_4.frag\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibglass.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibglassgtk3.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibjavafx_font.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibjavafx_font_freetype.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibjavafx_font_pango.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibjavafx_iio.so\\E"
-    }, 
-    {
-      "pattern":"javafx.graphics:\\Qlibprism_es2.so\\E"
-    }
-  ]},
-  "bundles":[
-    {
-      "name":"com.sun.javafx.tk.quantum.QuantumMessagesBundle",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }, 
-    {
-      "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
-      "locales":["und"]
-    }, 
-    {
-      "name":"com/sun/javafx/scene/control/skin/resources/controls",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }, 
-    {
-      "name":"controlsfx",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }
-  ]
+  "includes":[{
+    "pattern":"\\QMETA-INF/fonts.mf\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.nio.channels.spi.SelectorProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.nio.charset.spi.CharsetProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.transform.TransformerFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
+  }, {
+    "pattern":"\\Qapplogo.png\\E"
+  }, {
+    "pattern":"\\Qatlantafx/base/theme/primer-light.bss\\E"
+  }, {
+    "pattern":"\\Qcom/mascix/swaggerific/main-view.fxml\\E"
+  }, {
+    "pattern":"\\Qcom/mascix/swaggerific/tab-request.fxml\\E"
+  }, {
+    "pattern":"\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
+  }, {
+    "pattern":"\\Qcss/json-highlighting.css\\E"
+  }, {
+    "pattern":"\\Qcss/splashscreen.css\\E"
+  }, {
+    "pattern":"\\Qlogback-test.scmo\\E"
+  }, {
+    "pattern":"\\Qlogback-test.xml\\E"
+  }, {
+    "pattern":"\\Qlogback.scmo\\E"
+  }, {
+    "pattern":"\\Qlogback.xml\\E"
+  }, {
+    "pattern":"\\Qorg/controlsfx/control/statusbar.css\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/bottom.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/close.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/default.css\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/docknode.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/left.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/maximize.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/restore.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/right.png\\E"
+  }, {
+    "pattern":"\\Qorg/dockfx/top.png\\E"
+  }, {
+    "pattern":"\\Qorg/fxmisc/richtext/code-area.css\\E"
+  }, {
+    "pattern":"\\Qorg/fxmisc/richtext/styled-text-area.css\\E"
+  }, {
+    "pattern":"atlantafx.base:\\Qatlantafx/base/theme/primer-light.bss\\E"
+  }, {
+    "pattern":"com.mascix.swaggerific:\\Qcom/mascix/swaggerific/main-view.fxml\\E"
+  }, {
+    "pattern":"com.mascix.swaggerific:\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
+  }, {
+    "pattern":"com.mascix.swaggerific:\\Qcss/splashscreen.css\\E"
+  }, {
+    "pattern":"dockfx:\\Qorg/dockfx/docknode.png\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/ubidi.icu\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/uprops.icu\\E"
+  }, {
+    "pattern":"java.base:\\Qsun/net/idn/uidna.spp\\E"
+  }, {
+    "pattern":"java.base:\\Qsun/text/resources/LineBreakIteratorData\\E"
+  }, {
+    "pattern":"java.xml:\\Qcom/sun/org/apache/xml/internal/serializer/Encodings.properties\\E"
+  }, {
+    "pattern":"javafx.base:\\Qcom/sun/javafx/reflect/Trampoline.class\\E"
+  }, {
+    "pattern":"javafx.controls:\\Qcom/sun/javafx/scene/control/skin/modena/modena.bss\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/glass/utils/NativeLibLoader.class\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/DrawPgram_Color.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillPgram_Color.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillPgram_LinearGradient_PAD.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/FillRoundRect_Color.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Mask_TextureSuper.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureFirstPassLCD.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureRGB.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Solid_TextureSecondPassLCD.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Texture_Color.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/es2/glsl/Texture_LinearGradient_PAD.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/Blend_SRC_ATOP.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/InvertMask.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_20.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_32.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/es2/glsl/LinearConvolveShadow_4.frag\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibglass.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibglassgtk3.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibjavafx_font.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibjavafx_font_freetype.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibjavafx_font_pango.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibjavafx_iio.so\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qlibprism_es2.so\\E"
+  }, {
+    "pattern":"org.controlsfx.controls:\\Qorg/controlsfx/control/statusbar.css\\E"
+  }, {
+    "pattern":"org.dockfx:\\Qorg/dockfx/default.css\\E"
+  }, {
+    "pattern":"org.dockfx:\\Qorg/dockfx/docknode.png\\E"
+  }, {
+    "pattern":"org.fxmisc.richtext:\\Qorg/fxmisc/richtext/code-area.css\\E"
+  }, {
+    "pattern":"org.fxmisc.richtext:\\Qorg/fxmisc/richtext/styled-text-area.css\\E"
+  }, {
+    "pattern":"swaggerific:\\Qapplogo.png\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/main-view.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/tab-request.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcss/json-highlighting.css\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcss/splashscreen.css\\E"
+  }]},
+  "bundles":[{
+    "name":"com.sun.javafx.tk.quantum.QuantumMessagesBundle",
+    "locales":["", "und"]
+  }, {
+    "name":"com.sun.org.apache.xml.internal.serializer.XMLEntities",
+    "locales":["", "und"]
+  }, {
+    "name":"com/sun/javafx/scene/control/skin/resources/controls",
+    "locales":["", "und"]
+  }, {
+    "name":"controlsfx",
+    "locales":["", "und"]
+  }]
 }
