@@ -237,6 +237,9 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <!--<argLine>
+                        &#45;&#45;add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                    </argLine>-->
                 </configuration>
             </plugin>
             <plugin>
