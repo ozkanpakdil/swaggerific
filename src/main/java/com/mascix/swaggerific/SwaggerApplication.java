@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.prefs.Preferences;
 
 import static com.mascix.swaggerific.ui.edit.General.*;
-import static com.mascix.swaggerific.ui.edit.SettingsController.*;
 
 @Slf4j
 public class SwaggerApplication extends Application {
@@ -43,9 +42,9 @@ public class SwaggerApplication extends Application {
         stage.setOnHidden(e -> mainController.onClose());
         stage.show();
         //TODO this size change is not working, investigate. // below font change is not working on application start :(
-        root.setStyle("-fx-font-size:" + fontSize+";");
+        root.setStyle("-fx-font-size:" + fontSize + ";");
         root.setStyle("-fx-font-family:'" + selectedFont + "';");
-        mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize+";");
+        mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize + ";");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
     }
 
