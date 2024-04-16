@@ -13,6 +13,7 @@ import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.TextAreaAppender;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
+import com.mascix.swaggerific.ui.exception.NotYetImplementedException;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.application.Platform;
@@ -37,7 +38,6 @@ import javafx.stage.Stage;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.controlsfx.control.StatusBar;
 import org.dockfx.DockNode;
 import org.dockfx.DockPane;
@@ -392,7 +392,7 @@ public class MainController implements Initializable {
     }
 
     public void onChangeTrimConfig(ActionEvent actionEvent) {
-        throw new NotImplementedException("Trim config changed");
+        throw new NotYetImplementedException("Trim config changed");
     }
 
     @FXML

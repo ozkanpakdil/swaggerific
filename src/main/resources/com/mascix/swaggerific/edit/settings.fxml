@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.*?>
-<AnchorPane prefHeight="1024.0" prefWidth="768.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+<AnchorPane prefHeight="NaN" prefWidth="768.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.edit.SettingsController">
 
     <SplitPane dividerPositions="0.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -91,8 +91,10 @@
                 </children>
             </TilePane>
         </AnchorPane>
-        <AnchorPane fx:id="rightPane">
-
+        <AnchorPane fx:id="rightPane" >
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
         </AnchorPane>
     </SplitPane>
 </AnchorPane>

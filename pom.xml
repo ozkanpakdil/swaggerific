@@ -6,7 +6,7 @@
 
     <groupId>com.mascix</groupId>
     <artifactId>swaggerific</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>swaggerific</name>
 
     <properties>

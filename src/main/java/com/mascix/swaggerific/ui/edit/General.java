@@ -2,6 +2,7 @@ package com.mascix.swaggerific.ui.edit;
 
 import com.mascix.swaggerific.SwaggerApplication;
 import com.mascix.swaggerific.ui.MainController;
+import com.mascix.swaggerific.ui.exception.NotYetImplementedException;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.net.URL;
 import java.util.List;
@@ -93,30 +93,30 @@ public class General implements Initializable {
     }
 
     public void onChangeSSLConfig(ActionEvent actionEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeSendNoCacheHeader(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeSendSwaggerTokenHeader(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeAutomaticallyFallowRedirects(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeAlwayOpenSideBarItemInNewTab(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeAlwaysAskWhenClosingUnsavedTabs(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 
     public void onChangeSendAnonymousUsageData(MouseEvent mouseEvent) {
-        throw new NotImplementedException();
+        throw new NotYetImplementedException();
     }
 }

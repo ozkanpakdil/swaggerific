@@ -2,23 +2,21 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.edit.Certificates">
+<?import org.controlsfx.control.ToggleSwitch?>
+<GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.mascix.swaggerific.ui.edit.Certificates">
     <children>
-        <Label>Some certificate management should be here.</Label>
-      <TableView prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
-        <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
-        </columns>
-      </TableView>
+        <Label text="CA Certificates" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label text="The file should consist of one or more trusted certificates in PEM format." GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+        <ToggleSwitch fx:id="togglePEM" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
+        <Label text="PEM file:" GridPane.columnIndex="0" GridPane.rowIndex="2" visible="${togglePEM.selected}"/>
+        <Button fx:id="choosePEMFile" text="Choose File" onAction="#choosePEMFileClick" GridPane.columnIndex="1" GridPane.rowIndex="2" visible="${togglePEM.selected}"/>
+
+        <Label text="Client Certificates" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <Button text="Add Certificate" onAction="#addCertificate" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Add and manage SSL certificates on a per domain basis. Learn more about working with certificates at our Learning Center." GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2"/>
     </children>
-   <columnConstraints>
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
 </GridPane>
