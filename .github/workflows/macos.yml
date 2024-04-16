@@ -33,7 +33,7 @@ jobs:
         id: outputfile
         run: |
           set -e
-          ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
+          ./mvnw -ntp -Pdesktop test gluonfx:build gluonfx:package
           find target/
           hdiutil create -volname Swaggerific -srcfolder target/gluonfx/x86_64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
           cp -r swaggerific.dmg staging/
