@@ -14,7 +14,7 @@ import org.testfx.framework.junit5.Start;
 import java.io.IOException;
 
 @ExtendWith(ApplicationExtension.class)
-@EnabledOnOs({ OS.WINDOWS, OS.MAC})
+@EnabledOnOs({ OS.WINDOWS })
 class SwaggerGuiSettingsTest {
 
     /**

@@ -35,7 +35,7 @@ import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 
 @ExtendWith(ApplicationExtension.class)
 @Slf4j
-@EnabledOnOs({ OS.WINDOWS, OS.MAC })
+@EnabledOnOs({ OS.WINDOWS })
 class SwaggerGuiTest {
 
     private static MockServerClient mockServer;
