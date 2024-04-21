@@ -197,7 +197,12 @@ public class MainController implements Initializable {
     }
 
     public void handleAboutAction(ActionEvent actionEvent) {
-        showAlert("About", "Learning JavaFX with GraalVM", "Not ready for prod use nor anything :)");
+        showAlert("About Swaggerific 0.1.0",
+                "Swaggerific 0.1.0",
+                "This application is currently in development. Please use with caution." +
+                        "Used technology stack: Java 17, JavaFX, Jackson, Swagger, Logback, DockFX, RichTextFX, ControlsFX, Lombok, Maven, Git, IntelliJ IDEA, GraalVM"
+
+        );
     }
 
     public void menuFileExit(ActionEvent actionEvent) {
