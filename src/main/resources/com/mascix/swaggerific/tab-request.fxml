@@ -105,6 +105,7 @@
                                            VBox.vgrow="ALWAYS">
                         <content>
                             <CustomCodeArea fx:id="codeJsonResponse"
+                                            styleClass="code-area"
                                             minHeight="-Infinity"
                                             minWidth="-Infinity"
                                             AnchorPane.bottomAnchor="0.0"

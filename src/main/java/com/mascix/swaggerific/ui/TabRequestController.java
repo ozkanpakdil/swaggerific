@@ -75,7 +75,7 @@ public class TabRequestController extends TabPane {
         }
     }
 
-    private void codeResponseJsonSettings(CodeArea area, String cssName) {
+    private void applyJsonLookSettings(CodeArea area, String cssName) {
         editorSettingsForAll(area, cssName);
         area.textProperty().addListener(
                 (obs, oldText, newText) -> area.setStyleSpans(0, jsonColorize.computeHighlighting(newText)));
@@ -188,8 +188,8 @@ public class TabRequestController extends TabPane {
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
 
-        codeResponseJsonSettings(codeJsonRequest, "/css/json-highlighting.css");
-        codeResponseJsonSettings(codeJsonResponse, "/css/json-highlighting.css");
+        applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
+        applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
         tableHeaders.setItems(FXCollections.observableArrayList(
                 RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
                         .build(),

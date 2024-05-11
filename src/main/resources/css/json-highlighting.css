@@ -40,3 +40,8 @@
 .json_number {
     -fx-fill: blue;
 }
+
+.code-area .lineno {
+    -fx-background-color: #fafafa;
+    -fx-text-fill: #a9a9a9;
+}
