@@ -3,9 +3,7 @@ package com.mascix.swaggerific.ui;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.DisableWindow;
 import com.mascix.swaggerific.data.SwaggerModal;
 import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
@@ -15,6 +13,7 @@ import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
 import com.mascix.swaggerific.ui.exception.NotYetImplementedException;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -87,14 +86,11 @@ public class MainController implements Initializable {
     String urlTarget;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     VBox boxLoader;
-    ObjectMapper mapper = new ObjectMapper();
     HttpUtility httpUtility = new HttpUtility();
 
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
@@ -264,27 +260,56 @@ public class MainController implements Initializable {
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
         treeItemRoot.getChildren().clear();
-        URL urlApi = new URL(urlSwagger);
-        urlTarget = urlSwagger.replace("swagger.json", "");
-        treePaths.setRoot(treeItemRoot);
-        try {
-            jsonRoot = mapper.readTree(urlApi);
-            jsonModal = mapper.readValue(urlApi, SwaggerModal.class);
-            jsonModal.getTags().forEach(it -> {
-                TreeItem<String> tag = new TreeItem<>();
-                tag.setValue(it.getName());
-                jsonModal.getPaths().forEach((it2, pathItem) -> {
-                    if (it2.contains(it.getName())) {
-                        TreeItem path = new TreeItem();
-                        path.setValue(it2);
-                        tag.getChildren().add(path);
-                        returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
-                    }
+        if (urlSwagger.endsWith("swagger.json")) {
+            URL urlApi = new URL(urlSwagger);
+            urlTarget = urlSwagger.replace("swagger.json", "");
+            treePaths.setRoot(treeItemRoot);
+            try {
+                jsonRoot = Json.mapper().readTree(urlApi);
+                jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+                jsonModal.getTags().forEach(it -> {
+                    TreeItem<String> tag = new TreeItem<>();
+                    tag.setValue(it.getName());
+                    jsonModal.getPaths().forEach((it2, pathItem) -> {
+                        if (it2.contains(it.getName())) {
+                            TreeItem path = new TreeItem();
+                            path.setValue(it2);
+                            tag.getChildren().add(path);
+                            returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
+                        }
+                    });
+                    treeItemRoot.getChildren().add(tag);
                 });
-                treeItemRoot.getChildren().add(tag);
-            });
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            if (urlSwagger.endsWith("openapi.json")) {
+                URL urlApi = new URL(urlSwagger);
+                urlTarget = urlSwagger.replace("openapi.json", "");
+                treePaths.setRoot(treeItemRoot);
+                try {
+                    jsonRoot = Json.mapper().readTree(urlApi);
+                    jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+                    jsonModal.getTags().forEach(it -> {
+                        TreeItem<String> tag = new TreeItem<>();
+                        tag.setValue(it.getName());
+                        jsonModal.getPaths().forEach((it2, pathItem) -> {
+                            if (it2.contains(it.getName())) {
+                                TreeItem path = new TreeItem();
+                                path.setValue(it2);
+                                tag.getChildren().add(path);
+                                returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
+                            }
+                        });
+                        treeItemRoot.getChildren().add(tag);
+                    });
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                showAlert("Error", "Invalid URL", "Please enter a valid URL ending with swagger.json or openapi.json");
+            }
         }
         treePaths.setShowRoot(false);
         Platform.runLater(this::setIsOffloading);

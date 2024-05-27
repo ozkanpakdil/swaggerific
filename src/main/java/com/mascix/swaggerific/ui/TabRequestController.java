@@ -1,6 +1,5 @@
 package com.mascix.swaggerific.ui;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
@@ -134,24 +133,23 @@ public class TabRequestController extends TabPane {
 
         mainController.setIsOnloading();
         if (selectedItem instanceof TreeItemOperatinLeaf) {
-            ObjectMapper mapper = mainController.getMapper();
             HttpUtility httpUtility = mainController.getHttpUtility();
             if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
-                Platform.runLater(() -> httpUtility.getRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.getRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.POST.name())) {
-                Platform.runLater(() -> httpUtility.postRequest(mapper, mainController, getSelectedItem.getUri()));
+                Platform.runLater(() -> httpUtility.postRequest(Json.mapper(), mainController, getSelectedItem.getUri()));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.DELETE.name())) {
-                Platform.runLater(() -> httpUtility.deleteRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.deleteRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.HEAD.name())) {
-                Platform.runLater(() -> httpUtility.headRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.headRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.OPTIONS.name())) {
-                Platform.runLater(() -> httpUtility.optionsRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.optionsRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PATCH.name())) {
-                Platform.runLater(() -> httpUtility.patchRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.patchRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PUT.name())) {
-                Platform.runLater(() -> httpUtility.putRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.putRequest(Json.mapper(), mainController));
             } else if (selectedItem.getValue().equals(PathItem.HttpMethod.TRACE.name())) {
-                Platform.runLater(() -> httpUtility.traceRequest(mapper, mainController));
+                Platform.runLater(() -> httpUtility.traceRequest(Json.mapper(), mainController));
             } else {
                 mainController.showAlert("", "", selectedItem.getValue() + " not implemented yet");
                 log.error(selectedItem.getValue() + " not implemented yet");
