@@ -22,7 +22,7 @@ Additional Considerations / not implemented features:
 - Any necessary authentication or security features will be included.
 
 # look
-![image](https://github.com/ozkanpakdil/swaggerific/assets/604405/bd6f76ed-64cc-4bcb-85d0-480c84ea06db)
+![using-get](https://github.com/ozkanpakdil/swaggerific/assets/604405/748eb2a8-3578-45e3-ac95-e8246ef27785)
 
 # native build
 ```shell
