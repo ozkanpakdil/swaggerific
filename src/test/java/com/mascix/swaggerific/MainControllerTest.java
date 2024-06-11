@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class MainControllerTest {
     ObjectMapper mapper = new ObjectMapper();
@@ -29,9 +30,7 @@ class MainControllerTest {
         String webApiUrl = "https://petstore.swagger.io/v2/swagger.json";
         try {
             JsonNode jsonNode = mapper.readTree(new URL(webApiUrl));
-            jsonNode.fieldNames().forEachRemaining(c -> {
-                System.out.println(c);
-            });
+            jsonNode.fieldNames().forEachRemaining(System.out::println);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,9 +63,9 @@ class MainControllerTest {
     @Test
     void initJsonFromFile() throws IOException {
         File file = new File("src/test/resources/petstore-swagger.json");
-        HashMap<String, Object> jsonNode = (HashMap) mapper.readValue(file, Map.class);
-        assertEquals(((ArrayList) jsonNode.get("tags")).size(), 3);
-        assertEquals(((HashMap) jsonNode.get("paths")).size(), 14);
+        HashMap jsonNode = (HashMap) mapper.readValue(file, Map.class);
+        assertEquals(((ArrayList<?>) jsonNode.get("tags")).size(), 3);
+        assertEquals(((HashMap<?, ?>) jsonNode.get("paths")).size(), 14);
     }
 
     @Test
@@ -82,5 +81,12 @@ class MainControllerTest {
             TreeItem<String> tag = new TreeItem<>();
             tag.setValue(pathItem.get$ref());
         });
+    }
+
+    @Test
+    void stringEndsWithTest() {
+        String t = "swagger.json";
+        assertNotEquals(t.endsWith("swagger.json"), t.endsWith("(swagger.json|openapi.json)"));
+        assertEquals(t.endsWith("swagger.json"), t.matches("(swagger.json|openapi.json)"));
     }
 }

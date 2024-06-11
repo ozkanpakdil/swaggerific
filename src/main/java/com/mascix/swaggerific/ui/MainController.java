@@ -260,9 +260,9 @@ public class MainController implements Initializable {
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
         treeItemRoot.getChildren().clear();
-        if (urlSwagger.endsWith("swagger.json")) {
+        if (urlSwagger.matches(".*(swagger\\.json|openapi\\.json)$")) {
             URL urlApi = new URL(urlSwagger);
-            urlTarget = urlSwagger.replace("swagger.json", "");
+            urlTarget = urlSwagger.replaceAll("(swagger.json|openapi.json)$", "");
             treePaths.setRoot(treeItemRoot);
             try {
                 jsonRoot = Json.mapper().readTree(urlApi);
@@ -284,32 +284,8 @@ public class MainController implements Initializable {
                 throw new RuntimeException(e);
             }
         } else {
-            if (urlSwagger.endsWith("openapi.json")) {
-                URL urlApi = new URL(urlSwagger);
-                urlTarget = urlSwagger.replace("openapi.json", "");
-                treePaths.setRoot(treeItemRoot);
-                try {
-                    jsonRoot = Json.mapper().readTree(urlApi);
-                    jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
-                    jsonModal.getTags().forEach(it -> {
-                        TreeItem<String> tag = new TreeItem<>();
-                        tag.setValue(it.getName());
-                        jsonModal.getPaths().forEach((it2, pathItem) -> {
-                            if (it2.contains(it.getName())) {
-                                TreeItem path = new TreeItem();
-                                path.setValue(it2);
-                                tag.getChildren().add(path);
-                                returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
-                            }
-                        });
-                        treeItemRoot.getChildren().add(tag);
-                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                showAlert("Error", "Invalid URL", "Please enter a valid URL ending with swagger.json or openapi.json");
-            }
+            showAlert("Error", "Invalid URL", "Please enter a valid URL ending with swagger.json or openapi.json");
+
         }
         treePaths.setShowRoot(false);
         Platform.runLater(this::setIsOffloading);
