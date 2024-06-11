@@ -7,6 +7,7 @@ import javafx.scene.control.TreeItem;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -60,8 +61,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
     /**
      * happens before readResolve; recreates the TreeItem structure
      */
-    private void readObject(ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         class Container {
             int count;
             final TreeItem<T> item;
@@ -74,7 +74,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
                 this.count = in.readInt();
                 this.item = new TreeItem<>((T) in.readObject());
                 this.items = (List<String>) in.readObject();
-                this.parameters = List.of(mapper.readValue((String) in.readObject(), Parameter[].class));
+                this.parameters = Arrays.asList(mapper.readValue((String) in.readObject(), Parameter[].class));
                 this.uri = (String) in.readObject();
             }
         }
@@ -94,7 +94,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
                 }
 
                 Container newContainer = new Container(in);
-                if (newContainer.parameters.size() > 0) {
+                if (!newContainer.parameters.isEmpty()) {
                     TreeItemOperatinLeaf tio = TreeItemOperatinLeaf.builder().build();
                     tio.setValue(newContainer.item.getValue());
                     tio.setQueryItems(newContainer.items);
