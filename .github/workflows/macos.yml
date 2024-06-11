@@ -16,7 +16,8 @@ jobs:
             ${{ secrets.GITHUB_TOKEN }}
       - name: Show system info
         run: |
-          sysctl
+          system_profiler SPSoftwareDataType SPHardwareDataType
+          sysctl -a
 
       #      - name: Developer ID Application certificate
       #        uses: Apple-Actions/import-codesign-certs@v1
