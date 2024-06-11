@@ -41,7 +41,7 @@ jobs:
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
           find target/
-          hdiutil create -volname Swaggerific -srcfolder target/gluonfx/x86_64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
+          hdiutil create -volname Swaggerific -srcfolder target/gluonfx/aarch64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
           cp -r swaggerific.dmg staging/
       #          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging/
 
