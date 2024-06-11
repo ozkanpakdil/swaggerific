@@ -1,6 +1,12 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ozkanpakdil_swaggerific&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ozkanpakdil_swaggerific)
 # swaggerific
-A user interface (UI) designed to interact with APIs using Swagger documentation.
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ozkanpakdil_swaggerific&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ozkanpakdil_swaggerific)
+
+Overall Downloads on github: ![All downloads of github releases](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/total)
+
+You can download the latest version from [Github releases ![Download count of latest releese](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/latest/total.svg)](https://github.com/ozkanpakdil/swaggerific/releases) 
+
+A user interface (UI) designed to interact with APIs using Swagger or OpenAPI jsons.
 
 Features:
 - The UI is built using JavaFX.
