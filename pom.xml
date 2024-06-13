@@ -8,7 +8,7 @@
     <artifactId>swaggerific</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <name>swaggerific</name>
-
+    <description>An alternative to famous REST client Postman, Swaggerific is written in java and fully open source.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>io.github.ozkanpakdil</groupId>
             <artifactId>dockfx</artifactId>
-            <version>0.1.2</version>
+            <version>0.1.3</version>
         </dependency>
 
         <dependency>
@@ -203,7 +203,7 @@
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-junit5</artifactId>
-            <version>4.0.17</version>
+            <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -307,6 +307,8 @@
                     </attachList>
                     <releaseConfiguration>
                         <skipSigning>true</skipSigning>
+                        <vendor>${groupId}</vendor>
+                        <description>${description}</description>
                     </releaseConfiguration>
                     <!--<runtimeArgs>
                         <arg>&#45;&#45;add-modules=javafx.controls,javafx.web</arg>

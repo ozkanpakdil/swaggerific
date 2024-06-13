@@ -60,7 +60,7 @@ import java.util.stream.StreamSupport;
 public class MainController implements Initializable {
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    public static final String SESSION = "session.bin";
+    String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
     public TabPane tabRequests;
     @FXML
     VBox mainBox;
@@ -91,6 +91,10 @@ public class MainController implements Initializable {
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        if (System.getProperty("user.dir").toLowerCase().contains("project"))
+            SESSION = "session.bin";
+        else
+            SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
