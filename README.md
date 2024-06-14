@@ -4,7 +4,7 @@
 
 Overall Downloads on github: ![All downloads of github releases](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/total)
 
-You can download the latest version from [Github releases ![Download count of latest releese](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/latest/total.svg)](https://github.com/ozkanpakdil/swaggerific/releases) 
+You can download the latest version from [Github releases ![Download count of latest releases](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/latest/total.svg)](https://github.com/ozkanpakdil/swaggerific/releases) 
 
 A user interface (UI) designed to interact with APIs using Swagger or OpenAPI jsons.
 
