@@ -6,7 +6,7 @@
 
     <groupId>com.mascix</groupId>
     <artifactId>swaggerific</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>swaggerific</name>
     <description>An alternative to famous REST client Postman, Swaggerific is written in java and fully open source.</description>
     <properties>
@@ -309,6 +309,7 @@
                         <skipSigning>true</skipSigning>
                         <vendor>${groupId}</vendor>
                         <description>${description}</description>
+                        <version>${version}</version>
                     </releaseConfiguration>
                     <!--<runtimeArgs>
                         <arg>&#45;&#45;add-modules=javafx.controls,javafx.web</arg>
