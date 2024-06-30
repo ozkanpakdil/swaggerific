@@ -49,28 +49,42 @@ public class HttpUtility {
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
+        String body = parent.getCodeJsonRequest().getText();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
+                .POST(HttpRequest.BodyPublishers.ofString(body));
+        log.debug("body: {}", body);
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     private static void sendRequestAndShowResponse(ObjectMapper mapper, MainController parent, URI uri,
-                                                   String[] headers, HttpClient client, HttpRequest.Builder request)
+            String[] headers, HttpClient client, HttpRequest.Builder request)
             throws IOException, InterruptedException {
         if (headers.length > 0)
             request.headers(headers);
-        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
-        HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+        HttpRequest httpRequest = request.build();
+        log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headers), uri);
+        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         parent.getCodeJsonResponse().replaceText(
-                Json.pretty(mapper.readTree(httpResponse.body()))
+                (isValidJson(httpResponse.body()))
+                        ? Json.pretty(mapper.readTree(httpResponse.body()))
+                        : httpResponse.body()
         );
+    }
+
+    public static boolean isValidJson(String jsonString) {
+        try {
+            Json.mapper().readTree(jsonString);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @SneakyThrows
     public void deleteRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -84,49 +98,56 @@ public class HttpUtility {
 
     @SneakyThrows
     public void headRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .method(PathItem.HttpMethod.HEAD.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+                .method(PathItem.HttpMethod.HEAD.name(),
+                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     @SneakyThrows
     public void optionsRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .method(PathItem.HttpMethod.OPTIONS.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+                .method(PathItem.HttpMethod.OPTIONS.name(),
+                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     @SneakyThrows
     public void patchRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .method(PathItem.HttpMethod.PATCH.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+                .method(PathItem.HttpMethod.PATCH.name(),
+                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     @SneakyThrows
     public void putRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -140,14 +161,16 @@ public class HttpUtility {
 
     @SneakyThrows
     public void traceRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(uri)
-                .method(PathItem.HttpMethod.TRACE.name(), HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+                .method(PathItem.HttpMethod.TRACE.name(),
+                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
 
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
@@ -165,7 +188,8 @@ public class HttpUtility {
 
     @SneakyThrows
     public void getRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
+                .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
         HttpClient client = HttpClient.newHttpClient();
 
@@ -174,7 +198,7 @@ public class HttpUtility {
                 .uri(uri);
         if (headers.length > 0)
             request.headers(headers);
-        log.info("headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
+        log.info("GET headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
 
         HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
         if (!httpResponse.body().startsWith("<")) {

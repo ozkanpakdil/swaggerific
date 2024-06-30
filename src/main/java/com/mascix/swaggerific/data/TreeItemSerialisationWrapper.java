@@ -6,121 +6,87 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.scene.control.TreeItem;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
+import java.util.Map;
 
 public class TreeItemSerialisationWrapper<T extends Serializable> implements Serializable {
     private transient TreeItem<T> item;
-    ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public TreeItemSerialisationWrapper(TreeItem<T> item) {
-        if (item == null) {
-            throw new IllegalArgumentException();
-        }
         this.item = item;
     }
 
-    /**
-     * Custom way of writing the TreeItem structure
-     */
-    private void writeObject(ObjectOutputStream out)
-            throws IOException {
-        Stack<Object> stack = new Stack<>();
-        stack.push(item);
-
+    private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
-        do {
-            TreeItem current = (TreeItem) stack.pop();
-            int size = current.getChildren().size();
-            out.writeInt(size);
-
-            // write all the data that needs to be restored here
-            out.writeObject(current.getValue());
-            if (current instanceof TreeItemOperationLeaf) {
-                TreeItemOperationLeaf x = (TreeItemOperationLeaf) current;
-                out.writeObject(x.getQueryItems());
-                out.writeObject(mapper.writeValueAsString(x.getMethodParameters()));
-                out.writeObject(x.getUri());
-            } else {
-                out.writeObject(List.of(""));
-                out.writeObject(mapper.writeValueAsString(new ArrayList<Parameter>()));
-                out.writeObject("");
-            }
-
-            // "schedule" serialisation of children.
-            // the first one is inserted last, since the top one from the stack is
-            // retrieved first
-            for (int i = size - 1; i >= 0; --i) {
-                stack.push(current.getChildren().get(i));
-            }
-        } while (!stack.isEmpty());
+        out.writeObject(mapper.writeValueAsString(serializeTreeItem(item)));
     }
 
-    /**
-     * happens before readResolve; recreates the TreeItem structure
-     */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        class Container {
-            int count;
-            final TreeItem<T> item;
-            final List<String> items;
-            final List<Parameter> parameters;
-            final String uri;
-
-            Container(ObjectInputStream in) throws ClassNotFoundException, IOException {
-                // read the data for a single TreeItem here
-                this.count = in.readInt();
-                this.item = new TreeItem<>((T) in.readObject());
-                this.items = (List<String>) in.readObject();
-                this.parameters = Arrays.asList(mapper.readValue((String) in.readObject(), Parameter[].class));
-                this.uri = (String) in.readObject();
-            }
-        }
         in.defaultReadObject();
-        Container root = new Container(in);
-        this.item = root.item;
-
-        if (root.count > 0) {
-            Stack<Container> stack = new Stack<>();
-            stack.push(root);
-            do {
-                Container current = stack.peek();
-                --current.count;
-                if (current.count <= 0) {
-                    // we're done with this item
-                    stack.pop();
-                }
-
-                Container newContainer = new Container(in);
-                if (!newContainer.parameters.isEmpty()) {
-                    TreeItemOperationLeaf tio = TreeItemOperationLeaf.builder().build();
-                    tio.setValue(newContainer.item.getValue());
-                    tio.setQueryItems(newContainer.items);
-                    tio.setMethodParameters(newContainer.parameters);
-                    tio.setUri(newContainer.uri);
-                    current.item.getChildren().add(tio);
-                } else {
-                    current.item.getChildren().add(newContainer.item);
-                }
-                if (newContainer.count > 0) {
-                    // schedule reading children of non-leaf
-                    stack.push(newContainer);
-                }
-
-            } while (!stack.isEmpty());
-        }
+        String json = (String) in.readObject();
+        this.item = deserializeTreeItem(mapper.readValue(json, Map.class));
     }
 
-    /**
-     * We're not actually interested in this object but the treeitem
-     *
-     * @return the treeitem
-     * @throws ObjectStreamException
-     */
+    private Map<String, Object> serializeTreeItem(TreeItem<T> treeItem) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("value", treeItem.getValue());
+        if (treeItem instanceof TreeItemOperationLeaf) {
+            TreeItemOperationLeaf leaf = (TreeItemOperationLeaf) treeItem;
+            map.put("queryItems", leaf.getQueryItems());
+            map.put("methodParameters", leaf.getMethodParameters());
+            map.put("uri", leaf.getUri());
+            map.put("isLeaf", true);
+        } else {
+            map.put("isLeaf", false);
+        }
+        List<Map<String, Object>> children = treeItem.getChildren().stream()
+                .map(this::serializeTreeItem)
+                .toList();
+        map.put("children", children);
+        return map;
+    }
+
+    private TreeItem<T> deserializeTreeItem(Map<String, Object> map) {
+        TreeItem<T> treeItem;
+        if ((Boolean) map.get("isLeaf")) {
+            TreeItemOperationLeaf leaf = TreeItemOperationLeaf.builder().build();
+            leaf.setValue(map.get("value"));
+            leaf.setQueryItems((List<String>) map.get("queryItems"));
+            leaf.setMethodParameters(convertToParameters((List<Map<String, Object>>) map.get("methodParameters")));
+            leaf.setUri((String) map.get("uri"));
+            treeItem = leaf;
+        } else {
+            treeItem = new TreeItem<>((T) map.get("value"));
+        }
+        List<Map<String, Object>> children = (List<Map<String, Object>>) map.get("children");
+        if (children != null) {
+            for (Map<String, Object> childMap : children) {
+                treeItem.getChildren().add(deserializeTreeItem(childMap));
+            }
+        }
+        return treeItem;
+    }
+
+    private List<Parameter> convertToParameters(List<Map<String, Object>> parameterMaps) {
+        if (parameterMaps == null)
+            return null;
+        return parameterMaps.stream()
+                .map(this::convertToParameter)
+                .toList();
+    }
+
+    private Parameter convertToParameter(Map<String, Object> map) {
+        Parameter parameter = new Parameter();
+        if (map != null) {
+            parameter.setName((String) map.get("name"));
+            parameter.setIn((String) map.get("in"));
+        }
+        return parameter;
+    }
+
     private Object readResolve() throws ObjectStreamException {
         return item;
     }
-
 }

@@ -65,6 +65,8 @@ public class SwaggerApplication extends Application {
 
     public static void main(String[] args) {
         System.setProperty("javafx.preloader", Preloader.class.getName());
+        if (log.isDebugEnabled())
+            System.setProperty("jdk.httpclient.HttpClient.log", "all");
         launch();
     }
 }

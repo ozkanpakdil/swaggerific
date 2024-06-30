@@ -25,9 +25,9 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -40,6 +40,7 @@ import javafx.stage.Stage;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.StatusBar;
 import org.dockfx.DockNode;
 import org.dockfx.DockPane;
@@ -56,8 +57,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -96,7 +97,7 @@ public class MainController implements Initializable {
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (System.getProperty("user.dir").toLowerCase().contains("project"))
+        if (System.getProperty("user.dir").toLowerCase().contains("project")) // local development check
             SESSION = "session.bin";
         else
             SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
@@ -146,18 +147,18 @@ public class MainController implements Initializable {
     private void configureLoggerTextBox() {
         TextAreaAppender textAreaAppender = new TextAreaAppender(console);
 
-// Create an encoder and set its pattern
+        // Create an encoder and set its pattern
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
         encoder.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
         encoder.start();
 
-// Set the encoder in your appender
+        // Set the encoder in your appender
         textAreaAppender.setEncoder(encoder);
         textAreaAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
         textAreaAppender.start();
 
-// Get the root logger and add your appender
+        // Get the root logger and add your appender
         Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.addAppender(textAreaAppender);
     }
@@ -181,7 +182,7 @@ public class MainController implements Initializable {
         }
     }
 
-    @SneakyThrows
+    //    @SneakyThrows
     private void onTreeItemSelect(TreeItem<String> newValue) {
         if (newValue instanceof TreeItemOperationLeaf m) {
             handleTreeViewItemClick(m.getUri(), m);
@@ -227,9 +228,12 @@ public class MainController implements Initializable {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(urlSwaggerJson -> {
-            Platform.runLater(() -> setIsOnloading());
-            Runnable task = () -> openSwaggerUrl(urlSwaggerJson);
-            task.run();
+            try {
+                Platform.runLater(() -> setIsOnloading());
+                openSwaggerUrl(urlSwaggerJson);
+            } finally {
+                Platform.runLater(() -> setIsOffloading());
+            }
         });
     }
 
@@ -272,13 +276,18 @@ public class MainController implements Initializable {
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
         treeItemRoot.getChildren().clear();
-        if (urlSwagger.matches(".*(swagger\\.json|openapi\\.json)$")) {
-            URL urlApi = new URL(urlSwagger);
-            urlTarget = urlSwagger.replaceAll("(swagger.json|openapi.json)$", "");
-            treePaths.setRoot(treeItemRoot);
-            try {
-                jsonRoot = Json.mapper().readTree(urlApi);
-                jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+        URL urlApi = new URL(urlSwagger);
+        treePaths.setRoot(treeItemRoot);
+        try {
+            jsonRoot = Json.mapper().readTree(urlApi);
+            jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+
+            if (StringUtils.isAllBlank(jsonModal.getSwagger(), jsonModal.getOpenapi())) {
+                throw new RuntimeException("Json is not recognized");
+            }
+            if (!StringUtils.isBlank(jsonModal.getSwagger())) { // swagger json
+                urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost() + jsonModal.getBasePath();
+
                 jsonModal.getTags().forEach(it -> {
                     TreeItem<String> tag = new TreeItem<>();
                     tag.setValue(it.getName());
@@ -287,17 +296,32 @@ public class MainController implements Initializable {
                             TreeItem path = new TreeItem();
                             path.setValue(it2);
                             tag.getChildren().add(path);
-                            returnTreeItemsForTheMethod(pathItem, path.getChildren(), urlApi, jsonModal, it2);
+                            returnTreeItemsForTheMethod(pathItem, path.getChildren(), it2);
                         }
                     });
                     treeItemRoot.getChildren().add(tag);
                 });
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } else if (!jsonModal.getOpenapi().isEmpty()) {
+                urlTarget = jsonModal.getServers().get(0).getUrl();
+                jsonModal.getPaths().forEach((k, v) -> {
+                    TreeItem<String> treeItem = new TreeItem<>();
+                    treeItem.setValue(k);
+                    v.readOperationsMap().forEach((method, operation) -> {
+                        TreeItem path = new TreeItem();
+                        path.setValue(operation.getOperationId());
+                        TreeItemOperationLeaf operationLeaf = TreeItemOperationLeaf.builder()
+                                .uri(urlTarget + k)
+                                .methodParameters(operation.getParameters())
+                                .build();
+                        operationLeaf.setValue(method.name());
+                        path.getChildren().add(operationLeaf);
+                        treeItem.getChildren().add(path);
+                    });
+                    treeItemRoot.getChildren().add(treeItem);
+                });
             }
-        } else {
-            showAlert("Error", "Invalid URL", "Please enter a valid URL ending with swagger.json or openapi.json");
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         treePaths.setShowRoot(false);
         Platform.runLater(this::setIsOffloading);
@@ -305,10 +329,10 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-                                             URL urlSwagger, SwaggerModal jsonModal, String parentVal) {
+            String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
-                    .uri(urlTarget + parentVal.substring(1))
+                    .uri(urlTarget + "/" + parentVal.substring(1))
                     .methodParameters(v.getParameters())
                     .build();
             it.setValue(k.name());
@@ -378,7 +402,7 @@ public class MainController implements Initializable {
         stage.setScene(settingsScene);
         stage.show();
 
-//        stage.setOnHidden(e -> controller.onClose());
+        //        stage.setOnHidden(e -> controller.onClose());
     }
 
     public GridPane getBoxRequestParams() {

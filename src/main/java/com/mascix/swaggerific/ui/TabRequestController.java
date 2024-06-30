@@ -101,39 +101,46 @@ public class TabRequestController extends TabPane {
     public void onTreeItemSelect(String uri, TreeItemOperationLeaf leaf) {
         boxRequestParams.getChildren().clear();
         txtAddress.setText(uri);
-        Optional<Parameter> body = leaf.getMethodParameters().stream()
-                .filter(Objects::nonNull)
-                .filter(p -> p.getName().equals("body")).findAny();
+        Optional<Parameter> body = Optional.ofNullable(leaf.getMethodParameters())
+                .flatMap(parameters -> parameters.stream()
+                        .filter(Objects::nonNull)
+                        .filter(p -> p.getName().equals("body"))
+                        .findAny());
         if (body.isPresent()) {// this function requires json body
             tabRequestDetails.getSelectionModel().select(tabBody);
         } else {
             tabRequestDetails.getSelectionModel().select(tabParams);
         }
         AtomicInteger row = new AtomicInteger();
-        leaf.getMethodParameters().stream()
-                .filter(Objects::nonNull)
-                .forEach(f -> {
-                    STextField txtInput = new STextField();
-                    txtInput.setParamName(f.getName());
-                    txtInput.setId(f.getName());
-                    txtInput.setIn(f.getIn());
-                    txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
-                        // TODO instead of text field this should be dropdown || combobox || listview.
-                        txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
-                    }
-                    Label lblInput = new Label(f.getName());
-                    boxRequestParams.add(lblInput, 0, row.get());
-                    boxRequestParams.add(txtInput, 1, row.get());
-                    row.incrementAndGet();
-                });
+        Optional.ofNullable(leaf.getMethodParameters())
+                .ifPresentOrElse(
+                        parameters -> parameters.stream()
+                                .filter(Objects::nonNull)
+                                .forEach(f -> {
+                                    STextField txtInput = new STextField();
+                                    txtInput.setParamName(f.getName());
+                                    txtInput.setId(f.getName());
+                                    txtInput.setIn(f.getIn());
+                                    txtInput.setMinWidth(Region.USE_PREF_SIZE);
+                                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
+                                        // TODO instead of text field this should be dropdown || combobox || listview.
+                                        txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
+                                    }
+                                    Label lblInput = new Label(f.getName());
+                                    boxRequestParams.add(lblInput, 0, row.get());
+                                    boxRequestParams.add(txtInput, 1, row.get());
+                                    row.incrementAndGet();
+                                }),
+                        () -> log.info("Method parameters are null")
+                );
         codeJsonRequest.replaceText(
                 Json.pretty(leaf.getMethodParameters()));
     }
 
     public void btnSendRequest(ActionEvent actionEvent) {
         TreeItem<String> selectedItem = (TreeItem<String>) mainController.treePaths.getSelectionModel().getSelectedItem();
-        TreeItemOperationLeaf getSelectedItem = (TreeItemOperationLeaf) mainController.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf getSelectedItem = (TreeItemOperationLeaf) mainController.getTreePaths().getSelectionModel()
+                .getSelectedItem();
 
         mainController.setIsOnloading();
         if (selectedItem instanceof TreeItemOperationLeaf) {
@@ -184,7 +191,7 @@ public class TabRequestController extends TabPane {
                 }
             }*/
 
-//            bracketHighlighter.highlightBracket();
+            //            bracketHighlighter.highlightBracket();
         });
 
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
@@ -221,12 +228,12 @@ public class TabRequestController extends TabPane {
             cell.setAlignment(Pos.CENTER);
             return cell;
         });
-        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader> forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
             evt.getRowValue().setName(evt.getNewValue());
             addTableRowIfFulfilled();
         });
-        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
+        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader> forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
             evt.getRowValue().setValue(evt.getNewValue());
             addTableRowIfFulfilled();
