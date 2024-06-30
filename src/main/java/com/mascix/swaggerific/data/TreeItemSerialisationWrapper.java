@@ -1,7 +1,7 @@
 package com.mascix.swaggerific.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
+import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import javafx.scene.control.TreeItem;
 
@@ -38,8 +38,8 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
 
             // write all the data that needs to be restored here
             out.writeObject(current.getValue());
-            if (current instanceof TreeItemOperatinLeaf) {
-                TreeItemOperatinLeaf x = (TreeItemOperatinLeaf) current;
+            if (current instanceof TreeItemOperationLeaf) {
+                TreeItemOperationLeaf x = (TreeItemOperationLeaf) current;
                 out.writeObject(x.getQueryItems());
                 out.writeObject(mapper.writeValueAsString(x.getMethodParameters()));
                 out.writeObject(x.getUri());
@@ -95,7 +95,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
 
                 Container newContainer = new Container(in);
                 if (!newContainer.parameters.isEmpty()) {
-                    TreeItemOperatinLeaf tio = TreeItemOperatinLeaf.builder().build();
+                    TreeItemOperationLeaf tio = TreeItemOperationLeaf.builder().build();
                     tio.setValue(newContainer.item.getValue());
                     tio.setQueryItems(newContainer.items);
                     tio.setMethodParameters(newContainer.parameters);

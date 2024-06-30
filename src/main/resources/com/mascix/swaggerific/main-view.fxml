@@ -46,6 +46,7 @@
                 <MenuItem text="Online Manual" visible="false"/>
                 <SeparatorMenuItem/>
                 <MenuItem onAction="#handleAboutAction" text="About"/>
+                <MenuItem onAction="#reportBugOrFeatureRequestFromHelpMenu" text="Report Bug or Feature Request"/>
             </Menu>
         </MenuBar>
         <DockPane fx:id="dockPaneMain" VBox.vgrow="ALWAYS">

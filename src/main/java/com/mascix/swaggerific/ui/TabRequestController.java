@@ -2,7 +2,7 @@ package com.mascix.swaggerific.ui;
 
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
-import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
+import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
 import com.mascix.swaggerific.ui.textfx.*;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -97,42 +98,45 @@ public class TabRequestController extends TabPane {
                 (obs, oldText, newText) -> area.setStyleSpans(0, xmlColorizer.computeHighlighting(newText)));
     }
 
-    public void onTreeItemSelect(String uri, TreeItemOperatinLeaf leaf) {
+    public void onTreeItemSelect(String uri, TreeItemOperationLeaf leaf) {
         boxRequestParams.getChildren().clear();
-        Optional<Parameter> body = leaf.getMethodParameters().stream().filter(p -> p.getName().equals("body")).findAny();
         txtAddress.setText(uri);
+        Optional<Parameter> body = leaf.getMethodParameters().stream()
+                .filter(Objects::nonNull)
+                .filter(p -> p.getName().equals("body")).findAny();
         if (body.isPresent()) {// this function requires json body
             tabRequestDetails.getSelectionModel().select(tabBody);
         } else {
             tabRequestDetails.getSelectionModel().select(tabParams);
         }
         AtomicInteger row = new AtomicInteger();
-        leaf.getMethodParameters().forEach(f -> {
-            STextField txtInput = new STextField();
-            txtInput.setParamName(f.getName());
-            txtInput.setId(f.getName());
-            txtInput.setIn(f.getIn());
-            txtInput.setMinWidth(Region.USE_PREF_SIZE);
-            if (leaf.getQueryItems() != null && leaf.getQueryItems().size() > 0) {
-                // TODO instead of text field this should be dropdown || combobox || listview.
-                txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
-            }
-            Label lblInput = new Label();
-            lblInput.setText(f.getName());
-            boxRequestParams.add(lblInput, 0, row.get());
-            boxRequestParams.add(txtInput, 1, row.get());
-            row.incrementAndGet();
-        });
+        leaf.getMethodParameters().stream()
+                .filter(Objects::nonNull)
+                .forEach(f -> {
+                    STextField txtInput = new STextField();
+                    txtInput.setParamName(f.getName());
+                    txtInput.setId(f.getName());
+                    txtInput.setIn(f.getIn());
+                    txtInput.setMinWidth(Region.USE_PREF_SIZE);
+                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
+                        // TODO instead of text field this should be dropdown || combobox || listview.
+                        txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
+                    }
+                    Label lblInput = new Label(f.getName());
+                    boxRequestParams.add(lblInput, 0, row.get());
+                    boxRequestParams.add(txtInput, 1, row.get());
+                    row.incrementAndGet();
+                });
         codeJsonRequest.replaceText(
                 Json.pretty(leaf.getMethodParameters()));
     }
 
     public void btnSendRequest(ActionEvent actionEvent) {
         TreeItem<String> selectedItem = (TreeItem<String>) mainController.treePaths.getSelectionModel().getSelectedItem();
-        TreeItemOperatinLeaf getSelectedItem = (TreeItemOperatinLeaf) mainController.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf getSelectedItem = (TreeItemOperationLeaf) mainController.getTreePaths().getSelectionModel().getSelectedItem();
 
         mainController.setIsOnloading();
-        if (selectedItem instanceof TreeItemOperatinLeaf) {
+        if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
             if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
                 Platform.runLater(() -> httpUtility.getRequest(Json.mapper(), mainController));
@@ -160,7 +164,7 @@ public class TabRequestController extends TabPane {
         mainController.setIsOffloading();
     }
 
-    public void setMainController(MainController parent, String uri, TreeItemOperatinLeaf leaf) {
+    public void setMainController(MainController parent, String uri, TreeItemOperationLeaf leaf) {
         this.mainController = parent;
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);

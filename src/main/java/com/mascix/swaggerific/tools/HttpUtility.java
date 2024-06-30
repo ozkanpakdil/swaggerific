@@ -5,7 +5,7 @@ import com.mascix.swaggerific.tools.exceptions.XmlFormattingException;
 import com.mascix.swaggerific.ui.MainController;
 import com.mascix.swaggerific.ui.RequestHeader;
 import com.mascix.swaggerific.ui.component.STextField;
-import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
+import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.scene.control.TableView;
@@ -70,7 +70,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void deleteRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -84,7 +84,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void headRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -98,7 +98,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void optionsRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -112,7 +112,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void patchRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -126,7 +126,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void putRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -140,7 +140,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void traceRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
@@ -165,7 +165,7 @@ public class HttpUtility {
 
     @SneakyThrows
     public void getRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperatinLeaf selectedItem = (TreeItemOperatinLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
+        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel().getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
         HttpClient client = HttpClient.newHttpClient();
 

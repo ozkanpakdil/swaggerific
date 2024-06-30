@@ -9,7 +9,7 @@ import com.mascix.swaggerific.data.SwaggerModal;
 import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.TextAreaAppender;
-import com.mascix.swaggerific.ui.component.TreeItemOperatinLeaf;
+import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
 import com.mascix.swaggerific.ui.exception.NotYetImplementedException;
 import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
@@ -26,10 +26,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -44,6 +47,7 @@ import org.dockfx.DockPosition;
 import org.fxmisc.richtext.CodeArea;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -53,6 +57,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -158,7 +163,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    private void handleTreeViewItemClick(String tabName, TreeItemOperatinLeaf leaf) {
+    private void handleTreeViewItemClick(String tabName, TreeItemOperationLeaf leaf) {
         if (tabRequests.getTabs().stream().filter(f -> f.getId().equals(tabName)).findAny().isEmpty()) {
             FXMLLoader tab = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/tab-request.fxml"));
             Tab newTab = new Tab(tabName);
@@ -178,7 +183,7 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void onTreeItemSelect(TreeItem<String> newValue) {
-        if (newValue instanceof TreeItemOperatinLeaf m) {
+        if (newValue instanceof TreeItemOperationLeaf m) {
             handleTreeViewItemClick(m.getUri(), m);
         }
     }
@@ -216,6 +221,9 @@ public class MainController implements Initializable {
         dialog.setTitle("Enter swagger url");
         dialog.setContentText("URL:");
         dialog.setHeaderText("Enter the json url of swagger url.");
+        dialog.getDialogPane().setPrefWidth(500);
+        dialog.getEditor().setPrefWidth(400);
+        dialog.getDialogPane().setMinWidth(Region.USE_PREF_SIZE);
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(urlSwaggerJson -> {
@@ -299,7 +307,7 @@ public class MainController implements Initializable {
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
                                              URL urlSwagger, SwaggerModal jsonModal, String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
-            TreeItemOperatinLeaf it = TreeItemOperatinLeaf.builder()
+            TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
                     .uri(urlTarget + parentVal.substring(1))
                     .methodParameters(v.getParameters())
                     .build();
@@ -418,5 +426,10 @@ public class MainController implements Initializable {
             storedDockNode = null;
         }
 
+    }
+
+    @SneakyThrows
+    public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent actionEvent) {
+        Desktop.getDesktop().browse(new URL("https://github.com/ozkanpakdil/swaggerific/issues/new/choose").toURI());
     }
 }
