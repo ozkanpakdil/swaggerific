@@ -307,9 +307,9 @@
                     </attachList>
                     <releaseConfiguration>
                         <skipSigning>true</skipSigning>
-                        <vendor>${groupId}</vendor>
-                        <description>${description}</description>
-                        <version>${version}</version>
+                        <vendor>${project.groupId}</vendor>
+                        <description>${project.description}</description>
+                        <version>${project.version}</version>
                     </releaseConfiguration>
                     <!--<runtimeArgs>
                         <arg>&#45;&#45;add-modules=javafx.controls,javafx.web</arg>

@@ -32,6 +32,10 @@
         "", 
         "und"
       ]
+    }, 
+    {
+      "name":"sun.awt.resources.awt",
+      "classNames":["sun.awt.resources.awt"]
     }
   ]
 }

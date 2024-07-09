@@ -138,8 +138,11 @@
   "queryAllDeclaredMethods":true,
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
+    {"name":"handleAboutAction","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"reportBugOrFeatureRequestFromHelpMenu","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
   ]
 },
@@ -1213,11 +1216,6 @@
     {"name":"setColumnIndex","parameterTypes":["javafx.scene.Node","java.lang.Integer"] }, 
     {"name":"setColumnSpan","parameterTypes":["javafx.scene.Node","java.lang.Integer"] }, 
     {"name":"setRowIndex","parameterTypes":["javafx.scene.Node","java.lang.Integer"] }
-  ],
-  "queriedMethods":[
-    {"name":"getColumnIndex","parameterTypes":["javafx.scene.Node"] }, 
-    {"name":"getColumnSpan","parameterTypes":["javafx.scene.Node"] }, 
-    {"name":"getRowIndex","parameterTypes":["javafx.scene.Node"] }
   ]
 },
 {
@@ -1227,8 +1225,7 @@
   "methods":[
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"setHgrow","parameterTypes":["javafx.scene.Node","javafx.scene.layout.Priority"] }
-  ],
-  "queriedMethods":[{"name":"getHgrow","parameterTypes":["javafx.scene.Node"] }]
+  ]
 },
 {
   "name":"javafx.scene.layout.Pane",
@@ -1421,6 +1418,10 @@
     {"name":"setIconLiteral","parameterTypes":["java.lang.String"] }, 
     {"name":"setIconSize","parameterTypes":["int"] }
   ]
+},
+{
+  "name":"sun.java2d.marlin.DMarlinRenderingEngine",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"sun.misc.Unsafe",
