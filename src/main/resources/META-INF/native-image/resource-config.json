@@ -1,41 +1,119 @@
 {
   "resources":{
-  "includes":[
-    {
-      "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
-    }, 
-    {
-      "pattern":"\\Qatlantafx/base/theme/primer-light.bss\\E"
-    }, 
-    {
-      "pattern":"\\Qlogback.xml\\E"
-    }
-  ]},
-  "bundles":[
-    {
-      "name":"com.sun.javafx.tk.quantum.QuantumMessagesBundle",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }, 
-    {
-      "name":"com/sun/javafx/scene/control/skin/resources/controls",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }, 
-    {
-      "name":"controlsfx",
-      "locales":[
-        "", 
-        "und"
-      ]
-    }, 
-    {
-      "name":"sun.awt.resources.awt",
-      "classNames":["sun.awt.resources.awt"]
-    }
-  ]
+  "includes":[{
+    "pattern":"\\QMETA-INF/fonts.mf\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.SAXParserFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.slf4j.spi.SLF4JServiceProvider\\E"
+  }, {
+    "pattern":"\\Qatlantafx/base/theme/primer-light.bss\\E"
+  }, {
+    "pattern":"\\Qlogback-test.scmo\\E"
+  }, {
+    "pattern":"\\Qlogback-test.xml\\E"
+  }, {
+    "pattern":"\\Qlogback.scmo\\E"
+  }, {
+    "pattern":"\\Qlogback.xml\\E"
+  }, {
+    "pattern":"atlantafx.base:\\Qatlantafx/base/theme/primer-light.bss\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/ubidi.icu\\E"
+  }, {
+    "pattern":"javafx.base:\\Qcom/sun/javafx/reflect/Trampoline.class\\E"
+  }, {
+    "pattern":"javafx.controls:\\Qcom/sun/javafx/scene/control/skin/modena/modena.bss\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/glass/utils/NativeLibLoader.class\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/DrawPgram_Color.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/FillPgram_Color.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/FillPgram_LinearGradient_PAD.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/FillRoundRect_Color.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Mask_TextureSuper.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Solid_TextureFirstPassLCD.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Solid_TextureRGB.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Solid_TextureSecondPassLCD.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Texture_Color.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/prism/d3d/hlsl/Texture_LinearGradient_PAD.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/hw/d3d/hlsl/Blend_SRC_ATOP.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/hw/d3d/hlsl/InvertMask.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/hw/d3d/hlsl/LinearConvolveShadow_32.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qcom/sun/scenario/effect/impl/hw/d3d/hlsl/LinearConvolveShadow_4.obj\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qglass.dll\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qjavafx_font.dll\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qjavafx_iio.dll\\E"
+  }, {
+    "pattern":"javafx.graphics:\\Qprism_d3d.dll\\E"
+  }, {
+    "pattern":"javafx.web:\\Qjfxwebkit.dll\\E"
+  }, {
+    "pattern":"org.controlsfx.controls:\\Qorg/controlsfx/control/statusbar.css\\E"
+  }, {
+    "pattern":"org.dockfx:\\Qorg/dockfx/default.css\\E"
+  }, {
+    "pattern":"org.dockfx:\\Qorg/dockfx/docknode.png\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.core:\\QMETA-INF/resources/ikonli/0.0.0/fonts/ikonli.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-brands-400.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-regular-400.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome5:\\QMETA-INF/resources/fontawesome5/5.15.3/fonts/fa-solid-900.ttf\\E"
+  }, {
+    "pattern":"org.kordamp.ikonli.fontawesome:\\QMETA-INF/resources/fontawesome/4.7.0/fonts/fontawesome-webfont.ttf\\E"
+  }, {
+    "pattern":"swaggerific:\\Qapplogo.png\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/edit/settings/About.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/main-view.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcom/mascix/swaggerific/ui/loader.fxml\\E"
+  }, {
+    "pattern":"swaggerific:\\Qcss/splashscreen.css\\E"
+  }]},
+  "bundles":[{
+    "name":"com.sun.javafx.tk.quantum.QuantumMessagesBundle",
+    "locales":["und"]
+  }, {
+    "name":"com/sun/javafx/scene/control/skin/resources/controls",
+    "locales":["und"]
+  }, {
+    "name":"controlsfx",
+    "locales":["und"]
+  }, {
+    "name":"sun.awt.resources.awt",
+    "classNames":["sun.awt.resources.awt"]
+  }]
 }

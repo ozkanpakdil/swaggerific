@@ -3,7 +3,11 @@ package com.mascix.swaggerific.ui;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.STextField;
 import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
-import com.mascix.swaggerific.ui.textfx.*;
+import com.mascix.swaggerific.ui.textfx.BracketHighlighter;
+import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
+import com.mascix.swaggerific.ui.textfx.JsonColorize;
+import com.mascix.swaggerific.ui.textfx.SelectedHighlighter;
+import com.mascix.swaggerific.ui.textfx.XmlColorizer;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -15,10 +19,21 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Data;
@@ -104,7 +119,7 @@ public class TabRequestController extends TabPane {
         Optional<Parameter> body = Optional.ofNullable(leaf.getMethodParameters())
                 .flatMap(parameters -> parameters.stream()
                         .filter(Objects::nonNull)
-                        .filter(p -> p.getName().equals("body"))
+                        .filter(p -> "body".equals(p.getName()))
                         .findAny());
         if (body.isPresent()) {// this function requires json body
             tabRequestDetails.getSelectionModel().select(tabBody);
@@ -127,9 +142,10 @@ public class TabRequestController extends TabPane {
                                         txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
                                     }
                                     Label lblInput = new Label(f.getName());
-                                    boxRequestParams.add(lblInput, 0, row.get());
-                                    boxRequestParams.add(txtInput, 1, row.get());
-                                    row.incrementAndGet();
+                                    HBox elements = new HBox();
+                                    elements.getChildren().add(lblInput);
+                                    elements.getChildren().add(txtInput);
+                                    boxRequestParams.addRow(row.getAndIncrement(), elements);
                                 }),
                         () -> log.info("Method parameters are null")
                 );
