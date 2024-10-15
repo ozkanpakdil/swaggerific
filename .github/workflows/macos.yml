@@ -56,7 +56,7 @@ jobs:
       #          verbose: false
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Package
           path: staging
@@ -87,7 +87,7 @@ jobs:
       #     echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
 
       #      - name: Upload (pkg store)
-      #        uses: actions/upload-artifact@v2
+      #        uses: actions/upload-artifact@v4
       #        with:
       #          name: PackageAppStore
       #          path: ${{ steps.outputfilestore.outputs.path }}
