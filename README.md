@@ -8,6 +8,9 @@ You can download the latest version from [Github releases ![Download count of la
 
 A user interface (UI) designed to interact with APIs using Swagger or OpenAPI jsons.
 
+# Cool interview  
+[![swaggerefic](http://img.youtube.com/vi/3_T0LDZ-Wt4/0.jpg)](http://www.youtube.com/watch?v=3_T0LDZ-Wt4 "How to use swaggerific and interview with ozkan pakdil")
+
 Features:
 - The UI is built using JavaFX.
 - Error handling and display of API responses implemented.
