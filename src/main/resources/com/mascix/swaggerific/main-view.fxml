@@ -76,7 +76,7 @@
                     </AnchorPane>
                 </contents>
             </DockNode>
-            <DockNode title="Debug Console" fx:id="debugDockNode" dockPosition="BOTTOM" maxHeight="250">
+            <DockNode title="Debug Console" fx:id="debugDockNode" dockPosition="BOTTOM">
                 <contents>
                     <TextArea fx:id="console" prefHeight="200.0" prefWidth="-Infinity"
                               styleClass="debugWindowText" wrapText="true"/>
