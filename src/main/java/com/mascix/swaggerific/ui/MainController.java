@@ -142,6 +142,10 @@ public class MainController implements Initializable {
 
         mainNode.setDockPane(dockPaneMain);
         debugDockNode.setDockPane(dockPaneMain);
+        // TODO below line did not work from main-view.css should be moved to CSS in the future
+        debugDockNode.lookup(".dock-title-bar").setStyle("""
+                -fx-background-color: #f4f4f4;
+                """);
     }
 
     private void configureLoggerTextBox() {
