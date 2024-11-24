@@ -33,7 +33,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Data;
@@ -142,10 +141,9 @@ public class TabRequestController extends TabPane {
                                         txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
                                     }
                                     Label lblInput = new Label(f.getName());
-                                    HBox elements = new HBox();
-                                    elements.getChildren().add(lblInput);
-                                    elements.getChildren().add(txtInput);
-                                    boxRequestParams.addRow(row.getAndIncrement(), elements);
+                                    boxRequestParams.add(lblInput, 0, row.get());
+                                    boxRequestParams.add(txtInput, 1, row.get());
+                                    row.incrementAndGet();
                                 }),
                         () -> log.info("Method parameters are null")
                 );
