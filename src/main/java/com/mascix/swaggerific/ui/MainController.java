@@ -25,9 +25,19 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.*;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -50,15 +60,20 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -66,7 +81,7 @@ import java.util.stream.StreamSupport;
 public class MainController implements Initializable {
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
+    final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
     public TabPane tabRequests;
     @FXML
     VBox mainBox;
@@ -97,10 +112,6 @@ public class MainController implements Initializable {
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (System.getProperty("user.dir").toLowerCase().contains("project")) // local development check
-            SESSION = "session.bin";
-        else
-            SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
@@ -365,10 +376,16 @@ public class MainController implements Initializable {
     }
 
     public void onClose() {
+        saveSession();
+    }
+
+    private void saveSession() {
         try {
-            FileOutputStream out = new FileOutputStream(SESSION);
+            File sessionFile = new File(SESSION);
+            sessionFile.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(sessionFile);
             ObjectOutputStream oos = new ObjectOutputStream(out);
-            oos.writeObject(new TreeItemSerialisationWrapper(treeItemRoot));
+            oos.writeObject(new TreeItemSerialisationWrapper<>(treeItemRoot));
             oos.flush();
         } catch (Exception e) {
             log.error("Problem serializing", e);
@@ -383,7 +400,7 @@ public class MainController implements Initializable {
                 treePaths.setRoot(treeItemRoot);
                 treePaths.setShowRoot(false);
             } catch (Exception e) {
-                log.error("Problem deserializing", e);
+                log.error("Problem deserializing the last session", e);
             }
         }
     }
@@ -457,7 +474,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent actionEvent) {
-        Desktop.getDesktop().browse(new URL("https://github.com/ozkanpakdil/swaggerific/issues/new/choose").toURI());
+    public void reportBugOrFeatureRequestFromHelpMenu() {
+        Desktop.getDesktop().browse(URI.create("https://github.com/ozkanpakdil/swaggerific/issues/new/choose"));
     }
 }
