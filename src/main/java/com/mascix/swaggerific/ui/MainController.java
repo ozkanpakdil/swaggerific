@@ -316,8 +316,8 @@ public class MainController implements Initializable {
                     });
                     treeItemRoot.getChildren().add(tag);
                 });
-            } else if (!jsonModal.getOpenapi().isEmpty()) {
-                urlTarget = jsonModal.getServers().get(0).getUrl();
+            } else if (!jsonModal.getOpenapi().isEmpty()) { //open api latest json
+                urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost();
                 jsonModal.getPaths().forEach((k, v) -> {
                     TreeItem<String> treeItem = new TreeItem<>();
                     treeItem.setValue(k);
