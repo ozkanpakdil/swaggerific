@@ -4,6 +4,9 @@
       "type": "[B"
     },
     {
+      "type": "[C"
+    },
+    {
       "type": "[D"
     },
     {
@@ -28,7 +31,13 @@
       "type": "[Lio.swagger.v3.oas.models.parameters.Parameter;"
     },
     {
+      "type": "[Ljava.lang.Object;"
+    },
+    {
       "type": "[Ljava.lang.String;"
+    },
+    {
+      "type": "[Ljava.util.HashMap$Node;"
     },
     {
       "type": "[Ljavafx.collections.transformation.SortedList$Element;"
@@ -642,6 +651,24 @@
       ]
     },
     {
+      "type": "com.sun.javafx.logging.PrintLogger",
+      "methods": [
+        {
+          "name": "createInstance",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.javafx.logging.jfr.JFRPulseLogger",
+      "methods": [
+        {
+          "name": "createInstance",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sun.javafx.reflect.Trampoline",
       "methods": [
         {
@@ -983,10 +1010,6 @@
       "type": "io.swagger.v3.oas.models.OpenAPI",
       "allDeclaredFields": true,
       "methods": [
-        {
-          "name": "setOpenapi",
-          "parameterTypes": ["java.lang.String"]
-        },
         {
           "name": "addExtension",
           "parameterTypes": [
@@ -1402,6 +1425,282 @@
       "type": "io.swagger.v3.oas.models.media.Schema",
       "allDeclaredFields": true,
       "methods": [
+        {
+          "name": "get$anchor",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$comment",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$dynamicAnchor",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$id",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$ref",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$schema",
+          "parameterTypes": []
+        },
+        {
+          "name": "get$vocabulary",
+          "parameterTypes": []
+        },
+        {
+          "name": "getAdditionalItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getAdditionalProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getAllOf",
+          "parameterTypes": []
+        },
+        {
+          "name": "getAnyOf",
+          "parameterTypes": []
+        },
+        {
+          "name": "getBooleanSchemaValue",
+          "parameterTypes": []
+        },
+        {
+          "name": "getConst",
+          "parameterTypes": []
+        },
+        {
+          "name": "getContains",
+          "parameterTypes": []
+        },
+        {
+          "name": "getContentEncoding",
+          "parameterTypes": []
+        },
+        {
+          "name": "getContentMediaType",
+          "parameterTypes": []
+        },
+        {
+          "name": "getContentSchema",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDefault",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDependentRequired",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDependentSchemas",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDeprecated",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDescription",
+          "parameterTypes": []
+        },
+        {
+          "name": "getDiscriminator",
+          "parameterTypes": []
+        },
+        {
+          "name": "getElse",
+          "parameterTypes": []
+        },
+        {
+          "name": "getEnum",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExample",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExampleSetFlag",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExamples",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExclusiveMaximum",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExclusiveMaximumValue",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExclusiveMinimum",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExclusiveMinimumValue",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExtensions",
+          "parameterTypes": []
+        },
+        {
+          "name": "getExternalDocs",
+          "parameterTypes": []
+        },
+        {
+          "name": "getFormat",
+          "parameterTypes": []
+        },
+        {
+          "name": "getIf",
+          "parameterTypes": []
+        },
+        {
+          "name": "getItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getJsonSchema",
+          "parameterTypes": []
+        },
+        {
+          "name": "getJsonSchemaImpl",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMaxContains",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMaxItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMaxLength",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMaxProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMaximum",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMinContains",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMinItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMinLength",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMinProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMinimum",
+          "parameterTypes": []
+        },
+        {
+          "name": "getMultipleOf",
+          "parameterTypes": []
+        },
+        {
+          "name": "getNot",
+          "parameterTypes": []
+        },
+        {
+          "name": "getNullable",
+          "parameterTypes": []
+        },
+        {
+          "name": "getOneOf",
+          "parameterTypes": []
+        },
+        {
+          "name": "getPattern",
+          "parameterTypes": []
+        },
+        {
+          "name": "getPatternProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getPrefixItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getPropertyNames",
+          "parameterTypes": []
+        },
+        {
+          "name": "getReadOnly",
+          "parameterTypes": []
+        },
+        {
+          "name": "getRequired",
+          "parameterTypes": []
+        },
+        {
+          "name": "getThen",
+          "parameterTypes": []
+        },
+        {
+          "name": "getTitle",
+          "parameterTypes": []
+        },
+        {
+          "name": "getType",
+          "parameterTypes": []
+        },
+        {
+          "name": "getTypes",
+          "parameterTypes": []
+        },
+        {
+          "name": "getUnevaluatedItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getUnevaluatedProperties",
+          "parameterTypes": []
+        },
+        {
+          "name": "getUniqueItems",
+          "parameterTypes": []
+        },
+        {
+          "name": "getWriteOnly",
+          "parameterTypes": []
+        },
+        {
+          "name": "getXml",
+          "parameterTypes": []
+        },
         {
           "name": "setAdditionalProperties",
           "parameterTypes": [
@@ -1897,6 +2196,12 @@
       "type": "java.lang.Cloneable"
     },
     {
+      "type": "java.lang.Comparable"
+    },
+    {
+      "type": "java.lang.Iterable"
+    },
+    {
       "type": "java.lang.Module",
       "methods": [
         {
@@ -1935,6 +2240,10 @@
       ]
     },
     {
+      "type": "java.lang.Number",
+      "allDeclaredFields": true
+    },
+    {
       "type": "java.lang.Object",
       "allDeclaredFields": true
     },
@@ -1951,6 +2260,10 @@
           "name": "threadLocalRandomProbe"
         }
       ]
+    },
+    {
+      "type": "java.math.BigDecimal",
+      "allDeclaredFields": true
     },
     {
       "type": "java.net.NetPermission"
@@ -2018,8 +2331,28 @@
       "type": "java.security.interfaces.RSAPublicKey"
     },
     {
+      "type": "java.time.OffsetDateTime",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "java.time.temporal.Temporal"
+    },
+    {
+      "type": "java.time.temporal.TemporalAccessor"
+    },
+    {
+      "type": "java.time.temporal.TemporalAdjuster"
+    },
+    {
+      "type": "java.util.AbstractCollection",
+      "allDeclaredFields": true
+    },
+    {
       "type": "java.util.AbstractMap",
       "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.Collection"
     },
     {
       "type": "java.util.Date"
@@ -2032,8 +2365,23 @@
       "type": "java.util.HashSet"
     },
     {
+      "type": "java.util.ImmutableCollections$AbstractImmutableCollection",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.ImmutableCollections$AbstractImmutableList",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.ImmutableCollections$ListN",
+      "allDeclaredFields": true
+    },
+    {
       "type": "java.util.LinkedHashMap",
       "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.List"
     },
     {
       "type": "java.util.Map"
@@ -2042,7 +2390,25 @@
       "type": "java.util.PropertyPermission"
     },
     {
+      "type": "java.util.RandomAccess"
+    },
+    {
       "type": "java.util.SequencedMap"
+    },
+    {
+      "type": "java.util.UUID",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "java.util.concurrent.ForkJoinTask",
+      "fields": [
+        {
+          "name": "aux"
+        },
+        {
+          "name": "status"
+        }
+      ]
     },
     {
       "type": "java.util.concurrent.atomic.AtomicBoolean",
@@ -2228,6 +2594,9 @@
       ]
     },
     {
+      "type": "javafx.scene.control.ColumnConstraints"
+    },
+    {
       "type": "javafx.scene.control.ComboBox",
       "methods": [
         {
@@ -2259,6 +2628,12 @@
     },
     {
       "type": "javafx.scene.control.FontIcon"
+    },
+    {
+      "type": "javafx.scene.control.GridPane"
+    },
+    {
+      "type": "javafx.scene.control.HBox"
     },
     {
       "type": "javafx.scene.control.Label",
@@ -4490,6 +4865,9 @@
     },
     {
       "type": "javax.smartcardio.CardPermission"
+    },
+    {
+      "type": "jdk.internal.misc.Unsafe"
     },
     {
       "type": "org.controlsfx.control.StatusBar",

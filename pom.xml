@@ -14,7 +14,7 @@
         <junit.version>5.9.2</junit.version>
         <javafx.version>21</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.22</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.25</gluonfx.plugin.version>
         <mainClass>swaggerific/com.mascix.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -27,17 +27,17 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.3</version>
+            <version>1.5.16</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <version>3.17.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.0</version>
         </dependency>
         <!--<dependency>
             <groupId>io.swagger.parser.v3</groupId>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>io.github.mkpaz</groupId>
             <artifactId>atlantafx-base</artifactId>
-            <version>2.0.0</version>
+            <version>2.0.1</version>
         </dependency>
         <!-- CSS stuff -->
 
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.9.19</version>
+            <version>1.9.22.1</version>
         </dependency>
 
         <!--
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
             <artifactId>richtextfx</artifactId>
-            <version>0.11.0</version>
+            <version>0.11.4</version>
         </dependency>
 
         <dependency>
@@ -89,12 +89,12 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-core</artifactId>
-            <version>2.2.17</version>
+            <version>2.2.28</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.14.2</version>
+            <version>2.18.2</version>
         </dependency>
 
         <dependency>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.1.2</version>
+            <version>11.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
@@ -146,7 +146,7 @@
         <dependency>
             <groupId>net.synedra</groupId>
             <artifactId>validatorfx</artifactId>
-            <version>0.4.0</version>
+            <version>0.5.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
