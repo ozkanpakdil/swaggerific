@@ -984,6 +984,10 @@
       "allDeclaredFields": true,
       "methods": [
         {
+          "name": "setOpenapi",
+          "parameterTypes": ["java.lang.String"]
+        },
+        {
           "name": "addExtension",
           "parameterTypes": [
             "java.lang.String",
