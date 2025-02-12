@@ -2438,6 +2438,12 @@
       ]
     },
     {
+      "type": "javafx.animation.AnimationTimer"
+    },
+    {
+      "type": "javafx.animation.Interpolator"
+    },
+    {
       "type": "javafx.animation.KeyValue"
     },
     {
@@ -6732,6 +6738,17 @@
       ]
     },
     {
+      "type": "java.lang.Boolean",
+      "fields": [
+        {
+          "name": "FALSE"
+        },
+        {
+          "name": "TRUE"
+        }
+      ]
+    },
+    {
       "type": "java.lang.Class",
       "methods": [
         {
@@ -6755,6 +6772,17 @@
           "name": "loadClass",
           "parameterTypes": [
             "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Object",
+      "methods": [
+        {
+          "name": "equals",
+          "parameterTypes": [
+            "java.lang.Object"
           ]
         }
       ]
@@ -6797,8 +6825,23 @@
       ]
     },
     {
+      "type": "java.util.Collections",
+      "methods": [
+        {
+          "name": "unmodifiableMap",
+          "parameterTypes": [
+            "java.util.Map"
+          ]
+        }
+      ]
+    },
+    {
       "type": "java.util.HashMap",
       "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
         {
           "name": "containsKey",
           "parameterTypes": [
@@ -6810,6 +6853,32 @@
           "parameterTypes": [
             "java.lang.Object",
             "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.util.Map",
+      "methods": [
+        {
+          "name": "put",
+          "parameterTypes": [
+            "java.lang.Object",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "javafx.scene.paint.Color",
+      "methods": [
+        {
+          "name": "rgb",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "double"
           ]
         }
       ]
