@@ -291,6 +291,12 @@
           "parameterTypes": []
         },
         {
+          "name": "filterTree",
+          "parameterTypes": [
+            "javafx.scene.input.KeyEvent"
+          ]
+        },
+        {
           "name": "handleAboutAction",
           "parameterTypes": [
             "javafx.event.ActionEvent"
@@ -2520,6 +2526,12 @@
           ]
         },
         {
+          "name": "setOnKeyReleased",
+          "parameterTypes": [
+            "javafx.event.EventHandler"
+          ]
+        },
+        {
           "name": "setOnMouseClicked",
           "parameterTypes": [
             "javafx.event.EventHandler"
@@ -2953,6 +2965,12 @@
     {
       "type": "javafx.scene.control.TextInputControl",
       "methods": [
+        {
+          "name": "setPromptText",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
         {
           "name": "setText",
           "parameterTypes": [
@@ -4627,6 +4645,12 @@
           ]
         },
         {
+          "name": "setSpacing",
+          "parameterTypes": [
+            "double"
+          ]
+        },
+        {
           "name": "setVgrow",
           "parameterTypes": [
             "java.lang.Object",
@@ -5662,6 +5686,9 @@
     },
     {
       "type": "[Ljava.lang.String;"
+    },
+    {
+      "type": "com.sun.glass.ui.Application"
     },
     {
       "type": "com.sun.glass.ui.Cursor",

@@ -55,3 +55,7 @@
     -thumb-move-animation-time: 100;
     -toggle-display: left;
 }
+.txtFilterTree {
+    -fx-pref-height: 1em;
+    /*-fx-font-size: 0.93em;*/
+}

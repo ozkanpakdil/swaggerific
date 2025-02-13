@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.dockfx.DockNode?>
 <?import org.dockfx.DockPane?>
+<?import javafx.scene.layout.HBox?>
 <StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -41,6 +52,12 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
+            <Menu text="View">
+                <MenuItem text="Show/Hide Debug Console" onAction="#openDebugConsole"/>
+                <MenuItem text="Show/Hide Tree" onAction="#showHideTree"/>
+                <MenuItem text="Show/Hide Filter" onAction="#showHideFilter"/>
+                <MenuItem text="Show/Hide Status Bar" onAction="#showHideStatusBar"/>
+            </Menu>
             <Menu text="Help">
                 <MenuItem disable="true" text="Search"/>
                 <MenuItem text="Online Manual" visible="false"/>
@@ -53,25 +70,27 @@
             <DockNode fx:id="mainNode" dockPosition="CENTER" VBox.vgrow="ALWAYS">
                 <contents>
                     <AnchorPane prefHeight="600" prefWidth="800" VBox.vgrow="ALWAYS">
-                        <SplitPane dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
+                        <SplitPane fx:id="treeSplit" dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
                                    AnchorPane.bottomAnchor="0.0"
                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <AnchorPane minWidth="200.0" prefWidth="332.0" maxWidth="300">
-                                <TreeView fx:id="treePaths" layoutX="98.0" layoutY="79.0" onMouseClicked="#treeOnClick"
-                                          prefWidth="200.0" styleClass="treePaths" AnchorPane.bottomAnchor="0.0"
-                                          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                          AnchorPane.topAnchor="0.0"/>
-                            </AnchorPane>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                                <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity"
-                                         minHeight="-Infinity"
-                                         minWidth="-Infinity"
-                                         prefHeight="370.0" prefWidth="396.0"
-                                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                         AnchorPane.rightAnchor="0.0"
-                                         AnchorPane.topAnchor="0.0">
-                                </TabPane>
-                            </AnchorPane>
+                                <AnchorPane fx:id="treePane" minWidth="200.0">
+                                    <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+                                        <TextField fx:id="txtFilterTree" prefHeight="20.0" styleClass="txtFilterTree" promptText="Search" onKeyReleased="#filterTree"/>
+                                        <TreeView fx:id="treePaths" onMouseClicked="#treeOnClick" styleClass="treePaths" VBox.vgrow="ALWAYS"/>
+                                    </VBox>
+                                </AnchorPane>
+                                <AnchorPane prefHeight="100.0" prefWidth="160.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" AnchorPane.bottomAnchor="0.0"
+                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity"
+                                             minHeight="-Infinity"
+                                             minWidth="-Infinity"
+                                             prefHeight="370.0" prefWidth="396.0"
+                                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                             AnchorPane.rightAnchor="0.0"
+                                             AnchorPane.topAnchor="0.0">
+                                    </TabPane>
+                                </AnchorPane>
+
                         </SplitPane>
                     </AnchorPane>
                 </contents>

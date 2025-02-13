@@ -30,10 +30,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -41,7 +43,9 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -83,6 +87,9 @@ public class MainController implements Initializable {
     //TODO this can go to Preferences.userNodeForPackage in the future
     final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
     public TabPane tabRequests;
+    public TextField txtFilterTree;
+    public AnchorPane treePane;
+    public SplitPane treeSplit;
     @FXML
     VBox mainBox;
     @FXML
@@ -244,10 +251,10 @@ public class MainController implements Initializable {
 
         result.ifPresent(urlSwaggerJson -> {
             try {
-                Platform.runLater(() -> setIsOnloading());
+                Platform.runLater(this::setIsOnloading);
                 openSwaggerUrl(urlSwaggerJson);
             } finally {
-                Platform.runLater(() -> setIsOffloading());
+                Platform.runLater(this::setIsOffloading);
             }
         });
     }
@@ -303,43 +310,58 @@ public class MainController implements Initializable {
             if (!StringUtils.isBlank(jsonModal.getSwagger())) { // swagger json
                 urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost() + jsonModal.getBasePath();
 
-                jsonModal.getTags().forEach(it -> {
+                jsonModal.getTags().forEach(tag1 -> {
                     TreeItem<String> tag = new TreeItem<>();
-                    tag.setValue(it.getName());
-                    jsonModal.getPaths().forEach((it2, pathItem) -> {
-                        if (it2.contains(it.getName())) {
+                    tag.setValue(tag1.getName());
+                    jsonModal.getPaths().forEach((path1, pathItem) -> {
+                        if (path1.contains(tag1.getName())) {
                             TreeItem path = new TreeItem();
-                            path.setValue(it2);
+                            path.setValue(path1);
                             tag.getChildren().add(path);
-                            returnTreeItemsForTheMethod(pathItem, path.getChildren(), it2);
+                            returnTreeItemsForTheMethod(pathItem, path.getChildren(), path1);
                         }
                     });
                     treeItemRoot.getChildren().add(tag);
                 });
             } else if (!jsonModal.getOpenapi().isEmpty()) { //open api latest json
+                // TODO this is not working properly, investigate with https://monitor.red-gate.com/api-docs/dev/openapi.json
                 urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost();
-                jsonModal.getPaths().forEach((k, v) -> {
-                    TreeItem<String> treeItem = new TreeItem<>();
-                    treeItem.setValue(k);
-                    v.readOperationsMap().forEach((method, operation) -> {
-                        TreeItem path = new TreeItem();
-                        path.setValue(operation.getOperationId());
+                jsonModal.getPaths().forEach((path, pathItem) -> {
+                    String[] pathParts = path.split("/");
+                    TreeItem<String> currentItem = treeItemRoot;
+
+                    for (String part : pathParts) {
+                        if (part.isEmpty())
+                            continue;
+                        Optional<TreeItem<String>> existingItem = currentItem.getChildren().stream()
+                                .filter(item -> part.equals(item.getValue()))
+                                .findFirst();
+                        if (existingItem.isPresent()) {
+                            currentItem = existingItem.get();
+                        } else {
+                            TreeItem<String> newItem = new TreeItem<>(part);
+                            currentItem.getChildren().add(newItem);
+                            currentItem = newItem;
+                        }
+                    }
+
+                    TreeItem<String> finalCurrentItem = currentItem;
+                    pathItem.readOperationsMap().forEach((method, operation) -> {
+                        TreeItem<String> treeMethod = new TreeItem<>(operation.getOperationId());
                         TreeItemOperationLeaf operationLeaf = TreeItemOperationLeaf.builder()
-                                .uri(urlTarget + k)
+                                .uri(urlTarget + path)
                                 .methodParameters(operation.getParameters())
                                 .build();
                         operationLeaf.setValue(method.name());
-                        path.getChildren().add(operationLeaf);
-                        treeItem.getChildren().add(path);
+                        treeMethod.getChildren().add(operationLeaf);
+                        finalCurrentItem.getChildren().add(treeMethod);
                     });
-                    treeItemRoot.getChildren().add(treeItem);
                 });
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         treePaths.setShowRoot(false);
-        Platform.runLater(this::setIsOffloading);
     }
 
     @SneakyThrows
@@ -476,5 +498,69 @@ public class MainController implements Initializable {
     @SneakyThrows
     public void reportBugOrFeatureRequestFromHelpMenu() {
         Desktop.getDesktop().browse(URI.create("https://github.com/ozkanpakdil/swaggerific/issues/new/choose"));
+    }
+
+    public void filterTree(KeyEvent keyEvent) {
+        // TODO this filter is not working properly, investigate
+        String filter = txtFilterTree.getText();
+        if (filter == null || filter.isEmpty()) {
+            treePaths.setRoot(treeItemRoot);
+            treePaths.setShowRoot(false);
+        } else {
+            TreeItem<String> filteredRoot = new TreeItem<>();
+            filteredRoot.setValue("filtered root");
+            treeItemRoot.getChildren().forEach(tag -> {
+                TreeItem<String> filteredTag = new TreeItem<>();
+                filteredTag.setValue(tag.getValue());
+                tag.getChildren().forEach(path -> {
+                    if (path.getValue() != null && path.getValue().contains(filter)) {
+                        filteredTag.getChildren().add(path);
+                    } else {
+                        TreeItem<String> filteredPath = new TreeItem<>();
+                        filteredPath.setValue(path.getValue());
+                        path.getChildren().forEach(operation -> {
+                            if (operation.getValue() != null && operation.getValue().contains(filter)) {
+                                filteredPath.getChildren().add(operation);
+                            }
+                        });
+                        if (filteredPath.getChildren().size() > 0) {
+                            filteredTag.getChildren().add(filteredPath);
+                        }
+                    }
+                });
+                if (filteredTag.getChildren().size() > 0) {
+                    filteredRoot.getChildren().add(filteredTag);
+                }
+            });
+            treePaths.setRoot(filteredRoot);
+            treePaths.setShowRoot(false);
+        }
+    }
+
+    public void showHideTree(ActionEvent actionEvent) {
+        boolean isVisible = treePaths.isVisible();
+        treePaths.setVisible(!isVisible);
+        treePane.setVisible(!isVisible);
+        treePane.setManaged(!isVisible);
+        // TODO this is not working properly, after it hides the tree pane it still takes the space, investigate to make it all hidden
+        if (!isVisible) {
+            treeSplit.setDividerPosition(0, 0.0);
+        } else {
+            treeSplit.setDividerPositions(0.25);
+        }
+    }
+
+    public void showHideFilter(ActionEvent actionEvent) {
+        boolean isVisible = txtFilterTree.isVisible();
+        txtFilterTree.setVisible(!isVisible);
+        if (isVisible) {
+            VBox.setVgrow(treePaths, Priority.ALWAYS);
+        } else {
+            VBox.setVgrow(treePaths, Priority.NEVER);
+        }
+    }
+
+    public void showHideStatusBar(ActionEvent actionEvent) {
+        statusBar.setVisible(!statusBar.isVisible());
     }
 }
