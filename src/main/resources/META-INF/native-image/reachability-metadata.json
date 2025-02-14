@@ -46,6 +46,36 @@
       "type": "[Lsun.security.pkcs.SignerInfo;"
     },
     {
+      "type": "atlantafx.base.controls.AnchorPane"
+    },
+    {
+      "type": "atlantafx.base.controls.Button"
+    },
+    {
+      "type": "atlantafx.base.controls.ColumnConstraints"
+    },
+    {
+      "type": "atlantafx.base.controls.ComboBox"
+    },
+    {
+      "type": "atlantafx.base.controls.GridPane"
+    },
+    {
+      "type": "atlantafx.base.controls.HBox"
+    },
+    {
+      "type": "atlantafx.base.controls.Label"
+    },
+    {
+      "type": "atlantafx.base.controls.RowConstraints"
+    },
+    {
+      "type": "atlantafx.base.controls.Separator"
+    },
+    {
+      "type": "atlantafx.base.controls.TextField"
+    },
+    {
       "type": "atlantafx.base.controls.ToggleSwitch",
       "methods": [
         {
@@ -315,6 +345,10 @@
           ]
         },
         {
+          "name": "openDebugConsole",
+          "parameterTypes": []
+        },
+        {
           "name": "openSettings",
           "parameterTypes": [
             "javafx.event.ActionEvent"
@@ -322,6 +356,12 @@
         },
         {
           "name": "reportBugOrFeatureRequestFromHelpMenu",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideTree",
           "parameterTypes": [
             "javafx.event.ActionEvent"
           ]
@@ -2764,6 +2804,9 @@
       ]
     },
     {
+      "type": "javafx.scene.control.RowConstraints"
+    },
+    {
       "type": "javafx.scene.control.Separator",
       "methods": [
         {
@@ -3007,6 +3050,12 @@
     },
     {
       "type": "javafx.scene.effect.Effect"
+    },
+    {
+      "type": "javafx.scene.image.AnchorPane"
+    },
+    {
+      "type": "javafx.scene.image.GridPane"
     },
     {
       "type": "javafx.scene.image.Image"
