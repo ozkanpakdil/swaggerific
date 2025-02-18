@@ -93,7 +93,7 @@ public class MainController implements Initializable {
     @FXML
     VBox mainBox;
     @FXML
-    TreeView treePaths;
+    TreeView<String> treePaths;
     @FXML
     StackPane topPane;
     @FXML
@@ -224,7 +224,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void handleAboutAction(ActionEvent actionEvent) {
+    public void handleAboutAction(ActionEvent ignoredActionEvent) {
         showAlert("About Swaggerific 0.1.0",
                 "Swaggerific 0.1.0",
                 "This application is currently in development. Please use with caution." +
@@ -233,12 +233,12 @@ public class MainController implements Initializable {
         );
     }
 
-    public void menuFileExit(ActionEvent actionEvent) {
+    public void menuFileExit(ActionEvent ignoredActionEvent) {
         Platform.exit();
     }
 
     @DisableWindow
-    public void menuFileOpenSwagger(ActionEvent actionEvent) {
+    public void menuFileOpenSwagger(ActionEvent ignoredActionEvent) {
         TextInputDialog dialog = new TextInputDialog("https://petstore.swagger.io/v2/swagger.json");
         dialog.initOwner(mainBox.getScene().getWindow());
         dialog.setTitle("Enter swagger url");
@@ -324,15 +324,14 @@ public class MainController implements Initializable {
                     treeItemRoot.getChildren().add(tag);
                 });
             } else if (!jsonModal.getOpenapi().isEmpty()) { //open api latest json
-                // TODO this is not working properly, investigate with https://monitor.red-gate.com/api-docs/dev/openapi.json
                 urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost();
                 jsonModal.getPaths().forEach((path, pathItem) -> {
-                    String[] pathParts = path.split("/");
+                    String[] pathParts = (!path.startsWith("/")) ?
+                            path.split("/") :
+                            path.substring(1).split("/");
                     TreeItem<String> currentItem = treeItemRoot;
 
                     for (String part : pathParts) {
-                        if (part.isEmpty())
-                            continue;
                         Optional<TreeItem<String>> existingItem = currentItem.getChildren().stream()
                                 .filter(item -> part.equals(item.getValue()))
                                 .findFirst();
@@ -347,14 +346,12 @@ public class MainController implements Initializable {
 
                     TreeItem<String> finalCurrentItem = currentItem;
                     pathItem.readOperationsMap().forEach((method, operation) -> {
-                        TreeItem<String> treeMethod = new TreeItem<>(operation.getOperationId());
                         TreeItemOperationLeaf operationLeaf = TreeItemOperationLeaf.builder()
                                 .uri(urlTarget + path)
                                 .methodParameters(operation.getParameters())
                                 .build();
                         operationLeaf.setValue(method.name());
-                        treeMethod.getChildren().add(operationLeaf);
-                        finalCurrentItem.getChildren().add(treeMethod);
+                        finalCurrentItem.getChildren().add(operationLeaf);
                     });
                 });
             }
