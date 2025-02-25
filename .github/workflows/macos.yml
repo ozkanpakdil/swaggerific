@@ -40,20 +40,10 @@ jobs:
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          find target/
-          hdiutil create -volname Swaggerific -srcfolder target/gluonfx/aarch64-darwin/swaggerific.app -ov -format UDZO Swaggerific.dmg
-          cp -r swaggerific.dmg staging/
-      #          cp -r target/gluonfx/x86_64-darwin/swaggerific.app staging/
-
-      #      - name: Notarize Installer
-      #        uses: erwin1/xcode-notarize@main
-      #        with:
-      #          product-path: ${{ steps.outputfile.outputs.path }}
-      #          appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
-      #          appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
-      #          primary-bundle-id: com.gluonhq.hello.HelloGluonApp
-      #          asc-provider: ${{ secrets.GLUON_MACSIGN_PREFIX }}
-      #          verbose: false
+          pkgbuild --root ./target/gluonfx/aarch64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.2 --install-location /Applications Swaggerific.pkg
+          productbuild --package Swaggerific.pkg SwaggerificInstaller.pkg
+          cp -r SwaggerificInstaller.pkg staging/
+          cp -r target/gluonfx/aarch64-darwin/swaggerific staging/
 
       - name: Upload
         uses: actions/upload-artifact@v4
