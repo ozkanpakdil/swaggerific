@@ -43,7 +43,7 @@ jobs:
           chmod +x ./target/gluonfx/aarch64-darwin/swaggerific
           cp -r ./target/gluonfx/aarch64-darwin/swaggerific staging/
           tar -czvf staging/swaggerific_aarch64.tar.gz -C target/gluonfx/aarch64-darwin swaggerific
-          cp -r ./target/gluonfx/aarch64-darwin/swaggerific_aaarch64.tar.gz staging/
+          cp -r ./target/gluonfx/aarch64-darwin/swaggerific_aarch64.tar.gz staging/
           pkgbuild --root ./target/gluonfx/aarch64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.2 --install-location /Applications Swaggerific.pkg
           productbuild --package Swaggerific.pkg SwaggerificInstaller.pkg
           cp -r SwaggerificInstaller.pkg staging/
