@@ -1,10 +1,12 @@
 name: Send Bluesky Post
 
 on:
+  workflow_run:
+    workflows: ["GraalVM Windows", "GraalVM Linux", "macOS"]
+    types:
+      - completed
   release:
     types: [published]
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
