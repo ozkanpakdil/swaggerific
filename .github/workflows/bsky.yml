@@ -17,11 +17,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: get latest release
-        id: get_latest_release
-        run: |
-          echo "tag=$(git describe --tags --abbrev=0)" >> $SW_VERSION
-
       - name: Get Latest Release and Commits
         id: get_info
         run: |
