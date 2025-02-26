@@ -2,30 +2,43 @@ name: Send Bluesky Post
 
 on:
   workflow_run:
-    workflows: ["GraalVM Windows", "GraalVM Linux", "macOS"]
+    workflows: [ "GraalVM Windows", "GraalVM Linux", "macOS" ]
     types:
       - completed
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
   post:
     runs-on: ubuntu-latest
+    #    this line makes sure that the post is only sent when the macOS build is successful, meaning only one post
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow.name == 'macOS') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: get latest release
         id: get_latest_release
         run: |
-          echo ::set-output name=tag::$(git describe --tags --abbrev=0)
+          echo "tag=$(git describe --tags --abbrev=0)" >> $SW_VERSION
+
+      - name: Get Latest Release and Commits
+        id: get_info
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          git log -3 --pretty=format:"• %s" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
         with:
-          text: "New release:
-           https://github.com/ozkanpakdil/swaggerific/releases
-           ${{ github.event.release.html_url }}
-           ${{ steps.get_latest_release.outputs.tag }}"
+          text: |
+            🚀 New release(${{ steps.get_info.outputs.tag }})
+            
+            Latest changes:
+            ${{ steps.get_info.outputs.commits }}
+            
+            Download: https://github.com/ozkanpakdil/swaggerific/releases
           link-preview-url: "https://github.com/ozkanpakdil/swaggerific"
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
           password: ${{ secrets.BLUESKY_PASSWORD }}
