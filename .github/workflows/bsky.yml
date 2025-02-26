@@ -25,9 +25,11 @@ jobs:
           else
             echo "tag=No tags found" >> $GITHUB_OUTPUT
           fi
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          git log -3 --pretty=format:"• %s" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "commits<<EOF"
+            git log -3 --pretty=format:"• %s"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
