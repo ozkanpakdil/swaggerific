@@ -20,16 +20,18 @@ jobs:
       - name: Get Latest Release and Commits
         id: get_info
         run: |
+          # Get tag info
           if git describe --tags --abbrev=0 > /dev/null 2>&1; then
-            echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+            echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
           else
-            echo "tag=No tags found" >> $GITHUB_OUTPUT
+            echo "tag=No tags found" >> "$GITHUB_OUTPUT"
           fi
-          {
-            echo "commits<<EOF"
-            git log -3 --pretty=format:"• %s"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+
+          # Get commit info with proper delimiter handling
+          echo "commits<<EOF" >> "$GITHUB_OUTPUT"
+          git log -3 --pretty=format:"• %s" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"  # Add newline before EOF
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
