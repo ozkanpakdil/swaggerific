@@ -20,10 +20,15 @@ jobs:
       - name: Get Latest Release and Commits
         id: get_info
         run: |
-          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          if git describe --tags --abbrev=0 > /dev/null 2>&1; then
+            echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          else
+            echo "tag=No tags found" >> $GITHUB_OUTPUT
+          fi
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           git log -3 --pretty=format:"• %s" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
         with:
