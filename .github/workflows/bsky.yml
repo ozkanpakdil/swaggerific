@@ -20,6 +20,10 @@ jobs:
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
         with:
-          text: "New release: ${{ steps.get_latest_release.outputs.tag }}"
+          text: "New release:
+           https://github.com/ozkanpakdil/swaggerific/releases
+           ${{ github.event.release.html_url }}
+           ${{ steps.get_latest_release.outputs.tag }}"
+          link-preview-url: "https://github.com/ozkanpakdil/swaggerific"
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
           password: ${{ secrets.BLUESKY_PASSWORD }}
