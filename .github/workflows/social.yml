@@ -33,16 +33,30 @@ jobs:
           echo "" >> "$GITHUB_OUTPUT"  # Add newline before EOF
           echo "EOF" >> "$GITHUB_OUTPUT"
 
+      - name: Set Message Content
+        id: message
+        run: |
+          echo "content<<EOF" >> "$GITHUB_OUTPUT"
+          echo "🚀 New release(${{ steps.get_info.outputs.tag }})
+
+          Latest changes:
+          ${{ steps.get_info.outputs.commits }}
+
+          Download: https://github.com/ozkanpakdil/swaggerific/releases" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Send Bluesky Post
         uses: myConsciousness/bluesky-post@v5
         with:
-          text: |
-            🚀 New release(${{ steps.get_info.outputs.tag }})
-            
-            Latest changes:
-            ${{ steps.get_info.outputs.commits }}
-            
-            Download: https://github.com/ozkanpakdil/swaggerific/releases
+          text: ${{ steps.message.outputs.content }}
           link-preview-url: "https://github.com/ozkanpakdil/swaggerific"
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
           password: ${{ secrets.BLUESKY_PASSWORD }}
+
+      - name: Send toot to Mastodon
+        id: mastodon
+        uses: cbrgm/mastodon-github-action@v2
+        with:
+          access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          url: ${{ secrets.MASTODON_URL }}
+          message: ${{ steps.message.outputs.content }}
