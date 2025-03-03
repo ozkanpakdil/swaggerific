@@ -191,28 +191,28 @@ public class HttpUtility {
         TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
                 .getSelectedItem();
         URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
-        HttpClient client = HttpClient.newHttpClient();
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            String[] headers = getHeaders(parent.getTableHeaders());
+            HttpRequest.Builder request = HttpRequest.newBuilder()
+                    .uri(uri);
+            if (headers.length > 0)
+                request.headers(headers);
+            log.info("GET headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
 
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri);
-        if (headers.length > 0)
-            request.headers(headers);
-        log.info("GET headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
-
-        HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
-        if (!httpResponse.body().startsWith("<")) {
-            parent.getCodeJsonResponse().replaceText(
-                    Json.pretty(mapper.readTree(httpResponse.body()))
-            );
-        } else {
-            log.error("response does not look like a json");
-            parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
-            parent.getCodeJsonResponse().replaceText(
-                    prettyPrintByTransformer(httpResponse.body(), 4, true)
-            );
+            HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+            if (!httpResponse.body().startsWith("<")) {
+                parent.getCodeJsonResponse().replaceText(
+                        Json.pretty(mapper.readTree(httpResponse.body()))
+                );
+            } else {
+                log.error("response does not look like a json,{},{}", httpResponse.statusCode(), httpResponse.body());
+                parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
+                parent.getCodeJsonResponse().replaceText(
+                        prettyPrintByTransformer(httpResponse.body(), 4, true)
+                );
+            }
+            parent.getCodeRawJsonResponse().setText(httpResponse.body());
         }
-        parent.getCodeRawJsonResponse().setText(httpResponse.body());
     }
 
     public String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
