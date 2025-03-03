@@ -26,7 +26,7 @@
                                    AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0"/>
                     </AnchorPane>
-                    <Button onAction="#btnSendRequest" text="_Send" styleClass="btnSend" mnemonicParsing="true" />
+                    <Button onAction="#btnSendRequest" text="_Send" styleClass="btnSend"/>
                     <VBox.margin>
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                     </VBox.margin>
@@ -37,16 +37,18 @@
                 <TabPane fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE"
                          VBox.vgrow="ALWAYS">
                     <Tab fx:id="tabParams" text="Parameters">
-                        <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
-                                  minWidth="-Infinity" styleClass="boxRequestParams"
-                                  stylesheets="@main-view.css" AnchorPane.bottomAnchor="0.0"
-                                  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                  AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="30"/>
-                                <ColumnConstraints percentWidth="70"/>
-                            </columnConstraints>
-                        </GridPane>
+                        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+                            <GridPane fx:id="boxRequestParams" minHeight="-Infinity"
+                                      minWidth="-Infinity" styleClass="boxRequestParams"
+                                      stylesheets="@main-view.css" AnchorPane.bottomAnchor="0.0"
+                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                      AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="30"/>
+                                    <ColumnConstraints percentWidth="70"/>
+                                </columnConstraints>
+                            </GridPane>
+                        </ScrollPane>
                     </Tab>
                     <Tab text="Headers">
                         <TableView editable="true" fx:id="tableHeaders">
