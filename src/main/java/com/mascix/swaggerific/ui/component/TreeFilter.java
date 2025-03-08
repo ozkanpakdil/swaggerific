@@ -29,7 +29,7 @@ public class TreeFilter {
         }
 
         root.getChildren().setAll(filteredItems);
-        // adding methods to leaves
+        // TODO adding methods to leaves is not working hundred percent correctly
         filteredItems.forEach(child -> child.getChildren().forEach(grandChild ->
                 findAndAddLeaves(originalTreeItemRoot, grandChild)
         ));
