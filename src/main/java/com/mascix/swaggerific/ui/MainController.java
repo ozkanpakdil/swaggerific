@@ -29,6 +29,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -93,6 +94,8 @@ public class MainController implements Initializable {
     private TreeFilter treeFilter = new TreeFilter();
 
     @FXML
+    public MenuBar menuBar;
+    @FXML
     VBox mainBox;
     @FXML
     TreeView<String> treePaths;
@@ -108,6 +111,8 @@ public class MainController implements Initializable {
     DockNode debugDockNode;
     @FXML
     DockPane dockPaneMain;
+    @FXML
+    MenuController menuBarController;
     DockNode storedDockNode;
 
     SwaggerModal jsonModal;
@@ -121,6 +126,7 @@ public class MainController implements Initializable {
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        menuBarController.setMainController(this);
         treePaths.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> onTreeItemSelect(newValue));
@@ -492,7 +498,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    public void reportBugOrFeatureRequestFromHelpMenu() {
+    public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent event) {
         Desktop.getDesktop().browse(URI.create("https://github.com/ozkanpakdil/swaggerific/issues/new/choose"));
     }
 
