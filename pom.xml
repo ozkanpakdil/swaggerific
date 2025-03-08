@@ -190,7 +190,7 @@
         <dependency>
             <groupId>io.github.ozkanpakdil</groupId>
             <artifactId>dockfx</artifactId>
-            <version>0.1.3</version>
+            <version>0.1.5</version>
         </dependency>
 
         <dependency>
