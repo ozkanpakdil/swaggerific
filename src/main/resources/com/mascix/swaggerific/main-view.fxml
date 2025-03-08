@@ -73,7 +73,7 @@
                         <SplitPane fx:id="treeSplit" dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
                                    AnchorPane.bottomAnchor="0.0"
                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <AnchorPane fx:id="treePane" minWidth="200.0">
+                                <AnchorPane fx:id="treePane" minWidth="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
                                     <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
                                         <TextField fx:id="txtFilterTree" prefHeight="20.0" styleClass="txtFilterTree" promptText="Search" onKeyReleased="#filterTree"/>
                                         <TreeView fx:id="treePaths" onMouseClicked="#treeOnClick" styleClass="treePaths" VBox.vgrow="ALWAYS"/>
