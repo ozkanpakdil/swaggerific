@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
-public class TreeItemOperationLeaf extends TreeItem {
+public class TreeItemOperationLeaf extends TreeItem<String> {
     private List<Parameter> methodParameters;
     private List<String> queryItems;
     private String uri;

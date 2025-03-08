@@ -18,11 +18,13 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
         this.item = item;
     }
 
+    @Serial
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeObject(mapper.writeValueAsString(serializeTreeItem(item)));
     }
 
+    @Serial
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         String json = (String) in.readObject();
@@ -32,8 +34,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
     private Map<String, Object> serializeTreeItem(TreeItem<T> treeItem) {
         Map<String, Object> map = new HashMap<>();
         map.put("value", treeItem.getValue());
-        if (treeItem instanceof TreeItemOperationLeaf) {
-            TreeItemOperationLeaf leaf = (TreeItemOperationLeaf) treeItem;
+        if (treeItem instanceof TreeItemOperationLeaf leaf) {
             map.put("queryItems", leaf.getQueryItems());
             map.put("methodParameters", leaf.getMethodParameters());
             map.put("uri", leaf.getUri());
@@ -52,11 +53,11 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
         TreeItem<T> treeItem;
         if ((Boolean) map.get("isLeaf")) {
             TreeItemOperationLeaf leaf = TreeItemOperationLeaf.builder().build();
-            leaf.setValue(map.get("value"));
+            leaf.setValue(map.get("value").toString());
             leaf.setQueryItems((List<String>) map.get("queryItems"));
             leaf.setMethodParameters(convertToParameters((List<Map<String, Object>>) map.get("methodParameters")));
             leaf.setUri((String) map.get("uri"));
-            treeItem = leaf;
+            treeItem = (TreeItem<T>) leaf;
         } else {
             treeItem = new TreeItem<>((T) map.get("value"));
         }
@@ -86,6 +87,7 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
         return parameter;
     }
 
+    @Serial
     private Object readResolve() throws ObjectStreamException {
         return item;
     }

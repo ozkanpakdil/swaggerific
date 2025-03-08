@@ -29,8 +29,9 @@ module swaggerific {
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires org.dockfx;
+    requires org.jetbrains.annotations;
 
-//    requires swagger.parser.core;
+    //    requires swagger.parser.core;
 //    requires swagger.parser;
 //    requires swagger.parser.v2.converter;
 //    requires swagger.parser.v3;

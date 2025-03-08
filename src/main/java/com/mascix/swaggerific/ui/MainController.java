@@ -17,7 +17,6 @@ import com.mascix.swaggerific.ui.textfx.CustomCodeArea;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -124,7 +123,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         treePaths.getSelectionModel()
                 .selectedItemProperty()
-                .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> onTreeItemSelect(newValue));
+                .addListener((observable, oldValue, newValue) -> onTreeItemSelect(newValue));
         treePaths.setCellFactory(treeView -> {
             final Label label = new Label();
             label.getStyleClass().add("highlight-on-hover");
@@ -298,6 +297,7 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
+        treeFilter = new TreeFilter();
         txtFilterTree.setText("");
         treeItemRoot.getChildren().clear();
         URL urlApi = new URI(urlSwagger).toURL();
@@ -317,7 +317,7 @@ public class MainController implements Initializable {
                     tag.setValue(tag1.getName());
                     jsonModal.getPaths().forEach((path1, pathItem) -> {
                         if (path1.contains(tag1.getName())) {
-                            TreeItem path = new TreeItem();
+                            TreeItem<String> path = new TreeItem<>();
                             path.setValue(path1);
                             tag.getChildren().add(path);
                             returnTreeItemsForTheMethod(pathItem, path.getChildren(), path1);
@@ -497,10 +497,7 @@ public class MainController implements Initializable {
     }
 
     public void filterTree(KeyEvent keyEvent) {
-        if (!txtFilterTree.getText().isEmpty())
-            treeFilter.filterTreeItems(treeItemRoot, txtFilterTree.getText());
-//        else
-//            collapseAllTree(null);
+        treeFilter.filterTreeItems(treeItemRoot, txtFilterTree.getText());
     }
 
     public void showHideTree(ActionEvent actionEvent) {
@@ -525,10 +522,10 @@ public class MainController implements Initializable {
     }
 
     public void expandAllTree(ActionEvent actionEvent) {
-        treeFilter.expandCollapseAll(treePaths.getRoot(),true);
+        treeFilter.expandCollapseAll(treePaths.getRoot(), true);
     }
 
     public void collapseAllTree(ActionEvent actionEvent) {
-        treePaths.getRoot().getChildren().forEach(node -> treeFilter.expandCollapseAll(node,false));
+        treePaths.getRoot().getChildren().forEach(node -> treeFilter.expandCollapseAll(node, false));
     }
 }
