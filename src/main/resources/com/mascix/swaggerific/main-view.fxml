@@ -42,11 +42,11 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
-            <Menu text="Edit" styleClass="menuEdit">
+            <Menu text="Edit">
                 <MenuItem text="Copy"/>
                 <MenuItem text="Cut"/>
                 <MenuItem text="Paste"/>
-                <MenuItem text="Settings" onAction="#openSettings" styleClass="menuSettings">
+                <MenuItem text="Settings" onAction="#openSettings">
                     <accelerator>
                         <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="ANY" shortcut="ANY"/>
                     </accelerator>
