@@ -62,3 +62,7 @@
 
 .btnSend {
 }
+
+.status-bar {
+    -fx-background-color: transparent;
+}
