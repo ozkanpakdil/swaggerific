@@ -64,13 +64,9 @@ public class TreeFilter {
     }
 
     public void collapseAll(TreeItem<String> item) {
-        if (item != null) {
-            for (TreeItem<String> child : item.getChildren()) {
-                collapseAll(child);
-            }
-            if (item != originalTreeItemRoot) {
-                item.setExpanded(false);
-            }
+        item.setExpanded(false);
+        for (TreeItem<String> child : item.getChildren()) {
+            collapseAll(child);
         }
     }
 }
