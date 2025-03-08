@@ -515,6 +515,7 @@ public class MainController implements Initializable {
 
     public void showHideFilter(ActionEvent actionEvent) {
         txtFilterTree.setVisible(!txtFilterTree.isVisible());
+        txtFilterTree.setManaged(!txtFilterTree.isManaged());
     }
 
     public void showHideStatusBar(ActionEvent actionEvent) {

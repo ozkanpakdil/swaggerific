@@ -11,12 +11,12 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.dockfx.DockNode?>
 <?import org.dockfx.DockPane?>
-<?import javafx.scene.layout.HBox?>
 <StackPane fx:id="topPane" stylesheets="@main-view.css" xmlns="http://javafx.com/javafx/17.0.2-ea"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mascix.swaggerific.ui.MainController">
     <VBox fx:id="mainBox" prefHeight="600" prefWidth="800">
@@ -75,23 +75,23 @@
                         <SplitPane fx:id="treeSplit" dividerPositions="0.25" prefHeight="372.0" prefWidth="800.0"
                                    AnchorPane.bottomAnchor="0.0"
                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <AnchorPane fx:id="treePane" minWidth="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
-                                    <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
-                                        <TextField fx:id="txtFilterTree" prefHeight="20.0" styleClass="txtFilterTree" promptText="Search" onKeyReleased="#filterTree"/>
-                                        <TreeView fx:id="treePaths" onMouseClicked="#treeOnClick" styleClass="treePaths" VBox.vgrow="ALWAYS"/>
-                                    </VBox>
-                                </AnchorPane>
-                                <AnchorPane prefHeight="100.0" prefWidth="160.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" AnchorPane.bottomAnchor="0.0"
-                                            AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                    <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity"
-                                             minHeight="-Infinity"
-                                             minWidth="-Infinity"
-                                             prefHeight="370.0" prefWidth="396.0"
-                                             AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                             AnchorPane.rightAnchor="0.0"
-                                             AnchorPane.topAnchor="0.0">
-                                    </TabPane>
-                                </AnchorPane>
+                            <AnchorPane fx:id="treePane" minWidth="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
+                                <VBox AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+                                    <TextField fx:id="txtFilterTree" prefHeight="20.0" visible="false" managed="false" styleClass="txtFilterTree" promptText="Search" onKeyReleased="#filterTree"/>
+                                    <TreeView fx:id="treePaths" onMouseClicked="#treeOnClick" styleClass="treePaths" VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                            </AnchorPane>
+                            <AnchorPane prefHeight="100.0" prefWidth="160.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" AnchorPane.bottomAnchor="0.0"
+                                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <TabPane fx:id="tabRequests" maxHeight="-Infinity" maxWidth="-Infinity"
+                                         minHeight="-Infinity"
+                                         minWidth="-Infinity"
+                                         prefHeight="370.0" prefWidth="396.0"
+                                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                         AnchorPane.rightAnchor="0.0"
+                                         AnchorPane.topAnchor="0.0">
+                                </TabPane>
+                            </AnchorPane>
 
                         </SplitPane>
                     </AnchorPane>
