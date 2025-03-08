@@ -525,10 +525,10 @@ public class MainController implements Initializable {
     }
 
     public void expandAllTree(ActionEvent actionEvent) {
-        treeFilter.expandAll(treePaths.getRoot());
+        treeFilter.expandCollapseAll(treePaths.getRoot(),true);
     }
 
     public void collapseAllTree(ActionEvent actionEvent) {
-        treePaths.getRoot().getChildren().forEach(treeFilter::collapseAll);
+        treePaths.getRoot().getChildren().forEach(node -> treeFilter.expandCollapseAll(node,false));
     }
 }

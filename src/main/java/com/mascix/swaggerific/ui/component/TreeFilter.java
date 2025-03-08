@@ -29,7 +29,7 @@ public class TreeFilter {
         }
 
         root.getChildren().setAll(filteredItems);
-        expandAll(root);
+        expandCollapseAll(root, true);
     }
 
     private TreeItem<String> cloneTreeItem(TreeItem<String> item) {
@@ -56,17 +56,10 @@ public class TreeFilter {
         return null;
     }
 
-    public void expandAll(TreeItem<String> item) {
-        item.setExpanded(true);
+    public void expandCollapseAll(TreeItem<String> item, boolean expand) {
+        item.setExpanded(expand);
         for (TreeItem<String> child : item.getChildren()) {
-            expandAll(child);
-        }
-    }
-
-    public void collapseAll(TreeItem<String> item) {
-        item.setExpanded(false);
-        for (TreeItem<String> child : item.getChildren()) {
-            collapseAll(child);
+            expandCollapseAll(child, expand);
         }
     }
 }
