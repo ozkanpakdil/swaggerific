@@ -9,6 +9,7 @@ import com.mascix.swaggerific.data.SwaggerModal;
 import com.mascix.swaggerific.data.TreeItemSerialisationWrapper;
 import com.mascix.swaggerific.tools.HttpUtility;
 import com.mascix.swaggerific.ui.component.TextAreaAppender;
+import com.mascix.swaggerific.ui.component.TreeFilter;
 import com.mascix.swaggerific.ui.component.TreeItemOperationLeaf;
 import com.mascix.swaggerific.ui.edit.SettingsController;
 import com.mascix.swaggerific.ui.exception.NotYetImplementedException;
@@ -45,7 +46,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -86,10 +86,13 @@ public class MainController implements Initializable {
 
     //TODO this can go to Preferences.userNodeForPackage in the future
     final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
+
     public TabPane tabRequests;
     public TextField txtFilterTree;
     public AnchorPane treePane;
     public SplitPane treeSplit;
+    private TreeFilter treeFilter = new TreeFilter();
+
     @FXML
     VBox mainBox;
     @FXML
@@ -121,9 +124,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         treePaths.getSelectionModel()
                 .selectedItemProperty()
-                .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> {
-                    onTreeItemSelect(newValue);
-                });
+                .addListener((ChangeListener<TreeItem<String>>) (observable, oldValue, newValue) -> onTreeItemSelect(newValue));
         treePaths.setCellFactory(treeView -> {
             final Label label = new Label();
             label.getStyleClass().add("highlight-on-hover");
@@ -203,8 +204,8 @@ public class MainController implements Initializable {
                     .ifPresent(p -> tabRequests.getSelectionModel().select(p));
         }
     }
-
     //    @SneakyThrows
+
     private void onTreeItemSelect(TreeItem<String> newValue) {
         if (newValue instanceof TreeItemOperationLeaf m) {
             handleTreeViewItemClick(m.getUri(), m);
@@ -267,7 +268,7 @@ public class MainController implements Initializable {
         boxLoader.setAlignment(Pos.CENTER);
         // Grey Background
         mainBox.setVisible(false);
-        topPane.getChildren().add(0, boxLoader);
+        topPane.getChildren().addFirst(boxLoader);
         // Thread.sleep(100);
         // children = mainBox.getChildren();
         // Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
@@ -297,8 +298,9 @@ public class MainController implements Initializable {
 
     @SneakyThrows
     private void openSwaggerUrl(String urlSwagger) {
+        txtFilterTree.setText("");
         treeItemRoot.getChildren().clear();
-        URL urlApi = new URL(urlSwagger);
+        URL urlApi = new URI(urlSwagger).toURL();
         treePaths.setRoot(treeItemRoot);
         try {
             jsonRoot = Json.mapper().readTree(urlApi);
@@ -395,11 +397,8 @@ public class MainController implements Initializable {
     }
 
     public void onClose() {
-        saveSession();
-    }
-
-    private void saveSession() {
         try {
+            treeFilter.filterTreeItems(treePaths.getRoot(), "");
             File sessionFile = new File(SESSION);
             sessionFile.getParentFile().mkdirs();
             FileOutputStream out = new FileOutputStream(sessionFile);
@@ -498,40 +497,10 @@ public class MainController implements Initializable {
     }
 
     public void filterTree(KeyEvent keyEvent) {
-        // TODO this filter is not working properly, investigate
-        String filter = txtFilterTree.getText();
-        if (filter == null || filter.isEmpty()) {
-            treePaths.setRoot(treeItemRoot);
-            treePaths.setShowRoot(false);
-        } else {
-            TreeItem<String> filteredRoot = new TreeItem<>();
-            filteredRoot.setValue("filtered root");
-            treeItemRoot.getChildren().forEach(tag -> {
-                TreeItem<String> filteredTag = new TreeItem<>();
-                filteredTag.setValue(tag.getValue());
-                tag.getChildren().forEach(path -> {
-                    if (path.getValue() != null && path.getValue().contains(filter)) {
-                        filteredTag.getChildren().add(path);
-                    } else {
-                        TreeItem<String> filteredPath = new TreeItem<>();
-                        filteredPath.setValue(path.getValue());
-                        path.getChildren().forEach(operation -> {
-                            if (operation.getValue() != null && operation.getValue().contains(filter)) {
-                                filteredPath.getChildren().add(operation);
-                            }
-                        });
-                        if (filteredPath.getChildren().size() > 0) {
-                            filteredTag.getChildren().add(filteredPath);
-                        }
-                    }
-                });
-                if (filteredTag.getChildren().size() > 0) {
-                    filteredRoot.getChildren().add(filteredTag);
-                }
-            });
-            treePaths.setRoot(filteredRoot);
-            treePaths.setShowRoot(false);
-        }
+        if (!txtFilterTree.getText().isEmpty())
+            treeFilter.filterTreeItems(treeItemRoot, txtFilterTree.getText());
+//        else
+//            collapseAllTree(null);
     }
 
     public void showHideTree(ActionEvent actionEvent) {
@@ -548,16 +517,18 @@ public class MainController implements Initializable {
     }
 
     public void showHideFilter(ActionEvent actionEvent) {
-        boolean isVisible = txtFilterTree.isVisible();
-        txtFilterTree.setVisible(!isVisible);
-        if (isVisible) {
-            VBox.setVgrow(treePaths, Priority.ALWAYS);
-        } else {
-            VBox.setVgrow(treePaths, Priority.NEVER);
-        }
+        txtFilterTree.setVisible(!txtFilterTree.isVisible());
     }
 
     public void showHideStatusBar(ActionEvent actionEvent) {
         statusBar.setVisible(!statusBar.isVisible());
+    }
+
+    public void expandAllTree(ActionEvent actionEvent) {
+        treeFilter.expandAll(treePaths.getRoot());
+    }
+
+    public void collapseAllTree(ActionEvent actionEvent) {
+        treePaths.getRoot().getChildren().forEach(treeFilter::collapseAll);
     }
 }

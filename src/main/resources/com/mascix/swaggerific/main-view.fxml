@@ -57,6 +57,8 @@
                 <MenuItem text="Show/Hide Tree" onAction="#showHideTree"/>
                 <MenuItem text="Show/Hide Filter" onAction="#showHideFilter"/>
                 <MenuItem text="Show/Hide Status Bar" onAction="#showHideStatusBar"/>
+                <MenuItem text="Expand All Tree" onAction="#expandAllTree"/>
+                <MenuItem text="Collapse All Tree" onAction="#collapseAllTree"/>
             </Menu>
             <Menu text="Help">
                 <MenuItem disable="true" text="Search"/>
