@@ -12,9 +12,15 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
-import static com.mascix.swaggerific.ui.edit.General.*;
+import static com.mascix.swaggerific.ui.edit.General.FONT_SIZE;
+import static com.mascix.swaggerific.ui.edit.General.SELECTED_FONT;
+import static com.mascix.swaggerific.ui.edit.General.STAGE_HEIGHT;
+import static com.mascix.swaggerific.ui.edit.General.STAGE_WIDTH;
+import static com.mascix.swaggerific.ui.edit.General.STAGE_X;
+import static com.mascix.swaggerific.ui.edit.General.STAGE_Y;
 
 @Slf4j
 public class SwaggerApplication extends Application {
@@ -37,7 +43,7 @@ public class SwaggerApplication extends Application {
         mainController.onOpening();
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Swaggerific");
-        stage.getIcons().add(new Image(SwaggerApplication.class.getResourceAsStream("/applogo.png")));
+        stage.getIcons().add(new Image(Objects.requireNonNull(SwaggerApplication.class.getResourceAsStream("/applogo.png"))));
         stage.setScene(scene);
         stage.setOnHidden(e -> mainController.onClose());
         stage.show();
