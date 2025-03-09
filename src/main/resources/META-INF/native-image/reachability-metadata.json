@@ -383,13 +383,71 @@
           "parameterTypes": []
         },
         {
+          "name": "collapseAllTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "expandAllTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "handleAboutAction",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "menuFileExit",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
           "name": "menuFileOpenSwagger",
           "parameterTypes": [
             "javafx.event.ActionEvent"
           ]
         },
         {
+          "name": "openDebugConsole",
+          "parameterTypes": []
+        },
+        {
+          "name": "openDebugConsole",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "openSettings",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "reportBugOrFeatureRequestFromHelpMenu",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
           "name": "showHideFilter",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideStatusBar",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideTree",
           "parameterTypes": [
             "javafx.event.ActionEvent"
           ]
