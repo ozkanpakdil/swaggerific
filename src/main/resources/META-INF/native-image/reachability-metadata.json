@@ -375,6 +375,22 @@
       ]
     },
     {
+      "type": "com.mascix.swaggerific.ui.MenuController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "menuFileOpenSwagger",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        }
+      ]
+    },
+    {
       "type": "com.mascix.swaggerific.ui.RequestHeader",
       "methods": [
         {
@@ -2566,6 +2582,12 @@
           ]
         },
         {
+          "name": "setManaged",
+          "parameterTypes": [
+            "boolean"
+          ]
+        },
+        {
           "name": "setOnKeyReleased",
           "parameterTypes": [
             "javafx.event.EventHandler"
@@ -2587,6 +2609,12 @@
           "name": "setStyle",
           "parameterTypes": [
             "java.lang.String"
+          ]
+        },
+        {
+          "name": "setVisible",
+          "parameterTypes": [
+            "boolean"
           ]
         },
         {
@@ -2805,6 +2833,37 @@
     },
     {
       "type": "javafx.scene.control.RowConstraints"
+    },
+    {
+      "type": "javafx.scene.control.ScrollPane",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "getContent",
+          "parameterTypes": []
+        },
+        {
+          "name": "setContent",
+          "parameterTypes": [
+            "javafx.scene.Node"
+          ]
+        },
+        {
+          "name": "setFitToHeight",
+          "parameterTypes": [
+            "boolean"
+          ]
+        },
+        {
+          "name": "setFitToWidth",
+          "parameterTypes": [
+            "boolean"
+          ]
+        }
+      ]
     },
     {
       "type": "javafx.scene.control.Separator",
