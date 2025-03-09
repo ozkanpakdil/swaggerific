@@ -387,6 +387,12 @@
           "parameterTypes": [
             "javafx.event.ActionEvent"
           ]
+        },
+        {
+          "name": "showHideFilter",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
         }
       ]
     },
