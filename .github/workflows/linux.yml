@@ -26,8 +26,7 @@ jobs:
           set -e
           chmod +x target/gluonfx/x86_64-linux/swaggerific
           tar -czvf staging/swaggerific_x86.tar.gz -C target/gluonfx/x86_64-linux swaggerific
-          cp -r target/gluonfx/x86_64-linux/*.tar.gz staging
-
+          
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
