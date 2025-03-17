@@ -40,7 +40,6 @@
                                          AnchorPane.topAnchor="0.0">
                                 </TabPane>
                             </AnchorPane>
-
                         </SplitPane>
                     </AnchorPane>
                 </contents>
@@ -53,6 +52,6 @@
             </DockNode>
         </DockPane>
         <StatusBar fx:id="statusBar" layoutX="-26.0" layoutY="323.0" prefHeight="20.0" prefWidth="-Infinity"
-                   onMouseClicked="#openDebugConsole"/>
+                   onMouseClicked="#openDebugConsole" managed="${statusBar.visible}"/>
     </VBox>
 </StackPane>

@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @ExtendWith(ApplicationExtension.class)
 @EnabledOnOs({ OS.WINDOWS })
-class SwaggerGuiMenuTests {
+class SwaggerGuiMenuTest {
 
     /**
      * Will be called with {@code @Before} semantics, i. e. before each test method.

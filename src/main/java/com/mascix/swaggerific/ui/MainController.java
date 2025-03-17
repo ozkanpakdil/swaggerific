@@ -161,6 +161,11 @@ public class MainController implements Initializable {
             });
             return cell;
         });
+        Platform.runLater(() -> {
+            // UI aligning
+            treeSplit.setDividerPosition(0, 0.13);
+            openDebugConsole();
+        });
 
         configureLoggerTextBox();
 
@@ -397,8 +402,8 @@ public class MainController implements Initializable {
         });
     }
 
-    public void treeOnClick(MouseEvent mouseEvent) {
-        if (treeItemRoot.getChildren().size() == 0)// if no item there open swagger.json loader
+    public void treeOnClick(MouseEvent ignoredMouseEvent) {
+        if (treeItemRoot.getChildren().isEmpty())// if no item there open swagger.json loader
             menuFileOpenSwagger(null);
     }
 
@@ -430,7 +435,7 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    public void openSettings(ActionEvent actionEvent) {
+    public void openSettings(ActionEvent ignoredActionEvent) {
         FXMLLoader settingsFxmlLoader = new FXMLLoader(getClass().getResource("/com/mascix/swaggerific/edit/settings.fxml"));
         Parent root = settingsFxmlLoader.load();
         SettingsController controller = settingsFxmlLoader.getController();
@@ -458,7 +463,7 @@ public class MainController implements Initializable {
         return (TabRequestController) tabRequests.getSelectionModel().getSelectedItem().getUserData();
     }
 
-    public TableView<RequestHeader> getTableHeaders() {
+    public TableView getTableHeaders() {
         return getSelectedTab().tableHeaders;
     }
 
@@ -478,7 +483,7 @@ public class MainController implements Initializable {
         getSelectedTab().codeResponseXmlSettings(codeJsonResponse, cssPath);
     }
 
-    public void onChangeTrimConfig(ActionEvent actionEvent) {
+    public void onChangeTrimConfig(ActionEvent ignoredActionEvent) {
         throw new NotYetImplementedException("Trim config changed");
     }
 
@@ -498,15 +503,15 @@ public class MainController implements Initializable {
     }
 
     @SneakyThrows
-    public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent event) {
+    public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent ignoredEvent) {
         Desktop.getDesktop().browse(URI.create("https://github.com/ozkanpakdil/swaggerific/issues/new/choose"));
     }
 
-    public void filterTree(KeyEvent keyEvent) {
+    public void filterTree(KeyEvent ignoredKeyEvent) {
         treeFilter.filterTreeItems(treeItemRoot, txtFilterTree.getText());
     }
 
-    public void showHideTree(ActionEvent actionEvent) {
+    public void showHideTree(ActionEvent ignoredActionEvent) {
         boolean isVisible = treePaths.isVisible();
         treePaths.setVisible(!isVisible);
         treePane.setVisible(!isVisible);
@@ -519,20 +524,20 @@ public class MainController implements Initializable {
         }
     }
 
-    public void showHideFilter(ActionEvent actionEvent) {
+    public void showHideFilter(ActionEvent ignoredActionEvent) {
         txtFilterTree.setVisible(!txtFilterTree.isVisible());
         txtFilterTree.setManaged(!txtFilterTree.isManaged());
     }
 
-    public void showHideStatusBar(ActionEvent actionEvent) {
+    public void showHideStatusBar(ActionEvent ignoredActionEvent) {
         statusBar.setVisible(!statusBar.isVisible());
     }
 
-    public void expandAllTree(ActionEvent actionEvent) {
+    public void expandAllTree(ActionEvent ignoredActionEvent) {
         treeFilter.expandCollapseAll(treePaths.getRoot(), true);
     }
 
-    public void collapseAllTree(ActionEvent actionEvent) {
+    public void collapseAllTree(ActionEvent ignoredActionEvent) {
         treePaths.getRoot().getChildren().forEach(node -> treeFilter.expandCollapseAll(node, false));
     }
 }
