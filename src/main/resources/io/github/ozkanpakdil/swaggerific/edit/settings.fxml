@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+<AnchorPane prefHeight="NaN" prefWidth="768.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.SettingsController">
+
+    <SplitPane dividerPositions="0.2" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane maxWidth="150">
+            <TilePane fx:id="tilePane" hgap="10" vgap="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <children>
+                    <VBox>
+                        <Button fx:id="btnGeneral" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#changeSelectedSetting" text="General">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-gear" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnThemes" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#changeSelectedSetting" text="Themes">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnShortcuts" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                onAction="#changeSelectedSetting"
+                                text="Shortcuts">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-arrow-up" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnData" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Data"
+                                onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-database" iconSize="32" selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnAddons" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Addons"
+                                onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-puzzle-piece" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnCertificates" layoutX="104.0" layoutY="81.0" mnemonicParsing="false"
+                                text="Certificates" onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-certificate" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnProxy" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Proxy"
+                                onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-cart-arrow-down" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnUpdate" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="Update"
+                                onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <Button fx:id="btnAbout" layoutX="104.0" layoutY="81.0" mnemonicParsing="false" text="About"
+                                onAction="#changeSelectedSetting">
+                            <graphic>
+                                <FontIcon iconColor="#5e1212" iconLiteral="fa-address-card" iconSize="32"
+                                          selectionEnd="0"/>
+                            </graphic>
+                        </Button>
+                        <Separator/>
+                        <padding>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                        </padding>
+                    </VBox>
+                </children>
+            </TilePane>
+        </AnchorPane>
+        <AnchorPane fx:id="rightPane" >
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+        </AnchorPane>
+    </SplitPane>
+</AnchorPane>

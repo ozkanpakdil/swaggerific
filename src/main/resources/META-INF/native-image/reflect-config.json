@@ -109,102 +109,102 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.SwaggerApplication",
+  "name":"io.github.ozkanpakdil.swaggerific.SwaggerApplication",
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"main","parameterTypes":["java.lang.String[]"] }]
 },
 {
-  "name":"com.mascix.swaggerific.animation.Preloader",
+  "name":"io.github.ozkanpakdil.swaggerific.animation.Preloader",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.data.SwaggerModal",
+  "name":"io.github.ozkanpakdil.swaggerific.data.SwaggerModal",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setBasePath","parameterTypes":["java.lang.String"] }, {"name":"setHost","parameterTypes":["java.lang.String"] }, {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, {"name":"setSwagger","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.MainController",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.MainController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"handleAboutAction","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"reportBugOrFeatureRequestFromHelpMenu","parameterTypes":["javafx.event.ActionEvent"] }, {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.RequestHeader",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.RequestHeader",
   "methods":[{"name":"checkedProperty","parameterTypes":[] }, {"name":"getName","parameterTypes":[] }, {"name":"getValue","parameterTypes":[] }],
   "queriedMethods":[{"name":"getChecked","parameterTypes":[] }, {"name":"setChecked","parameterTypes":["java.lang.Boolean"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setValue","parameterTypes":["java.lang.String"] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.TabRequestController",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.TabRequestController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"btnSendRequest","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.About",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.About",
   "allDeclaredFields":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.Addons",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.mascix.swaggerific.ui.edit.AuthorizationController",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.mascix.swaggerific.ui.edit.Certificates",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"initialize","parameterTypes":[] }]
-},
-{
-  "name":"com.mascix.swaggerific.ui.edit.Data",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Addons",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.General",
-  "allDeclaredFields":true,
-  "queryAllDeclaredMethods":true,
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.Proxy",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Certificates",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"initialize","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.SettingsController",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Data",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.General",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Proxy",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"initialize","parameterTypes":[] }]
+},
+{
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.SettingsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"changeSelectedSetting","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.Shortcuts",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.Themes",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Themes",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.edit.Update",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.edit.Update",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"initialize","parameterTypes":[] }]
 },
 {
-  "name":"com.mascix.swaggerific.ui.textfx.CustomCodeArea",
+  "name":"io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]

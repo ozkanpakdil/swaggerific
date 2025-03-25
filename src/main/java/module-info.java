@@ -17,7 +17,6 @@ module swaggerific {
     requires com.fasterxml.jackson.databind;
     requires io.swagger.v3.oas.models;
     requires io.swagger.v3.core;
-    requires static lombok;
     requires java.prefs;
     requires org.aspectj.runtime;
     requires org.fxmisc.richtext;
@@ -32,24 +31,24 @@ module swaggerific {
     requires org.jetbrains.annotations;
 
     //    requires swagger.parser.core;
-//    requires swagger.parser;
-//    requires swagger.parser.v2.converter;
-//    requires swagger.parser.v3;
+    //    requires swagger.parser;
+    //    requires swagger.parser.v2.converter;
+    //    requires swagger.parser.v3;
 
-    opens com.mascix.swaggerific to javafx.fxml;
-    exports com.mascix.swaggerific;
-    exports com.mascix.swaggerific.animation;
-    opens com.mascix.swaggerific.animation to javafx.fxml;
-    exports com.mascix.swaggerific.ui;
-    opens com.mascix.swaggerific.ui to javafx.fxml;
-    exports com.mascix.swaggerific.data;
-    opens com.mascix.swaggerific.data to javafx.fxml;
-    exports com.mascix.swaggerific.ui.component;
-    opens com.mascix.swaggerific.ui.component to javafx.fxml;
-    exports com.mascix.swaggerific.ui.edit;
-    opens com.mascix.swaggerific.ui.edit to javafx.fxml;
-    exports com.mascix.swaggerific.ui.textfx;
-    opens com.mascix.swaggerific.ui.textfx to javafx.fxml;
-    exports com.mascix.swaggerific.ui.exception;
-    opens com.mascix.swaggerific.ui.exception to javafx.fxml;
+    opens io.github.ozkanpakdil.swaggerific to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific;
+    exports io.github.ozkanpakdil.swaggerific.animation;
+    opens io.github.ozkanpakdil.swaggerific.animation to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.ui;
+    opens io.github.ozkanpakdil.swaggerific.ui to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.data;
+    opens io.github.ozkanpakdil.swaggerific.data to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.ui.component;
+    opens io.github.ozkanpakdil.swaggerific.ui.component to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.ui.edit;
+    opens io.github.ozkanpakdil.swaggerific.ui.edit to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.ui.textfx;
+    opens io.github.ozkanpakdil.swaggerific.ui.textfx to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.ui.exception;
+    opens io.github.ozkanpakdil.swaggerific.ui.exception to javafx.fxml;
 }

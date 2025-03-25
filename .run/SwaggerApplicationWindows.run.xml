@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="SwaggerApplicationWindows" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="com.mascix.swaggerific.SwaggerApplication" />
+    <option name="MAIN_CLASS_NAME" value="io.github.ozkanpakdil.swaggerific.SwaggerApplication" />
     <module name="swaggerific" />
     <shortenClasspath name="MANIFEST" />
     <option name="VM_PARAMETERS" value="--add-modules=javafx.controls,javafx.web --add-exports=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.mascix.swaggerific.*" />
+        <option name="PATTERN" value="io.github.ozkanpakdil.swaggerific.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

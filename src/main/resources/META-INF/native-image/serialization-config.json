@@ -205,7 +205,7 @@
       "name":"com.fasterxml.jackson.databind.util.StdDateFormat"
     },
     {
-      "name":"com.mascix.swaggerific.data.TreeItemSerialisationWrapper"
+      "name":"io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
     },
     {
       "name":"java.lang.Enum"

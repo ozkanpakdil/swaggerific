@@ -255,375 +255,6 @@
       ]
     },
     {
-      "type": "com.mascix.swaggerific.SwaggerApplication",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "main",
-          "parameterTypes": [
-            "java.lang.String[]"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.animation.Preloader",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.data.SwaggerModal",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "setBasePath",
-          "parameterTypes": [
-            "java.lang.String"
-          ]
-        },
-        {
-          "name": "setHost",
-          "parameterTypes": [
-            "java.lang.String"
-          ]
-        },
-        {
-          "name": "setSchemes",
-          "parameterTypes": [
-            "java.lang.String[]"
-          ]
-        },
-        {
-          "name": "setSwagger",
-          "parameterTypes": [
-            "java.lang.String"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.MainController",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "filterTree",
-          "parameterTypes": [
-            "javafx.scene.input.KeyEvent"
-          ]
-        },
-        {
-          "name": "handleAboutAction",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "menuFileExit",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "menuFileOpenSwagger",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "openDebugConsole",
-          "parameterTypes": []
-        },
-        {
-          "name": "openSettings",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "reportBugOrFeatureRequestFromHelpMenu",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "showHideTree",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "treeOnClick",
-          "parameterTypes": [
-            "javafx.scene.input.MouseEvent"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.MenuController",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "collapseAllTree",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "expandAllTree",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "handleAboutAction",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "menuFileExit",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "menuFileOpenSwagger",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "openDebugConsole",
-          "parameterTypes": []
-        },
-        {
-          "name": "openDebugConsole",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "openSettings",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "reportBugOrFeatureRequestFromHelpMenu",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "showHideFilter",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "showHideStatusBar",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        },
-        {
-          "name": "showHideTree",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.RequestHeader",
-      "methods": [
-        {
-          "name": "checkedProperty",
-          "parameterTypes": []
-        },
-        {
-          "name": "getName",
-          "parameterTypes": []
-        },
-        {
-          "name": "getValue",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.TabRequestController",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "btnSendRequest",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.About",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Addons",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.AuthorizationController",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Certificates",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "initialize",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Data",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.General",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Proxy",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "initialize",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.SettingsController",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "changeSelectedSetting",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Shortcuts",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Themes",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.edit.Update",
-      "allDeclaredFields": true,
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        },
-        {
-          "name": "initialize",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
-      "type": "com.mascix.swaggerific.ui.textfx.CustomCodeArea",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
       "type": "com.sun.crypto.provider.AESCipher$General",
       "methods": [
         {
@@ -1127,6 +758,375 @@
     },
     {
       "type": "com.sun.xml.internal.stream.XMLInputFactoryImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.SwaggerApplication",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "main",
+          "parameterTypes": [
+            "java.lang.String[]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.animation.Preloader",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.data.SwaggerModal",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "setBasePath",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setHost",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setSchemes",
+          "parameterTypes": [
+            "java.lang.String[]"
+          ]
+        },
+        {
+          "name": "setSwagger",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.MainController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "filterTree",
+          "parameterTypes": [
+            "javafx.scene.input.KeyEvent"
+          ]
+        },
+        {
+          "name": "handleAboutAction",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "menuFileExit",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "menuFileOpenSwagger",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "openDebugConsole",
+          "parameterTypes": []
+        },
+        {
+          "name": "openSettings",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "reportBugOrFeatureRequestFromHelpMenu",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "treeOnClick",
+          "parameterTypes": [
+            "javafx.scene.input.MouseEvent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.MenuController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "collapseAllTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "expandAllTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "handleAboutAction",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "menuFileExit",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "menuFileOpenSwagger",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "openDebugConsole",
+          "parameterTypes": []
+        },
+        {
+          "name": "openDebugConsole",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "openSettings",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "reportBugOrFeatureRequestFromHelpMenu",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideFilter",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideStatusBar",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "showHideTree",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.RequestHeader",
+      "methods": [
+        {
+          "name": "checkedProperty",
+          "parameterTypes": []
+        },
+        {
+          "name": "getName",
+          "parameterTypes": []
+        },
+        {
+          "name": "getValue",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.TabRequestController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "btnSendRequest",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.About",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Addons",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Certificates",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "initialize",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Data",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.General",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Proxy",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "initialize",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.SettingsController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "changeSelectedSetting",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Themes",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.Update",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "initialize",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea",
       "methods": [
         {
           "name": "<init>",
@@ -5892,7 +5892,7 @@
       "type": "com.fasterxml.jackson.databind.util.StdDateFormat"
     },
     {
-      "type": "com.mascix.swaggerific.data.TreeItemSerialisationWrapper"
+      "type": "io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
     },
     {
       "type": "java.lang.Enum"
@@ -6445,6 +6445,10 @@
           ]
         },
         {
+          "name": "fwkGetDefaultRenderTheme",
+          "parameterTypes": []
+        },
+        {
           "name": "fwkGetPageBounds",
           "parameterTypes": []
         },
@@ -6618,6 +6622,17 @@
         {
           "name": "ref",
           "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.webkit.graphics.RenderTheme",
+      "methods": [
+        {
+          "name": "getSelectionColor",
+          "parameterTypes": [
+            "int"
+          ]
         }
       ]
     },
