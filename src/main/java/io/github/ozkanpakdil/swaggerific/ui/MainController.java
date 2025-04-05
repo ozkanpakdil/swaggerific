@@ -203,7 +203,7 @@ public class MainController implements Initializable {
                 throw new RuntimeException(e);
             }
             TabRequestController controller = tab.getController();
-            controller.setMainController(this, tabName, leaf);
+            controller.initializeController(this, tabName, leaf);
             newTab.setUserData(controller);
             newTab.setId(tabName);
             tabRequests.getTabs().add(newTab);

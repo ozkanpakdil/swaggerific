@@ -1,0 +1,38 @@
+.cmbHttpMethod {
+    -fx-font-family: Verdana, sans-serif;
+    -fx-font-size: .87em;
+}
+
+
+.cmbHttpMethod .list-cell:filled:selected,
+.cmbHttpMethod .list-cell:filled:hover {
+    -fx-background-color: inherit;
+}
+
+.cmbHttpMethod .list-cell.GET {
+    -fx-background-color: #61affe;
+}
+
+.cmbHttpMethod .list-cell.POST {
+    -fx-background-color: #49cc90;
+}
+
+.cmbHttpMethod .list-cell.PUT {
+    -fx-background-color: #fca130;
+}
+
+.cmbHttpMethod .list-cell.DELETE {
+    -fx-background-color: #f93e3e;
+}
+
+.cmbHttpMethod .list-cell.HEAD {
+    -fx-background-color: #9012fe;
+}
+
+.cmbHttpMethod .list-cell.PATCH {
+    -fx-background-color: #50e3c2;
+}
+
+.cmbHttpMethod .list-cell.OPTIONS {
+    -fx-background-color: #0d5aa71a;
+}

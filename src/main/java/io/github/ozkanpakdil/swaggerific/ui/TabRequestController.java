@@ -20,8 +20,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
@@ -45,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TabRequestController extends TabPane {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TabRequestController.class);
+    public ComboBox cmbHttpMethod;
     MainController mainController;
     @FXML
     CodeArea codeJsonRequest;
@@ -156,14 +159,16 @@ public class TabRequestController extends TabPane {
         if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
             Platform.runLater(() -> httpUtility.request(Json.mapper(), mainController, targetUri,
-                    PathItem.HttpMethod.valueOf(selectedItem.getValue())));
+                    PathItem.HttpMethod.valueOf(cmbHttpMethod.getSelectionModel().getSelectedItem().toString()))
+            );
         } else {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }
         mainController.setIsOffloading();
     }
 
-    public void setMainController(MainController parent, String uri, TreeItemOperationLeaf leaf) {
+    public void initializeController(MainController parent, String uri, TreeItemOperationLeaf leaf) {
+        cmbHttpMethodConfig(leaf);
         this.mainController = parent;
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
@@ -231,6 +236,30 @@ public class TabRequestController extends TabPane {
             addTableRowIfFulfilled();
         });
         onTreeItemSelect(uri, leaf);
+    }
+
+    private void cmbHttpMethodConfig(TreeItemOperationLeaf leaf) {
+        cmbHttpMethod.getItems().clear();
+        cmbHttpMethod.getItems().addAll(PathItem.HttpMethod.values());
+        cmbHttpMethod.setCellFactory(p -> new ListCell<PathItem.HttpMethod>() {
+            @Override
+            protected void updateItem(PathItem.HttpMethod item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    return;
+                }
+                setText(item.name());
+                getStyleClass().add(item.name());
+            }
+        });
+        cmbHttpMethod.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (oldVal == null || newVal == null) {
+                return;
+            }
+            cmbHttpMethod.getStyleClass().remove(oldVal.toString());
+            cmbHttpMethod.getStyleClass().add(newVal.toString());
+        });
+        cmbHttpMethod.getSelectionModel().select(leaf.getValue());
     }
 
 }
