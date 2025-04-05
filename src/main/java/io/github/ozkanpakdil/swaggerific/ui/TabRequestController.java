@@ -155,26 +155,8 @@ public class TabRequestController extends TabPane {
 
         if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
-            if (selectedItem.getValue().equals(PathItem.HttpMethod.GET.name())) {
-                Platform.runLater(() -> httpUtility.getRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.POST.name())) {
-                Platform.runLater(() -> httpUtility.postRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.DELETE.name())) {
-                Platform.runLater(() -> httpUtility.deleteRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.HEAD.name())) {
-                Platform.runLater(() -> httpUtility.headRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.OPTIONS.name())) {
-                Platform.runLater(() -> httpUtility.optionsRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PATCH.name())) {
-                Platform.runLater(() -> httpUtility.patchRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.PUT.name())) {
-                Platform.runLater(() -> httpUtility.putRequest(Json.mapper(), mainController, targetUri));
-            } else if (selectedItem.getValue().equals(PathItem.HttpMethod.TRACE.name())) {
-                Platform.runLater(() -> httpUtility.traceRequest(Json.mapper(), mainController, targetUri));
-            } else {
-                mainController.showAlert("", "", selectedItem.getValue() + " not implemented yet");
-                log.error(selectedItem.getValue() + " not implemented yet");
-            }
+            Platform.runLater(() -> httpUtility.request(Json.mapper(), mainController, targetUri,
+                    PathItem.HttpMethod.valueOf(selectedItem.getValue())));
         } else {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }

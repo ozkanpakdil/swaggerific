@@ -40,19 +40,6 @@ import java.util.stream.Collectors;
 public class HttpUtility {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HttpUtility.class);
 
-    public void postRequest(ObjectMapper mapper, MainController parent, String pUri) {
-        URI uri = getUri(pUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        String body = parent.getCodeJsonRequest().getText();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(body));
-        log.debug("body: {}", body);
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
     private static void sendRequestAndShowResponse(ObjectMapper mapper, MainController parent, URI uri,
             String[] headers, HttpClient client, HttpRequest.Builder request) {
         if (headers.length > 0)
@@ -61,100 +48,24 @@ public class HttpUtility {
         try {
             log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headers), uri);
             HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            parent.getCodeJsonResponse().replaceText(
-                    (isValidJson(httpResponse.body()))
-                            ? Json.pretty(mapper.readTree(httpResponse.body()))
-                            : httpResponse.body()
-            );
+
+            if (!httpResponse.body().startsWith("<")) {
+                parent.getCodeJsonResponse().replaceText(
+                        Json.pretty(mapper.readTree(httpResponse.body()))
+                );
+            } else {
+                log.error("response does not look like a json,{},{}", httpResponse.statusCode(), httpResponse.body());
+                parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
+                parent.getCodeJsonResponse().replaceText(
+                        prettyPrintByTransformer(httpResponse.body(), 4, true)
+                );
+            }
+
         } catch (IOException | InterruptedException e) {
             log.error("Error in POST request:{}", e.getMessage(), e);
+            parent.openDebugConsole();
             parent.getCodeJsonResponse().replaceText(e.getMessage());
         }
-    }
-
-    public static boolean isValidJson(String jsonString) {
-        try {
-            Json.mapper().readTree(jsonString);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void deleteRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .DELETE();
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
-    public void headRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .method(PathItem.HttpMethod.HEAD.name(),
-                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
-    public void optionsRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .method(PathItem.HttpMethod.OPTIONS.name(),
-                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
-    public void patchRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .method(PathItem.HttpMethod.PATCH.name(),
-                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
-    public void putRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .PUT(HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
-    }
-
-    public void traceRequest(ObjectMapper mapper, MainController parent, String targetUri) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
-
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .method(PathItem.HttpMethod.TRACE.name(),
-                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
-
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
     private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
@@ -168,40 +79,7 @@ public class HttpUtility {
         return headers.toArray(String[]::new);
     }
 
-    public void getRequest(ObjectMapper mapper, MainController parent, String pUri) {
-        URI uri = getUri(pUri, parent.getBoxRequestParams());
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            String[] headers = getHeaders(parent.getTableHeaders());
-            HttpRequest.Builder request = HttpRequest.newBuilder()
-                    .uri(uri);
-            if (headers.length > 0)
-                request.headers(headers);
-
-            try {
-                log.info("GET headers:{} , request:{}", mapper.writeValueAsString(headers), uri);
-
-                HttpResponse<String> httpResponse = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
-                if (!httpResponse.body().startsWith("<")) {
-                    parent.getCodeJsonResponse().replaceText(
-                            Json.pretty(mapper.readTree(httpResponse.body()))
-                    );
-                } else {
-                    log.error("response does not look like a json,{},{}", httpResponse.statusCode(), httpResponse.body());
-                    parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
-                    parent.getCodeJsonResponse().replaceText(
-                            prettyPrintByTransformer(httpResponse.body(), 4, true)
-                    );
-                }
-                parent.getCodeRawJsonResponse().setText(httpResponse.body());
-            } catch (Exception e) {
-                log.error("Error in GET request:{}", e.getMessage(), e);
-                parent.openDebugConsole();
-                parent.getCodeJsonResponse().replaceText(e.getMessage());
-            }
-        }
-    }
-
-    public String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
+    public static String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
         try {
             InputSource src = new InputSource(new StringReader(xmlString));
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src);
@@ -241,5 +119,18 @@ public class HttpUtility {
         }
 
         return URI.create(finalAddress.get());
+    }
+
+    public void request(ObjectMapper mapper, MainController parent, String targetUri, PathItem.HttpMethod httpMethod) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
+
+        String[] headers = getHeaders(parent.getTableHeaders());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder request = HttpRequest.newBuilder()
+                .uri(uri)
+                .method(httpMethod.name(),
+                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+
+        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 }

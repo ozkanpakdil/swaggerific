@@ -76,19 +76,16 @@ public class TreeItemSerialisationWrapper<T extends Serializable> implements Ser
     }
 
     private List<Parameter> convertToParameters(List<Map<String, Object>> parameterMaps) {
-        if (parameterMaps == null)
-            return null;
         return parameterMaps.stream()
+                .filter(map -> map != null && map.get("name") != null && map.get("in") != null)
                 .map(this::convertToParameter)
                 .toList();
     }
 
     private Parameter convertToParameter(Map<String, Object> map) {
         Parameter parameter = new Parameter();
-        if (map != null) {
-            parameter.setName((String) map.get("name"));
-            parameter.setIn((String) map.get("in"));
-        }
+        parameter.setName((String) map.get("name"));
+        parameter.setIn((String) map.get("in"));
         return parameter;
     }
 
