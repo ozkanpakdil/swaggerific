@@ -12,7 +12,7 @@ public class MenuController {
     }
 
     public void openDebugConsole() {
-        mainController.openDebugConsole();
+        mainController.flipDebugConsole();
     }
 
     public void menuFileExit(ActionEvent event) {
@@ -49,10 +49,6 @@ public class MenuController {
 
     public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent event) {
         mainController.reportBugOrFeatureRequestFromHelpMenu(event);
-    }
-
-    public MainController getMainController() {
-        return mainController;
     }
 
     public void setMainController(MainController mainController) {

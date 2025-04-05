@@ -161,7 +161,7 @@ public class MainController implements Initializable {
         Platform.runLater(() -> {
             // UI aligning
             treeSplit.setDividerPosition(0, 0.13);
-            openDebugConsole();
+            flipDebugConsole();
         });
 
         configureLoggerTextBox();
@@ -498,18 +498,21 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    public void openDebugConsole() {
+    public void flipDebugConsole() {
         if (debugDockNode != null && debugDockNode.isVisible()) {
             storedDockNode = debugDockNode;
             debugDockNode.setVisible(!debugDockNode.isVisible());
             dockPaneMain.undock(debugDockNode);
         } else if (storedDockNode != null) {
-            debugDockNode = storedDockNode;
-            debugDockNode.setVisible(true);
-            dockPaneMain.dock(debugDockNode, DockPosition.BOTTOM);
-            storedDockNode = null;
+            openDebugConsole();
         }
+    }
 
+    public void openDebugConsole() {
+        debugDockNode = storedDockNode;
+        debugDockNode.setVisible(true);
+        dockPaneMain.dock(debugDockNode, DockPosition.BOTTOM);
+        storedDockNode = null;
     }
 
     public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent ignoredEvent) {

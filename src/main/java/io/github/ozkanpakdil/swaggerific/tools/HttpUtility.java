@@ -5,7 +5,6 @@ import io.github.ozkanpakdil.swaggerific.tools.exceptions.XmlFormattingException
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.RequestHeader;
 import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
-import io.github.ozkanpakdil.swaggerific.ui.component.TreeItemOperationLeaf;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
 import javafx.scene.control.TableView;
@@ -82,10 +81,8 @@ public class HttpUtility {
         }
     }
 
-    public void deleteRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void deleteRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -96,10 +93,8 @@ public class HttpUtility {
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
-    public void headRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void headRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -111,10 +106,8 @@ public class HttpUtility {
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
-    public void optionsRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void optionsRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -126,10 +119,8 @@ public class HttpUtility {
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
-    public void patchRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void patchRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -141,10 +132,8 @@ public class HttpUtility {
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
-    public void putRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void putRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -155,10 +144,8 @@ public class HttpUtility {
         sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
     }
 
-    public void traceRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void traceRequest(ObjectMapper mapper, MainController parent, String targetUri) {
+        URI uri = getUri(targetUri, parent.getBoxRequestParams());
 
         String[] headers = getHeaders(parent.getTableHeaders());
         HttpClient client = HttpClient.newHttpClient();
@@ -181,10 +168,8 @@ public class HttpUtility {
         return headers.toArray(String[]::new);
     }
 
-    public void getRequest(ObjectMapper mapper, MainController parent) {
-        TreeItemOperationLeaf selectedItem = (TreeItemOperationLeaf) parent.getTreePaths().getSelectionModel()
-                .getSelectedItem();
-        URI uri = getUri(selectedItem.getUri(), parent.getBoxRequestParams());
+    public void getRequest(ObjectMapper mapper, MainController parent, String pUri) {
+        URI uri = getUri(pUri, parent.getBoxRequestParams());
         try (HttpClient client = HttpClient.newHttpClient()) {
             String[] headers = getHeaders(parent.getTableHeaders());
             HttpRequest.Builder request = HttpRequest.newBuilder()
@@ -210,6 +195,7 @@ public class HttpUtility {
                 parent.getCodeRawJsonResponse().setText(httpResponse.body());
             } catch (Exception e) {
                 log.error("Error in GET request:{}", e.getMessage(), e);
+                parent.openDebugConsole();
                 parent.getCodeJsonResponse().replaceText(e.getMessage());
             }
         }
