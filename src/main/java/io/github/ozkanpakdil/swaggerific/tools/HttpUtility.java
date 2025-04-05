@@ -18,7 +18,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -62,8 +61,8 @@ public class HttpUtility {
             }
             parent.getCodeRawJsonResponse().setText(httpResponse.body());
 
-        } catch (IOException | InterruptedException e) {
-            log.error("Error in POST request:{}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Error in request:{}", e.getMessage(), e);
             parent.openDebugConsole();
             parent.getCodeJsonResponse().replaceText(e.getMessage());
         }

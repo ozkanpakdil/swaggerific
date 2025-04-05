@@ -37,7 +37,7 @@ jobs:
         id: message
         run: |
           echo "content<<EOF" >> "$GITHUB_OUTPUT"
-          echo "🚀 New release(${{ steps.get_info.outputs.tag }})
+          echo "🚀 New dev build release(${{ steps.get_info.outputs.tag }})
 
           Latest changes:
           ${{ steps.get_info.outputs.commits }}
