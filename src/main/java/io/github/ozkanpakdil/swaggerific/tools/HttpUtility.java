@@ -60,6 +60,7 @@ public class HttpUtility {
                         prettyPrintByTransformer(httpResponse.body(), 4, true)
                 );
             }
+            parent.getCodeRawJsonResponse().setText(httpResponse.body());
 
         } catch (IOException | InterruptedException e) {
             log.error("Error in POST request:{}", e.getMessage(), e);
