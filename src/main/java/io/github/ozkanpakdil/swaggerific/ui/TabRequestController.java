@@ -189,43 +189,7 @@ public class TabRequestController extends TabPane {
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
-
-        // Combined event handler for both bracket handling and text highlighting
-        codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            // Auto-complete brackets and handle bracket pairs
-            String character = keyEvent.getCharacter();
-            if (character.equals("[")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "]", "bracket-pair");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("{")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "}", "bracket-pair");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("(")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, ")", "bracket-pair");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("\"")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "\"", "bracket-pair");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("]") || character.equals("}") || character.equals(")") || character.equals("\"")) {
-                int position = codeJsonResponse.getCaretPosition();
-                if (position != codeJsonResponse.getLength()) {
-                    String nextChar = codeJsonResponse.getText(position, position + 1);
-                    if (nextChar.equals(character)) {
-                        codeJsonResponse.deleteText(position, position + 1);
-                    }
-                }
-            }
-
-            // Highlight matching brackets
-            bracketHighlighter.highlightBracket();
-
-            // Highlight selected text
-            selectedHighlighter.highlightSelectedText();
-        });
+        codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
 
         applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
         applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
