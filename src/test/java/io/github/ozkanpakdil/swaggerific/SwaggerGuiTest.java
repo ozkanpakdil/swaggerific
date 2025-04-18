@@ -94,7 +94,7 @@ class SwaggerGuiTest {
         HttpResponse httpResponse = httpService.get(
                 URI.create("http://127.0.0.1:" + mockServer.getPort() + "/petstore-swagger.json"),
                 Map.of("Content-Type", "application/json; charset=utf-8"));
-        assert httpResponse.getStatusCode() == 200;
+        assert httpResponse.statusCode() == 200;
 
         robot.push(KeyCode.CONTROL, KeyCode.O);
        robot.write("http://127.0.0.1:" + mockServer.getPort() + "/petstore-swagger.json");
