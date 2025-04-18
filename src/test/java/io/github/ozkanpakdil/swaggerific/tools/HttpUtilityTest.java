@@ -49,9 +49,9 @@ class HttpUtilityTest {
     @Test
     void getUriPath() {
         txtField.setText("https://petstore.swagger.io/v2/pet/{findByStatus}");
-        addParam("findByStatus", "sold", "query");
+        addParam("findByStatus", "sold", "path");
         URI uri = testee.getUri(txtField.getText(), gridPane);
-        assertEquals(URI.create("https://petstore.swagger.io/v2/pet/sold?findByStatus=sold"), uri);
+        assertEquals(URI.create("https://petstore.swagger.io/v2/pet/sold"), uri);
     }
 
     private void addParam(String paramName, String txtText, String varType) {

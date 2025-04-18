@@ -205,9 +205,7 @@ public class HttpUtility {
                 .forEach(n -> {
                     STextField node = (STextField) n;
                     String encoded = URLEncoder.encode(node.getText(), StandardCharsets.UTF_8);
-                    finalAddress.set(
-                            finalAddress.get().replace("{" + Pattern.quote(node.getParamName()) + "}", encoded)
-                    );
+                    finalAddress.set(finalAddress.get().replaceAll("\\{" + node.getParamName() + "}", encoded));
                 });
 
         // Process path parameters from ComboBox components
