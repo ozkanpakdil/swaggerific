@@ -69,8 +69,7 @@ public class HttpUtility {
                         "The server returned an empty response with status code: " + response.getStatusCode() +
                                 "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
                 );
-            } else if (!responseBody.startsWith("<")) {
-                // JSON response
+            } else if (isJsonResponse(response)) {
                 try {
                     parent.getCodeJsonResponse().replaceText(
                             Json.pretty(Json.mapper().readTree(responseBody))
@@ -83,8 +82,7 @@ public class HttpUtility {
                             "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody
                     );
                 }
-            } else {
-                // XML response
+            } else if (isXmlResponse(response)) {
                 log.info("Processing XML response with status code: {}", response.getStatusCode());
                 parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
                 try {
@@ -98,6 +96,10 @@ public class HttpUtility {
                             "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody
                     );
                 }
+            } else {
+                // Fallback to raw response
+                log.info("Processing raw response with status code: {}", response.getStatusCode());
+                parent.getCodeJsonResponse().replaceText(responseBody);
             }
 
             // Always set the raw response
@@ -114,6 +116,38 @@ public class HttpUtility {
                             "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
             );
         }
+    }
+
+    /**
+     * Determines if the response is JSON based on Content-Type or content inspection.
+     */
+    private boolean isJsonResponse(HttpResponse response) {
+        String contentType = response.getContentType();
+        if (contentType != null) {
+            contentType = contentType.toLowerCase();
+            return contentType.contains("json") ||
+                    contentType.contains("application/javascript");
+        }
+        // Fallback to content inspection
+        String body = response.getBody();
+        return body != null && !body.isEmpty() &&
+                (body.trim().startsWith("{") || body.trim().startsWith("["));
+    }
+
+    /**
+     * Determines if the response is XML based on Content-Type or content inspection.
+     */
+    private boolean isXmlResponse(HttpResponse response) {
+        String contentType = response.getContentType();
+        if (contentType != null) {
+            contentType = contentType.toLowerCase();
+            return contentType.contains("xml") ||
+                    contentType.contains("text/html");
+        }
+        // Fallback to content inspection
+        String body = response.getBody();
+        return body != null && !body.isEmpty() &&
+                body.trim().startsWith("<");
     }
 
     /**
