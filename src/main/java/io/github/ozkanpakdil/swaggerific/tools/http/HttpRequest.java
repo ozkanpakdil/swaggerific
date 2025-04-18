@@ -11,7 +11,7 @@ public record HttpRequest(URI uri, String method, Map<String, String> headers, S
         this.headers = headers != null ? Map.copyOf(headers) : Map.of();
         this.body = body;
     }
-}
+
     public static final class Builder {
         private URI uri;
         private String method;

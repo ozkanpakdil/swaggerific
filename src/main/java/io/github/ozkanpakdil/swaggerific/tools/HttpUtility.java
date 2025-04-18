@@ -15,13 +15,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 /**
- * UI adapter for HTTP operations.
- * This class bridges the UI components with the HTTP service.
+ * UI adapter for HTTP operations. This class bridges the UI components with the HTTP service.
  */
 public class HttpUtility {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HttpUtility.class);
@@ -54,9 +56,9 @@ public class HttpUtility {
             if (response.isError()) {
                 log.warn("Error in HTTP response: {}", response.getErrorMessage());
                 parent.openDebugConsole();
-                parent.getCodeJsonResponse().replaceText("Error in request: " + response.getErrorMessage() + 
-                    "\n\nPlease check your request parameters and try again. If the problem persists, " +
-                    "check the server status or network connection.");
+                parent.getCodeJsonResponse().replaceText("Error in request: " + response.getErrorMessage() +
+                        "\n\nPlease check your request parameters and try again. If the problem persists, " +
+                        "check the server status or network connection.");
                 return;
             }
 
@@ -64,8 +66,8 @@ public class HttpUtility {
             if (responseBody == null || responseBody.isEmpty()) {
                 log.warn("Empty response body received");
                 parent.getCodeJsonResponse().replaceText(
-                    "The server returned an empty response with status code: " + response.getStatusCode() + 
-                    "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
+                        "The server returned an empty response with status code: " + response.getStatusCode() +
+                                "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
                 );
             } else if (!responseBody.startsWith("<")) {
                 // JSON response
@@ -78,7 +80,7 @@ public class HttpUtility {
                     log.warn("Failed to parse JSON response: {}", e.getMessage());
                     // If JSON parsing fails, show the raw response
                     parent.getCodeJsonResponse().replaceText(
-                        "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody
+                            "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody
                     );
                 }
             } else {
@@ -93,7 +95,7 @@ public class HttpUtility {
                     log.warn("Failed to format XML response: {}", e.getMessage());
                     // If XML formatting fails, show the raw response
                     parent.getCodeJsonResponse().replaceText(
-                        "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody
+                            "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody
                     );
                 }
             }
@@ -108,8 +110,8 @@ public class HttpUtility {
             log.error("Error processing response: {}", e.getMessage(), e);
             parent.openDebugConsole();
             parent.getCodeJsonResponse().replaceText(
-                "Error processing response: " + e.getMessage() + 
-                "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
+                    "Error processing response: " + e.getMessage() +
+                            "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
             );
         }
     }
@@ -175,7 +177,10 @@ public class HttpUtility {
                 .filter(n -> n instanceof STextField && finalAddress.get().contains("{"))
                 .forEach(n -> {
                     STextField node = (STextField) n;
-                    finalAddress.set(finalAddress.get().replaceAll("\\{" + node.getParamName() + "}", node.getText()));
+                    String encoded = URLEncoder.encode(node.getText(), StandardCharsets.UTF_8);
+                    finalAddress.set(
+                            finalAddress.get().replace("{" + Pattern.quote(node.getParamName()) + "}", encoded)
+                    );
                 });
 
         // Process path parameters from ComboBox components
@@ -186,7 +191,8 @@ public class HttpUtility {
                     STextField paramInfo = (STextField) comboBox.getUserData();
 
                     if (comboBox.getValue() != null) {
-                        finalAddress.set(finalAddress.get().replaceAll("\\{" + paramInfo.getParamName() + "}", comboBox.getValue().toString()));
+                        finalAddress.set(finalAddress.get()
+                                .replaceAll("\\{" + paramInfo.getParamName() + "}", comboBox.getValue().toString()));
                     }
                 });
 
