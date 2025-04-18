@@ -53,18 +53,18 @@ public class HttpServiceImpl implements HttpService {
     public HttpResponse sendRequest(HttpRequest request) {
         try {
             // Convert headers from Map to String array
-            String[] headerArray = new String[request.getHeaders().size() * 2];
+            String[] headerArray = new String[request.headers().size() * 2];
             int i = 0;
-            for (Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
+            for (Map.Entry<String, String> entry : request.headers().entrySet()) {
                 headerArray[i++] = entry.getKey();
                 headerArray[i++] = entry.getValue();
             }
 
             // Build the Java HTTP request
             java.net.http.HttpRequest.Builder requestBuilder = java.net.http.HttpRequest.newBuilder()
-                    .uri(request.getUri())
-                    .method(request.getMethod(),
-                            request.getBody() != null ? BodyPublishers.ofString(request.getBody()) : BodyPublishers.noBody());
+                    .uri(request.uri())
+                    .method(request.method(),
+                            request.body() != null ? BodyPublishers.ofString(request.body()) : BodyPublishers.noBody());
 
             // Add headers if present
             if (headerArray.length > 0) {
@@ -73,7 +73,7 @@ public class HttpServiceImpl implements HttpService {
 
             // Send the request
             java.net.http.HttpRequest httpRequest = requestBuilder.build();
-            log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headerArray), request.getUri());
+            log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headerArray), request.uri());
             java.net.http.HttpResponse<String> httpResponse = client.send(httpRequest, BodyHandlers.ofString());
 
             // Determine content type
