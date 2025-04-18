@@ -182,10 +182,7 @@ public class HttpUtility {
                 .filter(n -> n instanceof STextField ns && ns.getIn().equals("query"))
                 .forEach(n -> {
                     STextField node = (STextField) n;
-                    if (!queryParamsBuilder.isEmpty()) {
-                        queryParamsBuilder.append("&");
-                    }
-                    queryParamsBuilder.append(node.getParamName()).append("=").append(node.getText());
+                    queryParamsBuilderAppend(queryParamsBuilder, node.getParamName(), node.getText());
                 });
 
         // Process ComboBox query parameters
@@ -196,10 +193,7 @@ public class HttpUtility {
                     STextField paramInfo = (STextField) comboBox.getUserData();
 
                     if ("query".equals(paramInfo.getIn()) && comboBox.getValue() != null) {
-                        if (!queryParamsBuilder.isEmpty()) {
-                            queryParamsBuilder.append("&");
-                        }
-                        queryParamsBuilder.append(paramInfo.getParamName()).append("=").append(comboBox.getValue());
+                        queryParamsBuilderAppend(queryParamsBuilder, paramInfo.getParamName(), comboBox.getValue().toString());
                     }
                 });
 
@@ -235,6 +229,16 @@ public class HttpUtility {
         }
 
         return URI.create(finalAddress.get());
+    }
+
+    private void queryParamsBuilderAppend(StringBuilder queryParamsBuilder, String key, String value) {
+        if (!queryParamsBuilder.isEmpty()) {
+            queryParamsBuilder.append("&");
+        }
+        queryParamsBuilder.append(URLEncoder.encode(key, StandardCharsets.UTF_8))
+                .append("=")
+                .append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+
     }
 
     /**
