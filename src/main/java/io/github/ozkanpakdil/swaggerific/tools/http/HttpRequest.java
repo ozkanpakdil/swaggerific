@@ -5,6 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record HttpRequest(URI uri, String method, Map<String, String> headers, String body) {
+    public HttpRequest(URI uri, String method, Map<String, String> headers, String body) {
+        this.uri = uri;
+        this.method = method;
+        this.headers = headers != null ? Map.copyOf(headers) : Map.of();
+        this.body = body;
+    }
+}
     public static final class Builder {
         private URI uri;
         private String method;
