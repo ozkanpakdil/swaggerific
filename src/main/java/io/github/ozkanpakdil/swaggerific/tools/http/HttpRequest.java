@@ -179,7 +179,10 @@ public class HttpRequest {
          * @return the HttpRequest
          */
         public HttpRequest build() {
-            return new HttpRequest(uri, method, headers, body);
+            if (uri == null || method == null) {
+                throw new IllegalStateException("URI and method must be set");
+            }
+            return new HttpRequest(uri, method, new HashMap<>(headers), body);
         }
     }
 }
