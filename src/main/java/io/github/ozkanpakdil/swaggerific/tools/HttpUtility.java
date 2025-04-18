@@ -219,8 +219,10 @@ public class HttpUtility {
                     STextField paramInfo = (STextField) comboBox.getUserData();
 
                     if (comboBox.getValue() != null) {
-                        finalAddress.set(finalAddress.get()
-                                .replaceAll("\\{" + paramInfo.getParamName() + "}", comboBox.getValue().toString()));
+                        String encoded = URLEncoder.encode(comboBox.getValue().toString(), StandardCharsets.UTF_8);
+                        finalAddress.set(
+                                finalAddress.get().replace("{" + Pattern.quote(paramInfo.getParamName()) + "}", encoded)
+                        );
                     }
                 });
 
