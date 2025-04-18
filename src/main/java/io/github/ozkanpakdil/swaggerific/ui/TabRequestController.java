@@ -19,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
@@ -34,6 +35,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -48,6 +50,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TabRequestController extends TabPane {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TabRequestController.class);
     public ComboBox cmbHttpMethod;
+    @FXML
+    Button btnSend;
     MainController mainController;
     @FXML
     CodeArea codeJsonRequest;
@@ -141,6 +145,24 @@ public class TabRequestController extends TabPane {
                                         comboInput.setPromptText("Select or enter a value");
                                         comboInput.setId(f.getName());
                                         comboInput.setMinWidth(Region.USE_PREF_SIZE);
+                                        comboInput.getEditor().setOnKeyPressed(event -> {
+                                            if (KeyCode.DOWN.equals(event.getCode())) {
+                                                int currentIndex = comboInput.getSelectionModel().getSelectedIndex();
+                                                if (currentIndex < comboInput.getItems().size() - 1) {
+                                                    comboInput.getSelectionModel().select(currentIndex + 1);
+                                                    comboInput.setValue(comboInput.getItems().get(currentIndex + 1));
+                                                }
+                                                event.consume();
+                                            }
+                                            if (KeyCode.UP.equals(event.getCode())) {
+                                                int currentIndex = comboInput.getSelectionModel().getSelectedIndex();
+                                                if (currentIndex > 0) {
+                                                    comboInput.getSelectionModel().select(currentIndex - 1);
+                                                    comboInput.setValue(comboInput.getItems().get(currentIndex - 1));
+                                                }
+                                                event.consume();
+                                            }
+                                        });
 
                                         // Create a custom STextField to store parameter info
                                         STextField paramInfo = new STextField();
@@ -168,6 +190,7 @@ public class TabRequestController extends TabPane {
     }
 
     public void btnSendRequest(ActionEvent actionEvent) {
+        btnSend.setDisable(true);
         TreeItem<String> selectedItem = mainController.treePaths.getSelectionModel().getSelectedItem();
         String targetUri = txtAddress.getText();
         mainController.setIsOnloading();
@@ -181,6 +204,7 @@ public class TabRequestController extends TabPane {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }
         mainController.setIsOffloading();
+        btnSend.setDisable(false);
     }
 
     public void initializeController(MainController parent, String uri, TreeItemOperationLeaf leaf) {

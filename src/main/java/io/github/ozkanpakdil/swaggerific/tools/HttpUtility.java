@@ -42,7 +42,7 @@ public class HttpUtility {
      * Default constructor.
      */
     public HttpUtility() {
-        this(new ObjectMapper());
+        this(Json.mapper());
     }
 
     /**
@@ -54,19 +54,19 @@ public class HttpUtility {
     private void processResponse(MainController parent, HttpResponse response) {
         try {
             if (response.isError()) {
-                log.warn("Error in HTTP response: {}", response.getErrorMessage());
+                log.warn("Error in HTTP response: {}", response.errorMessage());
                 parent.openDebugConsole();
-                parent.getCodeJsonResponse().replaceText("Error in request: " + response.getErrorMessage() +
+                parent.getCodeJsonResponse().replaceText("Error in request: " + response.errorMessage() +
                         "\n\nPlease check your request parameters and try again. If the problem persists, " +
                         "check the server status or network connection.");
                 return;
             }
 
-            String responseBody = response.getBody();
+            String responseBody = response.body();
             if (responseBody == null || responseBody.isEmpty()) {
                 log.warn("Empty response body received");
                 parent.getCodeJsonResponse().replaceText(
-                        "The server returned an empty response with status code: " + response.getStatusCode() +
+                        "The server returned an empty response with status code: " + response.statusCode() +
                                 "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
                 );
             } else if (isJsonResponse(response)) {
@@ -74,7 +74,7 @@ public class HttpUtility {
                     parent.getCodeJsonResponse().replaceText(
                             Json.pretty(Json.mapper().readTree(responseBody))
                     );
-                    log.info("Successfully processed JSON response with status code: {}", response.getStatusCode());
+                    log.info("Successfully processed JSON response with status code: {}", response.statusCode());
                 } catch (Exception e) {
                     log.warn("Failed to parse JSON response: {}", e.getMessage());
                     // If JSON parsing fails, show the raw response
@@ -83,7 +83,7 @@ public class HttpUtility {
                     );
                 }
             } else if (isXmlResponse(response)) {
-                log.info("Processing XML response with status code: {}", response.getStatusCode());
+                log.info("Processing XML response with status code: {}", response.statusCode());
                 parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
                 try {
                     parent.getCodeJsonResponse().replaceText(
@@ -98,15 +98,14 @@ public class HttpUtility {
                 }
             } else {
                 // Fallback to raw response
-                log.info("Processing raw response with status code: {}", response.getStatusCode());
+                log.info("Processing raw response with status code: {}", response.statusCode());
                 parent.getCodeJsonResponse().replaceText(responseBody);
             }
 
             // Always set the raw response
             parent.getCodeRawJsonResponse().setText(responseBody);
 
-            // Show status code in UI
-            log.info("Request completed with status code: {}", response.getStatusCode());
+            log.info("Request completed with status code: {}", response.statusCode());
 
         } catch (Exception e) {
             log.error("Error processing response: {}", e.getMessage(), e);
@@ -122,14 +121,14 @@ public class HttpUtility {
      * Determines if the response is JSON based on Content-Type or content inspection.
      */
     private boolean isJsonResponse(HttpResponse response) {
-        String contentType = response.getContentType();
+        String contentType = response.contentType();
         if (contentType != null) {
             contentType = contentType.toLowerCase();
             return contentType.contains("json") ||
                     contentType.contains("application/javascript");
         }
         // Fallback to content inspection
-        String body = response.getBody();
+        String body = response.body();
         return body != null && !body.isEmpty() &&
                 (body.trim().startsWith("{") || body.trim().startsWith("["));
     }
@@ -138,14 +137,14 @@ public class HttpUtility {
      * Determines if the response is XML based on Content-Type or content inspection.
      */
     private boolean isXmlResponse(HttpResponse response) {
-        String contentType = response.getContentType();
+        String contentType = response.contentType();
         if (contentType != null) {
             contentType = contentType.toLowerCase();
             return contentType.contains("xml") ||
                     contentType.contains("text/html");
         }
         // Fallback to content inspection
-        String body = response.getBody();
+        String body = response.body();
         return body != null && !body.isEmpty() &&
                 body.trim().startsWith("<");
     }
