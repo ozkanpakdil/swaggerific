@@ -1,117 +1,196 @@
 package io.github.ozkanpakdil.swaggerific.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.ozkanpakdil.swaggerific.tools.exceptions.XmlFormattingException;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpRequest;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpService;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl;
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.RequestHeader;
 import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.PathItem;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
- * Making the http calls.
- * TODO: needs SOLIDification....
- *  * parameters should get rid of the UI elements.
- *  * HEAD, OPTIONS, PATCH,TRACE request can be one function.
+ * UI adapter for HTTP operations.
+ * This class bridges the UI components with the HTTP service.
  */
 public class HttpUtility {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HttpUtility.class);
+    private final HttpService httpService;
 
-    private static void sendRequestAndShowResponse(ObjectMapper mapper, MainController parent, URI uri,
-            String[] headers, HttpClient client, HttpRequest.Builder request) {
-        if (headers.length > 0)
-            request.headers(headers);
-        HttpRequest httpRequest = request.build();
+    /**
+     * Constructor with ObjectMapper.
+     *
+     * @param mapper the ObjectMapper to use for JSON processing
+     */
+    public HttpUtility(ObjectMapper mapper) {
+        this.httpService = new HttpServiceImpl(mapper);
+    }
+
+    /**
+     * Default constructor.
+     */
+    public HttpUtility() {
+        this(new ObjectMapper());
+    }
+
+    /**
+     * Processes the HTTP response and updates the UI.
+     *
+     * @param parent the MainController to update
+     * @param response the HTTP response
+     */
+    private void processResponse(MainController parent, HttpResponse response) {
         try {
-            log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headers), uri);
-            HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            if (!httpResponse.body().startsWith("<")) {
-                parent.getCodeJsonResponse().replaceText(
-                        Json.pretty(mapper.readTree(httpResponse.body()))
-                );
-            } else {
-                log.error("response does not look like a json,{},{}", httpResponse.statusCode(), httpResponse.body());
-                parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
-                parent.getCodeJsonResponse().replaceText(
-                        prettyPrintByTransformer(httpResponse.body(), 4, true)
-                );
+            if (response.isError()) {
+                log.warn("Error in HTTP response: {}", response.getErrorMessage());
+                parent.openDebugConsole();
+                parent.getCodeJsonResponse().replaceText("Error in request: " + response.getErrorMessage() + 
+                    "\n\nPlease check your request parameters and try again. If the problem persists, " +
+                    "check the server status or network connection.");
+                return;
             }
-            parent.getCodeRawJsonResponse().setText(httpResponse.body());
+
+            String responseBody = response.getBody();
+            if (responseBody == null || responseBody.isEmpty()) {
+                log.warn("Empty response body received");
+                parent.getCodeJsonResponse().replaceText(
+                    "The server returned an empty response with status code: " + response.getStatusCode() + 
+                    "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
+                );
+            } else if (!responseBody.startsWith("<")) {
+                // JSON response
+                try {
+                    parent.getCodeJsonResponse().replaceText(
+                            Json.pretty(Json.mapper().readTree(responseBody))
+                    );
+                    log.info("Successfully processed JSON response with status code: {}", response.getStatusCode());
+                } catch (Exception e) {
+                    log.warn("Failed to parse JSON response: {}", e.getMessage());
+                    // If JSON parsing fails, show the raw response
+                    parent.getCodeJsonResponse().replaceText(
+                        "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody
+                    );
+                }
+            } else {
+                // XML response
+                log.info("Processing XML response with status code: {}", response.getStatusCode());
+                parent.codeResponseXmlSettings(parent.getCodeJsonResponse(), "/css/xml-highlighting.css");
+                try {
+                    parent.getCodeJsonResponse().replaceText(
+                            HttpServiceImpl.prettyPrintXml(responseBody, 4, true)
+                    );
+                } catch (Exception e) {
+                    log.warn("Failed to format XML response: {}", e.getMessage());
+                    // If XML formatting fails, show the raw response
+                    parent.getCodeJsonResponse().replaceText(
+                        "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody
+                    );
+                }
+            }
+
+            // Always set the raw response
+            parent.getCodeRawJsonResponse().setText(responseBody);
+
+            // Show status code in UI
+            log.info("Request completed with status code: {}", response.getStatusCode());
 
         } catch (Exception e) {
-            log.error("Error in request:{}", e.getMessage(), e);
+            log.error("Error processing response: {}", e.getMessage(), e);
             parent.openDebugConsole();
-            parent.getCodeJsonResponse().replaceText(e.getMessage());
+            parent.getCodeJsonResponse().replaceText(
+                "Error processing response: " + e.getMessage() + 
+                "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
+            );
         }
     }
 
-    private String[] getHeaders(TableView<RequestHeader> tableHeaders) {
-        List<String> headers = new ArrayList<>();
+    /**
+     * Converts UI table headers to a map.
+     *
+     * @param tableHeaders the TableView containing headers
+     * @return a map of header names to values
+     */
+    private Map<String, String> getHeadersMap(TableView<RequestHeader> tableHeaders) {
+        Map<String, String> headers = new HashMap<>();
         tableHeaders.getItems().forEach(m -> {
             if (Boolean.TRUE.equals(m.getChecked())) {
-                headers.add(m.getName());
-                headers.add(m.getValue());
+                headers.put(m.getName(), m.getValue());
             }
         });
-        return headers.toArray(String[]::new);
+        return headers;
     }
 
-    public static String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
-        try {
-            InputSource src = new InputSource(new StringReader(xmlString));
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src);
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            transformerFactory.setAttribute("indent-number", indent);
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, ignoreDeclaration ? "yes" : "no");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-            Writer out = new StringWriter();
-            transformer.transform(new DOMSource(document), new StreamResult(out));
-            return out.toString();
-        } catch (Exception e) {
-            throw new XmlFormattingException("Error occurs when pretty-printing xml:\n" + xmlString, e);
-        }
-    }
-
+    /**
+     * Builds a URI from a base URI and request parameters.
+     *
+     * @param uri the base URI
+     * @param boxRequestParams the GridPane containing request parameters
+     * @return the complete URI
+     */
     URI getUri(String uri, GridPane boxRequestParams) {
-        String queryParams = boxRequestParams.getChildren().stream()
-                .filter(n -> n instanceof STextField ns && ns.getIn().equals("query"))
-                .map(n -> ((STextField) n).getParamName() + "=" + ((STextField) n).getText())
-                .collect(Collectors.joining("&"));
+        // Process query parameters from both STextField and ComboBox components
+        StringBuilder queryParamsBuilder = new StringBuilder();
 
+        // Process STextField query parameters
+        boxRequestParams.getChildren().stream()
+                .filter(n -> n instanceof STextField ns && ns.getIn().equals("query"))
+                .forEach(n -> {
+                    STextField node = (STextField) n;
+                    if (queryParamsBuilder.length() > 0) {
+                        queryParamsBuilder.append("&");
+                    }
+                    queryParamsBuilder.append(node.getParamName()).append("=").append(node.getText());
+                });
+
+        // Process ComboBox query parameters
+        boxRequestParams.getChildren().stream()
+                .filter(n -> n instanceof ComboBox && n.getUserData() instanceof STextField)
+                .forEach(n -> {
+                    ComboBox<?> comboBox = (ComboBox<?>) n;
+                    STextField paramInfo = (STextField) comboBox.getUserData();
+
+                    if ("query".equals(paramInfo.getIn()) && comboBox.getValue() != null) {
+                        if (queryParamsBuilder.length() > 0) {
+                            queryParamsBuilder.append("&");
+                        }
+                        queryParamsBuilder.append(paramInfo.getParamName()).append("=").append(comboBox.getValue());
+                    }
+                });
+
+        String queryParams = queryParamsBuilder.toString();
         AtomicReference<String> finalAddress = new AtomicReference<>(uri);
 
+        // Process path parameters from STextField components
         boxRequestParams.getChildren().stream()
                 .filter(n -> n instanceof STextField && finalAddress.get().contains("{"))
                 .forEach(n -> {
                     STextField node = (STextField) n;
                     finalAddress.set(finalAddress.get().replaceAll("\\{" + node.getParamName() + "}", node.getText()));
+                });
+
+        // Process path parameters from ComboBox components
+        boxRequestParams.getChildren().stream()
+                .filter(n -> n instanceof ComboBox && n.getUserData() instanceof STextField && finalAddress.get().contains("{"))
+                .forEach(n -> {
+                    ComboBox<?> comboBox = (ComboBox<?>) n;
+                    STextField paramInfo = (STextField) comboBox.getUserData();
+
+                    if (comboBox.getValue() != null) {
+                        finalAddress.set(finalAddress.get().replaceAll("\\{" + paramInfo.getParamName() + "}", comboBox.getValue().toString()));
+                    }
                 });
 
         if (!queryParams.isEmpty()) {
@@ -121,16 +200,33 @@ public class HttpUtility {
         return URI.create(finalAddress.get());
     }
 
+    /**
+     * Sends an HTTP request and updates the UI with the response.
+     *
+     * @param mapper the ObjectMapper to use for JSON processing
+     * @param parent the MainController to update
+     * @param targetUri the target URI
+     * @param httpMethod the HTTP method
+     */
     public void request(ObjectMapper mapper, MainController parent, String targetUri, PathItem.HttpMethod httpMethod) {
-        URI uri = getUri(targetUri, parent.getBoxRequestParams());
+        try {
+            URI uri = getUri(targetUri, parent.getBoxRequestParams());
+            Map<String, String> headers = getHeadersMap(parent.getTableHeaders());
+            String body = parent.getCodeJsonRequest().getText();
 
-        String[] headers = getHeaders(parent.getTableHeaders());
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest.Builder request = HttpRequest.newBuilder()
-                .uri(uri)
-                .method(httpMethod.name(),
-                        HttpRequest.BodyPublishers.ofString(parent.getCodeJsonRequest().getText()));
+            HttpRequest request = new HttpRequest.Builder()
+                    .uri(uri)
+                    .method(httpMethod.name())
+                    .headers(headers)
+                    .body(body)
+                    .build();
 
-        sendRequestAndShowResponse(mapper, parent, uri, headers, client, request);
+            HttpResponse response = httpService.sendRequest(request);
+            processResponse(parent, response);
+        } catch (Exception e) {
+            log.error("Error preparing request: {}", e.getMessage(), e);
+            parent.openDebugConsole();
+            parent.getCodeJsonResponse().replaceText("Error preparing request: " + e.getMessage());
+        }
     }
 }

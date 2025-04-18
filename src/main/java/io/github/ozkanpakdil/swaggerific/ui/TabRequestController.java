@@ -131,18 +131,36 @@ public class TabRequestController extends TabPane {
                         parameters -> parameters.stream()
                                 .filter(Objects::nonNull)
                                 .forEach(f -> {
-                                    STextField txtInput = new STextField();
-                                    txtInput.setParamName(f.getName());
-                                    txtInput.setId(f.getName());
-                                    txtInput.setIn(f.getIn());
-                                    txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
-                                        // TODO instead of text field this should be dropdown || combobox || listview.
-                                        txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
-                                    }
                                     Label lblInput = new Label(f.getName());
                                     boxRequestParams.add(lblInput, 0, row.get());
-                                    boxRequestParams.add(txtInput, 1, row.get());
+
+                                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
+                                        // Use ComboBox for parameters with enumerated values
+                                        ComboBox<String> comboInput = new ComboBox<>();
+                                        comboInput.getItems().addAll(leaf.getQueryItems());
+                                        comboInput.setEditable(true);
+                                        comboInput.setPromptText("Select or enter a value");
+                                        comboInput.setId(f.getName());
+                                        comboInput.setMinWidth(Region.USE_PREF_SIZE);
+
+                                        // Create a custom STextField to store parameter info
+                                        STextField paramInfo = new STextField();
+                                        paramInfo.setParamName(f.getName());
+                                        paramInfo.setIn(f.getIn());
+
+                                        // Store the parameter info in the ComboBox's user data
+                                        comboInput.setUserData(paramInfo);
+
+                                        boxRequestParams.add(comboInput, 1, row.get());
+                                    } else {
+                                        // Use TextField for parameters without enumerated values
+                                        STextField txtInput = new STextField();
+                                        txtInput.setParamName(f.getName());
+                                        txtInput.setId(f.getName());
+                                        txtInput.setIn(f.getIn());
+                                        txtInput.setMinWidth(Region.USE_PREF_SIZE);
+                                        boxRequestParams.add(txtInput, 1, row.get());
+                                    }
                                     row.incrementAndGet();
                                 }),
                         () -> log.info("Method parameters are null")
@@ -172,27 +190,44 @@ public class TabRequestController extends TabPane {
         this.mainController = parent;
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
+        SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
+
+        // Combined event handler for both bracket handling and text highlighting
         codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            /*
-            //TODO this bock may be used in json request in the future
+            // Auto-complete brackets and handle bracket pairs
             String character = keyEvent.getCharacter();
             if (character.equals("[")) {
                 int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "]", "loop");
+                codeJsonResponse.insert(position, "]", "bracket-pair");
                 codeJsonResponse.moveTo(position);
-            } else if (character.equals("]")) {
+            } else if (character.equals("{")) {
+                int position = codeJsonResponse.getCaretPosition();
+                codeJsonResponse.insert(position, "}", "bracket-pair");
+                codeJsonResponse.moveTo(position);
+            } else if (character.equals("(")) {
+                int position = codeJsonResponse.getCaretPosition();
+                codeJsonResponse.insert(position, ")", "bracket-pair");
+                codeJsonResponse.moveTo(position);
+            } else if (character.equals("\"")) {
+                int position = codeJsonResponse.getCaretPosition();
+                codeJsonResponse.insert(position, "\"", "bracket-pair");
+                codeJsonResponse.moveTo(position);
+            } else if (character.equals("]") || character.equals("}") || character.equals(")") || character.equals("\"")) {
                 int position = codeJsonResponse.getCaretPosition();
                 if (position != codeJsonResponse.getLength()) {
                     String nextChar = codeJsonResponse.getText(position, position + 1);
-                    if (nextChar.equals("]")) codeJsonResponse.deleteText(position, position + 1);
+                    if (nextChar.equals(character)) {
+                        codeJsonResponse.deleteText(position, position + 1);
+                    }
                 }
-            }*/
+            }
 
-            //            bracketHighlighter.highlightBracket();
+            // Highlight matching brackets
+            bracketHighlighter.highlightBracket();
+
+            // Highlight selected text
+            selectedHighlighter.highlightSelectedText();
         });
-
-        SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
 
         applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
         applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");

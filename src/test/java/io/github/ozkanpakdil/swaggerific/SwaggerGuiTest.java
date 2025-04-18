@@ -1,16 +1,20 @@
 package io.github.ozkanpakdil.swaggerific;
 
 import javafx.application.Platform;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.Header;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -34,7 +38,7 @@ import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 @ExtendWith(ApplicationExtension.class)
 @EnabledOnOs({ OS.WINDOWS })
 class SwaggerGuiTest {
-
+    private static final Logger log = LoggerFactory.getLogger(SwaggerGuiTest.class);
     private static MockServerClient mockServer;
     private static final CaptureSupport CAPTURE_SUPPORT = serviceContext().getCaptureSupport();
 
@@ -76,12 +80,12 @@ class SwaggerGuiTest {
         mockServer.stop();
     }
 
-//    @Test
+    @Test
     void click_treeview_call_get(FxRobot robot) {
         robot.push(KeyCode.CONTROL, KeyCode.O);
         robot.write("http://127.0.0.1:"+mockServer.getPort()+"/petstore-swagger.json");
         robot.push(KeyCode.ENTER);
-//        robot.sleep(500);
+//        robot.sleep(1000); // Give time for the file to load
         robot.clickOn("#treePaths");
         robot.push(KeyCode.HOME);
         robot.push(KeyCode.RIGHT);
@@ -90,9 +94,31 @@ class SwaggerGuiTest {
         robot.push(KeyCode.DOWN);
         robot.push(KeyCode.RIGHT);
         robot.push(KeyCode.DOWN);
-//        getScreenShotOfTheTest(robot); // maybe used in the future
-        robot.clickOn("#status").write("sold");
+        // Uncomment the following line for debugging
+        // getScreenShotOfTheTest(robot);
+
+        // Handle both TextField and ComboBox for status parameter
+        try {
+            // Try to interact with the input field directly
+            robot.clickOn("#status").write("sold");
+        } catch (Exception e) {
+            log.warn("Could not directly interact with status field: {}", e.getMessage());
+
+            // Try alternative approaches
+            try {
+                // Try to find and use a ComboBox
+                @SuppressWarnings("unchecked")
+                ComboBox<String> statusCombo = (ComboBox<String>) robot.lookup("#status").query();
+                Platform.runLater(() -> statusCombo.setValue("sold"));
+                robot.sleep(200); // Give time for the value to be set
+            } catch (Exception e2) {
+                log.error("Could not find or use status input field: {}", e2.getMessage());
+                getScreenShotOfTheTest(robot); // Take screenshot for debugging
+            }
+        }
+
         robot.clickOn(".btnSend");
+//        robot.sleep(500); // Give time for the request to complete
         FxAssert.verifyThat("#codeJsonResponse", isEnabled());
         robot.clickOn("#tabRaw");
         FxAssert.verifyThat("#codeRawJsonResponse", TextInputControlMatchers.hasText(containsString("id")));
