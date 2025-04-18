@@ -145,22 +145,12 @@ public final class HttpRequest {
          * @param headers the HTTP headers to set
          * @return the builder
          */
-        public Builder headers(Map<String, String> headers) {
-            this.headers = headers;
-            return this;
-        }
-
-        /**
-         * Adds an HTTP header.
-         *
-         * @param name  the header name
-         * @param value the header value
-         * @return the builder
-         */
-        public Builder header(String name, String value) {
-            this.headers.put(name, value);
-            return this;
-        }
+public Builder header(String name, String value) {
+    Objects.requireNonNull(name, "header name");
+    Objects.requireNonNull(value, "header value");
+    this.headers.put(name, value);
+    return this;
+}
 
         /**
          * Sets the request body.
