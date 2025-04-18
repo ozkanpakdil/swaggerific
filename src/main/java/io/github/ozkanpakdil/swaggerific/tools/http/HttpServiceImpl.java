@@ -89,6 +89,7 @@ public class HttpServiceImpl implements HttpService {
 
         } catch (InterruptedException e) {
             log.error("Thread interrupted during request", e);
+            Thread.currentThread().interrupt();
             return new HttpResponse.Builder()
                     .error("Request interrupted: " + e.getMessage())
                     .build();
