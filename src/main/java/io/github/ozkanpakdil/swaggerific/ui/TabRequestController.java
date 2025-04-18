@@ -142,11 +142,12 @@ public class TabRequestController extends TabPane {
                                         comboInput.setId(f.getName());
                                         comboInput.setMinWidth(Region.USE_PREF_SIZE);
 
-                                        // Store only the lightweight metadata you need
-                                        comboInput.setUserData(Map.of(
-                                            "name", f.getName(),
-                                            "in", f.getIn()
-                                        ));
+                                        // Create a custom STextField to store parameter info
+                                        STextField paramInfo = new STextField();
+                                        paramInfo.setParamName(f.getName());
+                                        paramInfo.setIn(f.getIn());
+                                        // Store the parameter info in the ComboBox's user data
+                                        comboInput.setUserData(paramInfo);
 
                                         boxRequestParams.add(comboInput, 1, row.get());
                                     } else {

@@ -8,7 +8,7 @@ import java.util.Map;
  * Model class for HTTP requests.
  * This class encapsulates all the information needed to make an HTTP request.
  */
-public class HttpRequest {
+public final class HttpRequest {
     private URI uri;
     private String method;
     private Map<String, String> headers;
