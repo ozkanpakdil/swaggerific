@@ -133,7 +133,6 @@ public class TabRequestController extends TabPane {
                                 .forEach(f -> {
                                     Label lblInput = new Label(f.getName());
                                     boxRequestParams.add(lblInput, 0, row.get());
-
                                     if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
                                         // Use ComboBox for parameters with enumerated values
                                         ComboBox<String> comboInput = new ComboBox<>();
@@ -143,13 +142,11 @@ public class TabRequestController extends TabPane {
                                         comboInput.setId(f.getName());
                                         comboInput.setMinWidth(Region.USE_PREF_SIZE);
 
-                                        // Create a custom STextField to store parameter info
-                                        STextField paramInfo = new STextField();
-                                        paramInfo.setParamName(f.getName());
-                                        paramInfo.setIn(f.getIn());
-
-                                        // Store the parameter info in the ComboBox's user data
-                                        comboInput.setUserData(paramInfo);
+                                        // Store only the lightweight metadata you need
+                                        comboInput.setUserData(Map.of(
+                                            "name", f.getName(),
+                                            "in", f.getIn()
+                                        ));
 
                                         boxRequestParams.add(comboInput, 1, row.get());
                                     } else {
