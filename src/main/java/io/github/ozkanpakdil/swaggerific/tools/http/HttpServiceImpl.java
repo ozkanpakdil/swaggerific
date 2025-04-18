@@ -52,7 +52,6 @@ public class HttpServiceImpl implements HttpService {
     @Override
     public HttpResponse sendRequest(HttpRequest request) {
         try {
-            // Convert headers from Map to String array
             String[] headerArray = new String[request.headers().size() * 2];
             int i = 0;
             for (Map.Entry<String, String> entry : request.headers().entrySet()) {
@@ -60,41 +59,38 @@ public class HttpServiceImpl implements HttpService {
                 headerArray[i++] = entry.getValue();
             }
 
-            // Build the Java HTTP request
             java.net.http.HttpRequest.Builder requestBuilder = java.net.http.HttpRequest.newBuilder()
                     .uri(request.uri())
                     .method(request.method(),
                             request.body() != null ? BodyPublishers.ofString(request.body()) : BodyPublishers.noBody());
 
-            // Add headers if present
             if (headerArray.length > 0) {
                 requestBuilder.headers(headerArray);
             }
 
-            // Send the request
             java.net.http.HttpRequest httpRequest = requestBuilder.build();
             log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headerArray), request.uri());
             java.net.http.HttpResponse<String> httpResponse = client.send(httpRequest, BodyHandlers.ofString());
 
-            // Determine content type
-            String contentType = "application/json";
-            if (httpResponse.headers().firstValue("Content-Type").isPresent()) {
-                contentType = httpResponse.headers().firstValue("Content-Type").get();
-            }
+            String contentType = httpResponse.headers().firstValue("Content-Type").orElse("application/json");
 
-            // Create response headers map
             Map<String, String> responseHeaders = httpResponse.headers().map().entrySet().stream()
                     .collect(java.util.stream.Collectors.toMap(
                             Map.Entry::getKey,
                             e -> String.join(", ", e.getValue())
                     ));
 
-            // Create and return the response
             return new HttpResponse.Builder()
                     .statusCode(httpResponse.statusCode())
                     .headers(responseHeaders)
                     .body(httpResponse.body())
                     .contentType(contentType)
+                    .build();
+
+        } catch (InterruptedException e) {
+            log.error("Thread interrupted during request", e);
+            return new HttpResponse.Builder()
+                    .error("Request interrupted: " + e.getMessage())
                     .build();
         } catch (Exception e) {
             log.error("Error in request: {}", e.getMessage(), e);
