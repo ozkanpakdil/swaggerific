@@ -15,12 +15,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * UI adapter for HTTP operations.
@@ -149,7 +146,7 @@ public class HttpUtility {
                 .filter(n -> n instanceof STextField ns && ns.getIn().equals("query"))
                 .forEach(n -> {
                     STextField node = (STextField) n;
-                    if (queryParamsBuilder.length() > 0) {
+                    if (!queryParamsBuilder.isEmpty()) {
                         queryParamsBuilder.append("&");
                     }
                     queryParamsBuilder.append(node.getParamName()).append("=").append(node.getText());
@@ -163,7 +160,7 @@ public class HttpUtility {
                     STextField paramInfo = (STextField) comboBox.getUserData();
 
                     if ("query".equals(paramInfo.getIn()) && comboBox.getValue() != null) {
-                        if (queryParamsBuilder.length() > 0) {
+                        if (!queryParamsBuilder.isEmpty()) {
                             queryParamsBuilder.append("&");
                         }
                         queryParamsBuilder.append(paramInfo.getParamName()).append("=").append(comboBox.getValue());
@@ -203,12 +200,11 @@ public class HttpUtility {
     /**
      * Sends an HTTP request and updates the UI with the response.
      *
-     * @param mapper the ObjectMapper to use for JSON processing
      * @param parent the MainController to update
      * @param targetUri the target URI
      * @param httpMethod the HTTP method
      */
-    public void request(ObjectMapper mapper, MainController parent, String targetUri, PathItem.HttpMethod httpMethod) {
+    public void request(MainController parent, String targetUri, PathItem.HttpMethod httpMethod) {
         try {
             URI uri = getUri(targetUri, parent.getBoxRequestParams());
             Map<String, String> headers = getHeadersMap(parent.getTableHeaders());

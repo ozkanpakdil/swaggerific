@@ -176,7 +176,7 @@ public class TabRequestController extends TabPane {
 
         if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
-            Platform.runLater(() -> httpUtility.request(Json.mapper(), mainController, targetUri,
+            Platform.runLater(() -> httpUtility.request(mainController, targetUri,
                     PathItem.HttpMethod.valueOf(cmbHttpMethod.getSelectionModel().getSelectedItem().toString()))
             );
         } else {

@@ -2,6 +2,7 @@ package io.github.ozkanpakdil.swaggerific.tools.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ozkanpakdil.swaggerific.tools.exceptions.XmlFormattingException;
+import io.swagger.v3.core.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -45,7 +46,7 @@ public class HttpServiceImpl implements HttpService {
      * Default constructor.
      */
     public HttpServiceImpl() {
-        this(new ObjectMapper());
+        this(Json.mapper());
     }
 
     @Override
