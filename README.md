@@ -11,18 +11,33 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 # Cool interview  
 [![swaggerefic](http://img.youtube.com/vi/3_T0LDZ-Wt4/0.jpg)](http://www.youtube.com/watch?v=3_T0LDZ-Wt4 "How to use swaggerific and interview with ozkan pakdil")
 
-Features:
-- The UI is built using JavaFX.
-- Error handling and display of API responses implemented.
-- Retrieve and load Swagger JSON to fetch API documentation.
-- Display a list of functions (endpoints) on the left-hand side of the UI for easy navigation.
-- Allow users to select a specific function (endpoint) from the list.
-- Provide HTTP method selection (POST, GET, etc.) for the chosen function.
-- Allow users to input data (payload) to be sent along with the API request.
-- Offer a testing functionality, enabling users to execute the selected function with the chosen method and data.
+## Features:
+- The UI is built using JavaFX with modern styling and responsive design
+- Comprehensive error handling with user-friendly error messages
+- Retrieve and load Swagger/OpenAPI JSON to fetch API documentation
+- Display a tree view of endpoints on the left-hand side for easy navigation
+- Select specific endpoints and view their details
+- Support for all HTTP methods (GET, POST, PUT, DELETE, etc.)
+- Input data via form fields or JSON editor with syntax highlighting
+- Execute API requests and view formatted responses (JSON/XML)
+- Dropdown/combobox selection for parameters with enumerated values
+- Auto-completion for brackets and quotes in the JSON editor
+- Syntax highlighting for request and response bodies
+- Raw response view for debugging purposes
 
-Additional Considerations / not implemented features:
-- Any necessary authentication or security features will be included.
+## Architecture:
+- SOLID principles applied throughout the codebase
+- Clean separation between UI and HTTP service layers
+- Modular design with well-defined interfaces
+- Comprehensive error handling and logging
+- Unit and UI tests for critical functionality
+
+## Upcoming Features:
+- Authentication support (OAuth, API keys, Basic Auth)
+- Request history and favorites
+- Environment variables and request chaining
+- Team collaboration features
+- Performance metrics and analytics
 
 # look
 ![using-get](https://github.com/ozkanpakdil/swaggerific/assets/604405/748eb2a8-3578-45e3-ac95-e8246ef27785)

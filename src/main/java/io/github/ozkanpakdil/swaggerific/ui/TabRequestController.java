@@ -19,6 +19,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
@@ -34,6 +35,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -48,6 +50,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TabRequestController extends TabPane {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TabRequestController.class);
     public ComboBox cmbHttpMethod;
+    @FXML
+    Button btnSend;
     MainController mainController;
     @FXML
     CodeArea codeJsonRequest;
@@ -131,18 +135,52 @@ public class TabRequestController extends TabPane {
                         parameters -> parameters.stream()
                                 .filter(Objects::nonNull)
                                 .forEach(f -> {
-                                    STextField txtInput = new STextField();
-                                    txtInput.setParamName(f.getName());
-                                    txtInput.setId(f.getName());
-                                    txtInput.setIn(f.getIn());
-                                    txtInput.setMinWidth(Region.USE_PREF_SIZE);
-                                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
-                                        // TODO instead of text field this should be dropdown || combobox || listview.
-                                        txtInput.setPromptText(String.valueOf(leaf.getQueryItems()));
-                                    }
                                     Label lblInput = new Label(f.getName());
                                     boxRequestParams.add(lblInput, 0, row.get());
-                                    boxRequestParams.add(txtInput, 1, row.get());
+                                    if (leaf.getQueryItems() != null && !leaf.getQueryItems().isEmpty()) {
+                                        // Use ComboBox for parameters with enumerated values
+                                        ComboBox<String> comboInput = new ComboBox<>();
+                                        comboInput.getItems().addAll(leaf.getQueryItems());
+                                        comboInput.setEditable(true);
+                                        comboInput.setPromptText("Select or enter a value");
+                                        comboInput.setId(f.getName());
+                                        comboInput.setMinWidth(Region.USE_PREF_SIZE);
+                                        comboInput.getEditor().setOnKeyPressed(event -> {
+                                            if (KeyCode.DOWN.equals(event.getCode())) {
+                                                int currentIndex = comboInput.getSelectionModel().getSelectedIndex();
+                                                if (currentIndex < comboInput.getItems().size() - 1) {
+                                                    comboInput.getSelectionModel().select(currentIndex + 1);
+                                                    comboInput.setValue(comboInput.getItems().get(currentIndex + 1));
+                                                }
+                                                event.consume();
+                                            }
+                                            if (KeyCode.UP.equals(event.getCode())) {
+                                                int currentIndex = comboInput.getSelectionModel().getSelectedIndex();
+                                                if (currentIndex > 0) {
+                                                    comboInput.getSelectionModel().select(currentIndex - 1);
+                                                    comboInput.setValue(comboInput.getItems().get(currentIndex - 1));
+                                                }
+                                                event.consume();
+                                            }
+                                        });
+
+                                        // Create a custom STextField to store parameter info
+                                        STextField paramInfo = new STextField();
+                                        paramInfo.setParamName(f.getName());
+                                        paramInfo.setIn(f.getIn());
+                                        // Store the parameter info in the ComboBox's user data
+                                        comboInput.setUserData(paramInfo);
+
+                                        boxRequestParams.add(comboInput, 1, row.get());
+                                    } else {
+                                        // Use TextField for parameters without enumerated values
+                                        STextField txtInput = new STextField();
+                                        txtInput.setParamName(f.getName());
+                                        txtInput.setId(f.getName());
+                                        txtInput.setIn(f.getIn());
+                                        txtInput.setMinWidth(Region.USE_PREF_SIZE);
+                                        boxRequestParams.add(txtInput, 1, row.get());
+                                    }
                                     row.incrementAndGet();
                                 }),
                         () -> log.info("Method parameters are null")
@@ -152,19 +190,21 @@ public class TabRequestController extends TabPane {
     }
 
     public void btnSendRequest(ActionEvent actionEvent) {
+        btnSend.setDisable(true);
         TreeItem<String> selectedItem = mainController.treePaths.getSelectionModel().getSelectedItem();
         String targetUri = txtAddress.getText();
         mainController.setIsOnloading();
 
         if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
-            Platform.runLater(() -> httpUtility.request(Json.mapper(), mainController, targetUri,
+            Platform.runLater(() -> httpUtility.request(mainController, targetUri,
                     PathItem.HttpMethod.valueOf(cmbHttpMethod.getSelectionModel().getSelectedItem().toString()))
             );
         } else {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
         }
         mainController.setIsOffloading();
+        btnSend.setDisable(false);
     }
 
     public void initializeController(MainController parent, String uri, TreeItemOperationLeaf leaf) {
@@ -172,25 +212,6 @@ public class TabRequestController extends TabPane {
         this.mainController = parent;
         txtAddress.setText(uri);
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> {
-            /*
-            //TODO this bock may be used in json request in the future
-            String character = keyEvent.getCharacter();
-            if (character.equals("[")) {
-                int position = codeJsonResponse.getCaretPosition();
-                codeJsonResponse.insert(position, "]", "loop");
-                codeJsonResponse.moveTo(position);
-            } else if (character.equals("]")) {
-                int position = codeJsonResponse.getCaretPosition();
-                if (position != codeJsonResponse.getLength()) {
-                    String nextChar = codeJsonResponse.getText(position, position + 1);
-                    if (nextChar.equals("]")) codeJsonResponse.deleteText(position, position + 1);
-                }
-            }*/
-
-            //            bracketHighlighter.highlightBracket();
-        });
-
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
 

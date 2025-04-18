@@ -37,7 +37,7 @@
                     <AnchorPane HBox.hgrow="ALWAYS">
                         <TextField fx:id="txtAddress" minWidth="-Infinity" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
                     </AnchorPane>
-                    <Button onAction="#btnSendRequest" styleClass="btnSend" text="_Send"/>
+                    <Button fx:id="btnSend" onAction="#btnSendRequest" styleClass="btnSend" text="_Send"/>
                     <VBox.margin>
                         <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
                     </VBox.margin>
