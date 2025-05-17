@@ -27,18 +27,16 @@ import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_X;
 import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_Y;
 
 public class SwaggerApplication extends Application {
+    static SwaggerApplication instance;
     private Stage primaryStage;
     Preferences userPrefs = Preferences.userNodeForPackage(getClass());
     private static final Logger log = LoggerFactory.getLogger(SwaggerApplication.class);
     private static final String SHORTCUTS_PREFIX = "shortcut.";
 
-    // Static reference to the primary stage for accessing the scene
-    private static Stage primaryStageStatic;
-
     @Override
     public void start(Stage stage) throws IOException {
+        instance = this;
         this.primaryStage = stage;
-        primaryStageStatic = stage;
         String fontSize = userPrefs.get(FONT_SIZE, ".93em");
         String selectedFont = userPrefs.get(SELECTED_FONT, "Verdana");
 
@@ -65,6 +63,10 @@ public class SwaggerApplication extends Application {
         root.setStyle("-fx-font-family:'" + selectedFont + "';");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize + ";");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
+    }
+
+    public static SwaggerApplication getInstance() {
+        return instance;
     }
 
     private void loadingWindowLookAndLocation() {
@@ -120,19 +122,19 @@ public class SwaggerApplication extends Application {
      * Static method to apply custom shortcuts to all open windows.
      * This can be called from anywhere to refresh shortcuts.
      */
-    public static void applyCustomShortcutsToAllWindows() {
-        if (primaryStageStatic == null) {
+    public void applyCustomShortcutsToAllWindows() {
+        if (primaryStage == null) {
             log.error("Primary stage is not initialized");
             return;
         }
 
         try {
             // Apply shortcuts to the primary stage
-            applyCustomShortcutsToScene(primaryStageStatic.getScene());
+            applyCustomShortcutsToScene(primaryStage.getScene());
 
             // Apply shortcuts to all other stages
             for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
-                if (window instanceof javafx.stage.Stage stage && stage != primaryStageStatic) {
+                if (window instanceof javafx.stage.Stage stage && stage != primaryStage) {
                     applyCustomShortcutsToScene(stage.getScene());
                 }
             }

@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.input.KeyCode;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -16,7 +15,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +151,7 @@ public class Shortcuts implements Initializable {
 
     /**
      * Recursively scans for FXML files in the specified directory and loads shortcuts from them.
-     * 
+     *
      * @param directory The directory to scan
      */
     private void scanForFxmlFiles(String directory) {
@@ -260,7 +261,7 @@ public class Shortcuts implements Initializable {
 
     /**
      * Loads shortcuts from a specific FXML file.
-     * 
+     *
      * @param fxmlPath The path to the FXML file
      */
     private void loadShortcutsFromFile(String fxmlPath) {
@@ -328,12 +329,12 @@ public class Shortcuts implements Initializable {
                         char mnemonicChar = text.charAt(underscoreIndex + 1);
 
                         KeyCodeCombination keyCombination = new KeyCodeCombination(
-                                javafx.scene.input.KeyCode.getKeyCode(String.valueOf(mnemonicChar)),
-                                javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                javafx.scene.input.KeyCombination.ModifierValue.DOWN,
-                                javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                javafx.scene.input.KeyCombination.ModifierValue.UP
+                                KeyCode.getKeyCode(String.valueOf(mnemonicChar)),
+                                KeyCombination.ModifierValue.UP,
+                                KeyCombination.ModifierValue.UP,
+                                KeyCombination.ModifierValue.DOWN,
+                                KeyCombination.ModifierValue.UP,
+                                KeyCombination.ModifierValue.UP
                         );
 
                         defaultShortcuts.put(onAction, keyCombination);
@@ -352,12 +353,12 @@ public class Shortcuts implements Initializable {
     private KeyCodeCombination createKeyCombination(String alt, String control, String meta, String shift, String code) {
         try {
             return new KeyCodeCombination(
-                    javafx.scene.input.KeyCode.valueOf(code),
+                    KeyCode.valueOf(code),
                     getModifierValue(shift),
                     getModifierValue(control),
                     getModifierValue(alt),
                     getModifierValue(meta),
-                    javafx.scene.input.KeyCombination.ModifierValue.UP
+                    KeyCombination.ModifierValue.UP
             );
         } catch (Exception e) {
             log.error("Error creating key combination", e);
@@ -368,13 +369,13 @@ public class Shortcuts implements Initializable {
     /**
      * Converts a string modifier value to a KeyCombination.ModifierValue.
      */
-    private javafx.scene.input.KeyCombination.ModifierValue getModifierValue(String value) {
+    private KeyCombination.ModifierValue getModifierValue(String value) {
         if ("DOWN".equals(value)) {
-            return javafx.scene.input.KeyCombination.ModifierValue.DOWN;
+            return KeyCombination.ModifierValue.DOWN;
         } else if ("ANY".equals(value)) {
-            return javafx.scene.input.KeyCombination.ModifierValue.ANY;
+            return KeyCombination.ModifierValue.ANY;
         } else {
-            return javafx.scene.input.KeyCombination.ModifierValue.UP;
+            return KeyCombination.ModifierValue.UP;
         }
     }
 
@@ -481,7 +482,7 @@ public class Shortcuts implements Initializable {
             }
 
             // Apply shortcuts immediately to all open windows
-            SwaggerApplication.applyCustomShortcutsToAllWindows();
+            SwaggerApplication.getInstance().applyCustomShortcutsToAllWindows();
 
             // Update status label
             lblStatus.setText("All shortcuts have been saved and applied immediately.");
