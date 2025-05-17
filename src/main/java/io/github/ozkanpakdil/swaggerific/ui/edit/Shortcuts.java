@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.input.KeyCode;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -263,9 +264,7 @@ public class Shortcuts implements Initializable {
      * @param fxmlPath The path to the FXML file
      */
     private void loadShortcutsFromFile(String fxmlPath) {
-        try {
-            // Load the FXML file
-            InputStream inputStream = getClass().getResourceAsStream(fxmlPath);
+        try (InputStream inputStream = getClass().getResourceAsStream(fxmlPath)) {
             if (inputStream == null) {
                 log.debug("Could not find FXML file: {}", fxmlPath);
                 return;
@@ -284,29 +283,23 @@ public class Shortcuts implements Initializable {
                 // Check if it has an onAction attribute and an accelerator child
                 String onAction = menuItem.getAttribute("onAction");
                 if (onAction != null && !onAction.isEmpty()) {
-                    // Remove the # prefix if present
                     if (onAction.startsWith("#")) {
                         onAction = onAction.substring(1);
                     }
 
-                    // Find the accelerator element
                     NodeList accelerators = menuItem.getElementsByTagName("accelerator");
                     if (accelerators.getLength() > 0) {
                         Element accelerator = (Element) accelerators.item(0);
-
-                        // Find the KeyCodeCombination element
                         NodeList combinations = accelerator.getElementsByTagName("KeyCodeCombination");
                         if (combinations.getLength() > 0) {
                             Element combination = (Element) combinations.item(0);
 
-                            // Get the attributes
                             String alt = combination.getAttribute("alt");
                             String control = combination.getAttribute("control");
                             String meta = combination.getAttribute("meta");
                             String shift = combination.getAttribute("shift");
                             String code = combination.getAttribute("code");
 
-                            // Create a KeyCodeCombination
                             KeyCodeCombination keyCombination = createKeyCombination(alt, control, meta, shift, code);
                             if (keyCombination != null) {
                                 defaultShortcuts.put(onAction, keyCombination);
@@ -322,22 +315,18 @@ public class Shortcuts implements Initializable {
             for (int i = 0; i < buttons.getLength(); i++) {
                 Element button = (Element) buttons.item(i);
 
-                // Check if it has an onAction attribute and text with an underscore (mnemonic)
                 String onAction = button.getAttribute("onAction");
                 String text = button.getAttribute("text");
 
                 if (onAction != null && !onAction.isEmpty() && text != null && text.contains("_")) {
-                    // Remove the # prefix if present
                     if (onAction.startsWith("#")) {
                         onAction = onAction.substring(1);
                     }
 
-                    // Extract the mnemonic character
                     int underscoreIndex = text.indexOf('_');
                     if (underscoreIndex >= 0 && underscoreIndex < text.length() - 1) {
                         char mnemonicChar = text.charAt(underscoreIndex + 1);
 
-                        // Create a KeyCodeCombination for Alt+<mnemonic>
                         KeyCodeCombination keyCombination = new KeyCodeCombination(
                                 javafx.scene.input.KeyCode.getKeyCode(String.valueOf(mnemonicChar)),
                                 javafx.scene.input.KeyCombination.ModifierValue.UP,

@@ -1147,7 +1147,17 @@
           "parameterTypes": []
         },
         {
+          "name": "initialize",
+          "parameterTypes": []
+        },
+        {
           "name": "handleSaveShortcuts",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "handleResetShortcuts",
           "parameterTypes": [
             "javafx.event.ActionEvent"
           ]
