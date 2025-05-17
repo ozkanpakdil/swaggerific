@@ -94,16 +94,18 @@ public class ShortcutModel {
             return null;
         }
 
-        boolean hasAlt = shortcutStr.contains("Alt+");
-        boolean hasCtrl = shortcutStr.contains("Ctrl+");
-        boolean hasShift = shortcutStr.contains("Shift+");
-        boolean hasMeta = shortcutStr.contains("Meta+");
+        String normalized = shortcutStr.replaceAll("\\s+", "").toUpperCase(); // ALT+CTRL+...
 
-        String keyName = shortcutStr
-                .replace("Alt+", "")
-                .replace("Ctrl+", "")
-                .replace("Shift+", "")
-                .replace("Meta+", "");
+        boolean hasAlt   = normalized.contains("ALT+");
+        boolean hasCtrl  = normalized.contains("CTRL+");
+        boolean hasShift = normalized.contains("SHIFT+");
+        boolean hasMeta  = normalized.contains("META+");
+
+        String keyName = normalized
+                .replace("ALT+", "")
+                .replace("CTRL+", "")
+                .replace("SHIFT+", "")
+                .replace("META+", "");
 
         KeyCode keyCode = KeyCode.getKeyCode(keyName);
         if (keyCode == null) {
