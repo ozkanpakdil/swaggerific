@@ -326,8 +326,7 @@ public class Shortcuts implements Initializable {
 
                     int underscoreIndex = text.indexOf('_');
                     if (underscoreIndex >= 0 && underscoreIndex < text.length() - 1) {
-                        char mnemonicChar = text.charAt(underscoreIndex + 1);
-
+                        char mnemonicChar = Character.toUpperCase(text.charAt(underscoreIndex + 1));
                         KeyCodeCombination keyCombination = new KeyCodeCombination(
                                 KeyCode.getKeyCode(String.valueOf(mnemonicChar)),
                                 KeyCombination.ModifierValue.UP,
