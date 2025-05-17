@@ -11,7 +11,6 @@ import io.swagger.v3.oas.models.PathItem;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -102,22 +101,6 @@ public class HttpUtility {
     }
 
     /**
-     * Converts a map of headers to a map.
-     *
-     * @param headers a map of header names to values and their enabled status
-     * @return a map of enabled header names to values
-     */
-    public Map<String, String> getEnabledHeaders(Map<String, HeaderInfo> headers) {
-        Map<String, String> enabledHeaders = new HashMap<>();
-        headers.forEach((name, info) -> {
-            if (info.isEnabled()) {
-                enabledHeaders.put(name, info.getValue());
-            }
-        });
-        return enabledHeaders;
-    }
-
-    /**
      * Builds a URI from a base URI and request parameters.
      *
      * @param uri the base URI
@@ -196,24 +179,4 @@ public class HttpUtility {
         }
     }
 
-    /**
-     * Simple class to hold header information.
-     */
-    public static class HeaderInfo {
-        private final String value;
-        private final boolean enabled;
-
-        public HeaderInfo(String value, boolean enabled) {
-            this.value = value;
-            this.enabled = enabled;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-    }
 }
