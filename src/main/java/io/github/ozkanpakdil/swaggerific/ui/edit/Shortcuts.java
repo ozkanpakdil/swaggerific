@@ -335,24 +335,6 @@ public class Shortcuts implements Initializable {
                                 KeyCombination.ModifierValue.DOWN,
                                 KeyCombination.ModifierValue.UP,
                                 KeyCombination.ModifierValue.UP
--                        char mnemonicChar = text.charAt(underscoreIndex + 1);
-+                        char mnemonicChar = Character.toUpperCase(text.charAt(underscoreIndex + 1));
-+                        KeyCode keyCode = KeyCode.getKeyCode(String.valueOf(mnemonicChar));
-+                        if (keyCode == null) {
-+                            log.warn("Unsupported mnemonic '{}'", mnemonicChar);
-+                            continue;
-+                        }
-
-                        // Create a KeyCodeCombination for Alt+<mnemonic>
--                        KeyCodeCombination keyCombination = new KeyCodeCombination(
--                                javafx.scene.input.KeyCode.getKeyCode(String.valueOf(mnemonicChar)),
-+                        KeyCodeCombination keyCombination = new KeyCodeCombination(
-+                                keyCode,
-                                 javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                 javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                 javafx.scene.input.KeyCombination.ModifierValue.DOWN,
-                                 javafx.scene.input.KeyCombination.ModifierValue.UP,
-                                 javafx.scene.input.KeyCombination.ModifierValue.UP
                         );
                         defaultShortcuts.put(onAction, keyCombination);
                         log.debug("Loaded mnemonic shortcut Alt+{} for {} from {}", mnemonicChar, onAction, fxmlPath);
