@@ -51,4 +51,6 @@ module swaggerific {
     opens io.github.ozkanpakdil.swaggerific.ui.textfx to javafx.fxml;
     exports io.github.ozkanpakdil.swaggerific.ui.exception;
     opens io.github.ozkanpakdil.swaggerific.ui.exception to javafx.fxml;
+    exports io.github.ozkanpakdil.swaggerific.model;
+    opens io.github.ozkanpakdil.swaggerific.model to javafx.base, javafx.fxml;
 }

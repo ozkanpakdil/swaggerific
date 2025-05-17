@@ -1,5 +1,6 @@
 package io.github.ozkanpakdil.swaggerific.ui;
 
+import io.github.ozkanpakdil.swaggerific.SwaggerApplication;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
@@ -279,6 +280,18 @@ public class TabRequestController extends TabPane {
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
+
+        // Apply custom shortcuts to the send button
+        // First, ensure the button is fully initialized
+        Platform.runLater(() -> {
+            // Apply custom shortcuts to the scene
+            if (btnSend.getScene() != null) {
+                SwaggerApplication.applyCustomShortcutsToScene(btnSend.getScene());
+                log.info("Applied custom shortcuts to send button");
+            } else {
+                log.warn("Could not apply custom shortcuts to send button - scene is null");
+            }
+        });
 
         applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
         applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
