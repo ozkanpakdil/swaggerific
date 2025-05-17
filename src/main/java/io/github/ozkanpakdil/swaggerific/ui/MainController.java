@@ -456,7 +456,7 @@ public class MainController implements Initializable {
     public void openSettings(ActionEvent ignoredActionEvent) {
         FXMLLoader settingsFxmlLoader = new FXMLLoader(getClass().getResource(
                 "/io/github/ozkanpakdil/swaggerific/edit/settings.fxml"));
-        Parent root = null;
+        Parent root;
         try {
             root = settingsFxmlLoader.load();
         } catch (IOException e) {

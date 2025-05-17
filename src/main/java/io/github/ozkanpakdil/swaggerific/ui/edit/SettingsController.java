@@ -5,17 +5,20 @@ import io.github.ozkanpakdil.swaggerific.ui.exception.LoadFxmlRuntimeException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * make the look and feel changeable by user, - font size and family - light dark theme - .....
  */
-public class SettingsController {
+public class SettingsController implements Initializable {
     private static final Logger log = LoggerFactory.getLogger(SettingsController.class);
 
     @FXML
@@ -57,5 +60,10 @@ public class SettingsController {
         } catch (IOException e) {
             throw new LoadFxmlRuntimeException(e);
         }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadSettingsPane("/io/github/ozkanpakdil/swaggerific/edit/settings/General.fxml");
     }
 }
