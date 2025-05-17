@@ -1,6 +1,7 @@
 package io.github.ozkanpakdil.swaggerific.ui;
 
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeItemOperationLeaf;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.BracketHighlighter;
@@ -43,6 +44,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -197,14 +200,76 @@ public class TabRequestController extends TabPane {
 
         if (selectedItem instanceof TreeItemOperationLeaf) {
             HttpUtility httpUtility = mainController.getHttpUtility();
-            Platform.runLater(() -> httpUtility.request(mainController, targetUri,
-                    PathItem.HttpMethod.valueOf(cmbHttpMethod.getSelectionModel().getSelectedItem().toString()))
-            );
+            new Thread(() -> {
+                try {
+                    // Extract query and path parameters from UI components
+                    Map<String, String> queryParams = new HashMap<>();
+                    Map<String, String> pathParams = new HashMap<>();
+
+                    // Process STextField query parameters
+                    boxRequestParams.getChildren().stream()
+                            .filter(n -> n instanceof STextField)
+                            .forEach(n -> {
+                                STextField node = (STextField) n;
+                                if ("query".equals(node.getIn())) {
+                                    queryParams.put(node.getParamName(), node.getText());
+                                } else if ("path".equals(node.getIn())) {
+                                    pathParams.put(node.getParamName(), node.getText());
+                                }
+                            });
+
+                    // Process ComboBox query parameters
+                    boxRequestParams.getChildren().stream()
+                            .filter(n -> n instanceof ComboBox && n.getUserData() instanceof STextField)
+                            .forEach(n -> {
+                                ComboBox<?> comboBox = (ComboBox<?>) n;
+                                STextField paramInfo = (STextField) comboBox.getUserData();
+
+                                if (comboBox.getValue() != null) {
+                                    if ("query".equals(paramInfo.getIn())) {
+                                        queryParams.put(paramInfo.getParamName(), comboBox.getValue().toString());
+                                    } else if ("path".equals(paramInfo.getIn())) {
+                                        pathParams.put(paramInfo.getParamName(), comboBox.getValue().toString());
+                                    }
+                                }
+                            });
+
+                    // Extract headers from UI components
+                    Map<String, String> headers = new HashMap<>();
+                    tableHeaders.getItems().forEach(item -> {
+                        if (item instanceof RequestHeader header) {
+                            if (Boolean.TRUE.equals(header.getChecked()) && 
+                                header.getName() != null && !header.getName().isEmpty()) {
+                                headers.put(header.getName(), header.getValue());
+                            }
+                        }
+                    });
+
+                    // Get request body
+                    String body = codeJsonRequest.getText();
+
+                    // Get HTTP method
+                    PathItem.HttpMethod httpMethod = PathItem.HttpMethod.valueOf(
+                            cmbHttpMethod.getSelectionModel().getSelectedItem().toString());
+
+                    // Send request and get response
+                    HttpResponse response = httpUtility.sendRequest(
+                            targetUri, httpMethod, headers, body, queryParams, pathParams);
+
+                    // Process response in the UI thread
+                    Platform.runLater(() -> mainController.processResponse(response));
+                } finally {
+                    Platform.runLater(() -> {
+                        mainController.setIsOffloading();
+                        btnSend.setDisable(false);
+                    });
+                }
+            }).start();
         } else {
             mainController.showAlert("Please choose leaf", "", "Please choose a leaf GET,POST,....");
+            mainController.setIsOffloading();
+            btnSend.setDisable(false);
         }
-        mainController.setIsOffloading();
-        btnSend.setDisable(false);
     }
 
     public void initializeController(MainController parent, String uri, TreeItemOperationLeaf leaf) {
