@@ -8,6 +8,7 @@ import io.github.ozkanpakdil.swaggerific.DisableWindow;
 import io.github.ozkanpakdil.swaggerific.data.SwaggerModal;
 import io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.TextAreaAppender;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeFilter;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeItemOperationLeaf;
@@ -260,49 +261,62 @@ public class MainController implements Initializable {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(urlSwaggerJson -> {
-            try {
-                Platform.runLater(this::setIsOnloading);
-                openSwaggerUrl(urlSwaggerJson);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            } finally {
-                Platform.runLater(this::setIsOffloading);
-            }
+            setIsOnloading();
+            new Thread(() -> {
+                try {
+                    openSwaggerUrl(urlSwaggerJson);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        log.error("Error loading swagger URL", e);
+                        showAlert("Error", "Failed to load Swagger URL", e.getMessage());
+                    });
+                } finally {
+                    Platform.runLater(this::setIsOffloading);
+                }
+            }).start();
         });
     }
 
     void setIsOnloading() {
         statusBar.setText("Loading...");
+
+        // Create a progress indicator with a fixed size
         ProgressIndicator pi = new ProgressIndicator();
+        pi.setMinSize(80, 80);
+        pi.setMaxSize(80, 80);
+        pi.setPrefSize(80, 80);
+        pi.setVisible(true);
+
+        // Create a VBox for the progress indicator
         boxLoader = new VBox(pi);
         boxLoader.setAlignment(Pos.CENTER);
-        // Grey Background
-        mainBox.setVisible(false);
-        topPane.getChildren().addFirst(boxLoader);
-        // Thread.sleep(100);
-        // children = mainBox.getChildren();
-        // Platform.runLater(()->{mainBox.getChildren().setAll(loader);});
-        // mainBox.getChildren().setAll(loader);
-        // mainBox.setDisable(true);
-        // mainBox.setManaged(false);
-        // mainBox.setVisible(false);
-        // loader.setVisible(true);
-        // loader.setViewOrder(1);
-        // mainBox.getChildren().clear();
-        // mainBox.getChildren().add(loader);
+        boxLoader.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); // Semi-transparent background
+        boxLoader.setVisible(true);
+
+        // Make the overlay cover the entire area
+        boxLoader.prefWidthProperty().bind(topPane.widthProperty());
+        boxLoader.prefHeightProperty().bind(topPane.heightProperty());
+        boxLoader.setMinSize(100, 100);
+        boxLoader.setMouseTransparent(false); // Make sure it can receive mouse events
+
+        // Remove any existing boxLoader to avoid duplicates
+        topPane.getChildren().removeIf(node -> node == boxLoader);
+
+        // Add the overlay on top of everything
+        topPane.getChildren().add(boxLoader);
+
+        // Ensure the boxLoader is visible
+        boxLoader.toFront();
     }
 
     void setIsOffloading() {
-        statusBar.setText("Ok");
-        topPane.getChildren().remove(boxLoader);
-        mainBox.setVisible(true);
-        // Platform.runLater(()->{mainBox.getChildren().setAll(children);});
-        // mainBox.getChildren().setAll(children);
-        // loader.setViewOrder(0);
-        // loader.setVisible(false);
-        // mainBox.setDisable(false);
-        // mainBox.setManaged(true);
-        // mainBox.setViewOrder(1);
+        statusBar.setText("Ready");
+
+        // Remove the boxLoader from the topPane
+        if (boxLoader != null) {
+            topPane.getChildren().remove(boxLoader);
+            boxLoader = null; // Clear the reference to allow garbage collection
+        }
     }
 
     private void openSwaggerUrl(String urlSwagger) throws Exception {
@@ -572,5 +586,72 @@ public class MainController implements Initializable {
 
     public HttpUtility getHttpUtility() {
         return httpUtility;
+    }
+
+    /**
+     * Processes the HTTP response and updates the UI.
+     *
+     * @param response the HTTP response
+     */
+    public void processResponse(HttpResponse response) {
+        try {
+            if (response.isError()) {
+                log.warn("Error in HTTP response: {}", response.errorMessage());
+                openDebugConsole();
+                getCodeJsonResponse().replaceText("Error in request: " + response.errorMessage() +
+                        "\n\nPlease check your request parameters and try again. If the problem persists, " +
+                        "check the server status or network connection.");
+                return;
+            }
+
+            String responseBody = response.body();
+            if (responseBody == null || responseBody.isEmpty()) {
+                log.warn("Empty response body received");
+                getCodeJsonResponse().replaceText(
+                        "The server returned an empty response with status code: " + response.statusCode() +
+                                "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
+                );
+            } else if (httpUtility.isJsonResponse(response)) {
+                try {
+                    String formattedJson = httpUtility.formatJson(responseBody);
+                    getCodeJsonResponse().replaceText(formattedJson);
+                    log.info("Successfully processed JSON response with status code: {}", response.statusCode());
+                } catch (Exception e) {
+                    log.warn("Failed to parse JSON response: {}", e.getMessage());
+                    // If JSON parsing fails, show the raw response
+                    final String errorMessage = "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody;
+                    getCodeJsonResponse().replaceText(errorMessage);
+                }
+            } else if (httpUtility.isXmlResponse(response)) {
+                log.info("Processing XML response with status code: {}", response.statusCode());
+                try {
+                    String formattedXml = httpUtility.formatXml(responseBody);
+                    codeResponseXmlSettings(getCodeJsonResponse(), "/css/xml-highlighting.css");
+                    getCodeJsonResponse().replaceText(formattedXml);
+                } catch (Exception e) {
+                    log.warn("Failed to format XML response: {}", e.getMessage());
+                    // If XML formatting fails, show the raw response
+                    final String errorMessage = "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody;
+                    getCodeJsonResponse().replaceText(errorMessage);
+                }
+            } else {
+                // Fallback to raw response
+                log.info("Processing raw response with status code: {}", response.statusCode());
+                getCodeJsonResponse().replaceText(responseBody);
+            }
+
+            // Always set the raw response
+            getCodeRawJsonResponse().setText(responseBody);
+
+            log.info("Request completed with status code: {}", response.statusCode());
+
+        } catch (Exception e) {
+            log.error("Error processing response: {}", e.getMessage(), e);
+            openDebugConsole();
+            getCodeJsonResponse().replaceText(
+                    "Error processing response: " + e.getMessage() +
+                            "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
+            );
+        }
     }
 }
