@@ -331,7 +331,7 @@ public class SwaggerApplication extends Application {
      */
     private int findSuitableCharacterIndex(String text, String keyCodeName) {
         // Strategy 1: Try to find the first character of the key code in the text
-        if (keyCodeName.length() > 0) {
+        if (!keyCodeName.isEmpty()) {
             char keyChar = keyCodeName.charAt(0);
             int index = text.toLowerCase().indexOf(Character.toLowerCase(keyChar));
             if (index >= 0) {
