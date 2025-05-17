@@ -102,20 +102,22 @@ public class SwaggerApplication extends Application {
             return;
         }
 
-        try {
-            // Get the root node of the scene
-            Parent root = scene.getRoot();
-            if (root == null) {
-                log.error("Scene has no root node");
-                return;
-            }
+        javafx.application.Platform.runLater(() -> {
+            try {
+                // Get the root node of the scene
+                Parent root = scene.getRoot();
+                if (root == null) {
+                    log.error("Scene has no root node");
+                    return;
+                }
 
-            // Create a temporary instance to access non-static methods
-            SwaggerApplication tempInstance = new SwaggerApplication();
-            tempInstance.findAndApplyShortcuts(root);
-        } catch (Exception e) {
-            log.error("Error applying custom shortcuts to scene", e);
-        }
+                // Create a temporary instance to access non-static methods
+                SwaggerApplication tempInstance = new SwaggerApplication();
+                tempInstance.findAndApplyShortcuts(root);
+            } catch (Exception e) {
+                log.error("Error applying custom shortcuts to scene", e);
+            }
+        });
     }
 
     /**
