@@ -307,22 +307,16 @@ public class MainController implements Initializable {
 
         // Ensure the boxLoader is visible
         boxLoader.toFront();
-
-        // Log that the loader is being shown
-        log.info("Loading indicator shown");
     }
 
     void setIsOffloading() {
-        statusBar.setText("Ok");
+        statusBar.setText("Ready");
 
         // Remove the boxLoader from the topPane
         if (boxLoader != null) {
             topPane.getChildren().remove(boxLoader);
             boxLoader = null; // Clear the reference to allow garbage collection
         }
-
-        // Log that the loader is being hidden
-        log.info("Loading indicator hidden");
     }
 
     private void openSwaggerUrl(String urlSwagger) throws Exception {
