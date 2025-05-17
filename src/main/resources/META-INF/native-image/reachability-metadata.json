@@ -462,6 +462,15 @@
       "type": "com.sun.javafx.webkit.theme.ScrollBarWidget"
     },
     {
+      "type": "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl",
       "methods": [
         {
@@ -845,6 +854,23 @@
       ]
     },
     {
+      "type": "io.github.ozkanpakdil.swaggerific.model.ShortcutModel",
+      "methods": [
+        {
+          "name": "actionProperty",
+          "parameterTypes": []
+        },
+        {
+          "name": "descriptionProperty",
+          "parameterTypes": []
+        },
+        {
+          "name": "shortcutProperty",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "io.github.ozkanpakdil.swaggerific.ui.MainController",
       "allDeclaredFields": true,
       "methods": [
@@ -1119,6 +1145,22 @@
         {
           "name": "<init>",
           "parameterTypes": []
+        },
+        {
+          "name": "initialize",
+          "parameterTypes": []
+        },
+        {
+          "name": "handleSaveShortcuts",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
+        },
+        {
+          "name": "handleResetShortcuts",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
         }
       ]
     },
@@ -2695,6 +2737,17 @@
       "type": "javafx.fxml.FXMLLoader"
     },
     {
+      "type": "javafx.geometry.HPos",
+      "methods": [
+        {
+          "name": "valueOf",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
       "type": "javafx.geometry.Insets",
       "methods": [
         {
@@ -2710,6 +2763,17 @@
     },
     {
       "type": "javafx.geometry.Orientation",
+      "methods": [
+        {
+          "name": "valueOf",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "javafx.geometry.Pos",
       "methods": [
         {
           "name": "valueOf",
@@ -2836,6 +2900,10 @@
     {
       "type": "javafx.scene.control.ButtonBase",
       "methods": [
+        {
+          "name": "getOnAction",
+          "parameterTypes": []
+        },
         {
           "name": "setOnAction",
           "parameterTypes": [
@@ -2966,6 +3034,10 @@
       "methods": [
         {
           "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "getOnAction",
           "parameterTypes": []
         },
         {
@@ -3177,6 +3249,16 @@
     {
       "type": "javafx.scene.control.TableColumnBase",
       "methods": [
+        {
+          "name": "getId",
+          "parameterTypes": []
+        },
+        {
+          "name": "setId",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
         {
           "name": "setPrefWidth",
           "parameterTypes": [
@@ -4657,6 +4739,20 @@
           ]
         },
         {
+          "name": "setHalignment",
+          "parameterTypes": [
+            "javafx.scene.Node",
+            "javafx.geometry.HPos"
+          ]
+        },
+        {
+          "name": "setMargin",
+          "parameterTypes": [
+            "javafx.scene.Node",
+            "javafx.geometry.Insets"
+          ]
+        },
+        {
           "name": "setRowIndex",
           "parameterTypes": [
             "javafx.scene.Node",
@@ -4673,10 +4769,22 @@
           "parameterTypes": []
         },
         {
+          "name": "setAlignment",
+          "parameterTypes": [
+            "javafx.geometry.Pos"
+          ]
+        },
+        {
           "name": "setHgrow",
           "parameterTypes": [
             "javafx.scene.Node",
             "javafx.scene.layout.Priority"
+          ]
+        },
+        {
+          "name": "setSpacing",
+          "parameterTypes": [
+            "double"
           ]
         }
       ]
@@ -4755,6 +4863,12 @@
         {
           "name": "<init>",
           "parameterTypes": []
+        },
+        {
+          "name": "setMaxHeight",
+          "parameterTypes": [
+            "double"
+          ]
         },
         {
           "name": "setMinHeight",
