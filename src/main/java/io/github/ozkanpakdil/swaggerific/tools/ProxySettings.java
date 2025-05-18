@@ -333,9 +333,58 @@ public class ProxySettings {
         private static final String KEY_ALIAS = "swaggerific-proxy-key";
         private static final String KEYSTORE_FILENAME = "swaggerific-keystore.p12";
 
-        // Password for the keystore - in a real-world scenario, this would be handled more securely
-        // For this application, we're using a fixed password as it's still more secure than the previous approach
-        private static final char[] KEYSTORE_PASSWORD = "swaggerific-keystore-password".toCharArray();
+        // Environment variable name for the keystore password
+        private static final String KEYSTORE_PASSWORD_ENV_VAR = "SWAGGERIFIC_KEYSTORE_PASSWORD";
+
+        // Configuration file for the keystore password
+        private static final String KEYSTORE_PASSWORD_CONFIG_FILE = ".swaggerific-keystore-password";
+
+        // Default password as a fallback (SECURITY LIMITATION)
+        private static final String DEFAULT_KEYSTORE_PASSWORD = "swaggerific-keystore-password";
+
+        /**
+         * Gets the keystore password from a secure source.
+         * 
+         * This method attempts to retrieve the keystore password from the following sources in order:
+         * 1. Environment variable (SWAGGERIFIC_KEYSTORE_PASSWORD)
+         * 2. Configuration file (~/.swaggerific-keystore-password)
+         * 3. Default hard-coded password (as a fallback)
+         * 
+         * SECURITY LIMITATION: Using a default hard-coded password is a security risk.
+         * In a production environment, it's recommended to set the environment variable
+         * or use a properly secured configuration file.
+         * 
+         * @return The keystore password as a char array
+         */
+        private static char[] getKeystorePassword() {
+            // Try to get the password from environment variable
+            String envPassword = System.getenv(KEYSTORE_PASSWORD_ENV_VAR);
+            if (envPassword != null && !envPassword.isEmpty()) {
+                log.debug("Using keystore password from environment variable");
+                return envPassword.toCharArray();
+            }
+
+            // Try to get the password from configuration file
+            String userHome = System.getProperty("user.home");
+            Path configFile = Paths.get(userHome, KEYSTORE_PASSWORD_CONFIG_FILE);
+            if (Files.exists(configFile)) {
+                try {
+                    String filePassword = new String(Files.readAllBytes(configFile)).trim();
+                    if (!filePassword.isEmpty()) {
+                        log.debug("Using keystore password from configuration file");
+                        return filePassword.toCharArray();
+                    }
+                } catch (IOException e) {
+                    log.warn("Failed to read keystore password from configuration file: {}", e.getMessage());
+                }
+            }
+
+            // Fall back to default password
+            log.warn("SECURITY LIMITATION: Using default hard-coded keystore password. " +
+                    "For better security, set the {} environment variable or create a {} file in your home directory.",
+                    KEYSTORE_PASSWORD_ENV_VAR, KEYSTORE_PASSWORD_CONFIG_FILE);
+            return DEFAULT_KEYSTORE_PASSWORD.toCharArray();
+        }
 
         /**
          * Encrypts a password stored as a char array
@@ -423,7 +472,7 @@ public class ProxySettings {
 
             // Check if the key already exists
             if (keyStore.containsAlias(KEY_ALIAS)) {
-                return (SecretKey) keyStore.getKey(KEY_ALIAS, KEYSTORE_PASSWORD);
+                return (SecretKey) keyStore.getKey(KEY_ALIAS, getKeystorePassword());
             }
 
             // Generate a new key
@@ -433,7 +482,7 @@ public class ProxySettings {
 
             // Store the key
             KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
-            keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(KEYSTORE_PASSWORD));
+            keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(getKeystorePassword()));
 
             // Save the keystore
             saveKeyStore(keyStore);
@@ -453,11 +502,11 @@ public class ProxySettings {
 
             if (keystoreFile.exists()) {
                 try (FileInputStream fis = new FileInputStream(keystoreFile)) {
-                    keyStore.load(fis, KEYSTORE_PASSWORD);
+                    keyStore.load(fis, getKeystorePassword());
                 }
             } else {
                 // Initialize a new keystore
-                keyStore.load(null, KEYSTORE_PASSWORD);
+                keyStore.load(null, getKeystorePassword());
             }
 
             return keyStore;
@@ -476,7 +525,7 @@ public class ProxySettings {
             keystoreFile.getParentFile().mkdirs();
 
             try (FileOutputStream fos = new FileOutputStream(keystoreFile)) {
-                keyStore.store(fos, KEYSTORE_PASSWORD);
+                keyStore.store(fos, getKeystorePassword());
             }
         }
 
