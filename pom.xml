@@ -18,15 +18,23 @@
         <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.version>${maven.version}</maven.version>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <jackson-databind.version>2.18.2</jackson-databind.version>
+        <swagger-core.version>2.2.28</swagger-core.version>
+        <richtextfx.version>0.11.4</richtextfx.version>
+        <controlsfx.version>11.2.1</controlsfx.version>
+        <logback-classic.version>1.5.16</logback-classic.version>
+        <dockfx.version>0.1.5</dockfx.version>
+        <graalvm.version>23</graalvm.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.16</version>
+            <version>${logback-classic.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -68,7 +76,7 @@
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
             <artifactId>richtextfx</artifactId>
-            <version>0.11.4</version>
+            <version>${richtextfx.version}</version>
         </dependency>
 
         <!--
@@ -82,12 +90,12 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-core</artifactId>
-            <version>2.2.28</version>
+            <version>${swagger-core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.18.2</version>
+            <version>${jackson-databind.version}</version>
         </dependency>
 
         <dependency>
@@ -128,7 +136,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.2.1</version>
+            <version>${controlsfx.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
@@ -183,7 +191,7 @@
         <dependency>
             <groupId>io.github.ozkanpakdil</groupId>
             <artifactId>dockfx</artifactId>
-            <version>0.1.5</version>
+            <version>${dockfx.version}</version>
         </dependency>
 
         <dependency>

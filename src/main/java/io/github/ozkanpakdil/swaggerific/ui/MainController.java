@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.stream.StreamSupport;
 
@@ -236,12 +237,73 @@ public class MainController implements Initializable {
     }
 
     public void handleAboutAction(ActionEvent ignoredActionEvent) {
-        showAlert("About Swaggerific 0.1.0",
-                "Swaggerific 0.1.0",
-                "This application is currently in development. Please use with caution." +
-                        "Used technology stack: Java 17, JavaFX, Jackson, Swagger, Logback, DockFX, RichTextFX, ControlsFX, Maven, Git, IntelliJ IDEA, GraalVM"
-
+        String version = getApplicationVersion();
+        showAlert("About " + getApplicationName() + " " + version,
+                getApplicationName() + " " + version,
+                "This application is currently in development. Please use with caution.\n\n" +
+                        "Technology Stack:\n" + getLibraryVersions()
         );
+    }
+
+    private Properties loadAppProperties() throws IOException {
+        Properties properties = new Properties();
+        try (var stream = getClass().getResourceAsStream("/application.properties")) {
+            if (stream != null) {
+                properties.load(stream);
+            }
+        }
+        return properties;
+    }
+
+    private String getLibraryVersions() {
+        try {
+            Properties properties = loadAppProperties();
+            return String.format("""
+                            Java: %s
+                            JavaFX: %s
+                            Jackson: %s
+                            Swagger: %s
+                            Logback: %s
+                            DockFX: %s
+                            RichTextFX: %s
+                            ControlsFX: %s
+                            Maven: %s
+                            GraalVM: %s""",
+                    properties.getProperty("java.version", "unknown"),
+                    properties.getProperty("javafx.version", "unknown"),
+                    properties.getProperty("jackson.version", "unknown"),
+                    properties.getProperty("swagger-core.version", "unknown"),
+                    properties.getProperty("logback-classic.version", "unknown"),
+                    properties.getProperty("dockfx.version", "unknown"),
+                    properties.getProperty("richtextfx.version", "unknown"),
+                    properties.getProperty("controlsfx.version", "unknown"),
+                    properties.getProperty("maven.version", "unknown"),
+                    properties.getProperty("graalvm.version", "unknown")
+            );
+        } catch (IOException e) {
+            log.error("Could not load versions", e);
+            return "Could not load version information";
+        }
+    }
+
+    private String getApplicationVersion() {
+        try {
+            Properties properties = loadAppProperties();
+            return properties.getProperty("project.version", "unknown");
+        } catch (IOException e) {
+            log.error("Could not load application.properties", e);
+            return "unknown";
+        }
+    }
+
+    private String getApplicationName() {
+        try {
+            Properties properties = loadAppProperties();
+            return properties.getProperty("application.name", "Swaggerific");
+        } catch (IOException e) {
+            log.error("Could not load application.properties", e);
+            return "Swaggerific";
+        }
     }
 
     public void menuFileExit(ActionEvent ignoredActionEvent) {

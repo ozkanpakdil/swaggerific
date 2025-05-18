@@ -237,6 +237,9 @@
       ]
     },
     {
+      "type": "com.fasterxml.jackson.core.util.PackageVersion"
+    },
+    {
       "type": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
       "methods": [
         {
@@ -1147,8 +1150,10 @@
           "parameterTypes": []
         },
         {
-          "name": "initialize",
-          "parameterTypes": []
+          "name": "handleResetShortcuts",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
         },
         {
           "name": "handleSaveShortcuts",
@@ -1157,10 +1162,8 @@
           ]
         },
         {
-          "name": "handleResetShortcuts",
-          "parameterTypes": [
-            "javafx.event.ActionEvent"
-          ]
+          "name": "initialize",
+          "parameterTypes": []
         }
       ]
     },
@@ -1190,6 +1193,15 @@
     },
     {
       "type": "io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.swagger.v3.core.jackson.PackageVersion",
       "methods": [
         {
           "name": "<init>",
