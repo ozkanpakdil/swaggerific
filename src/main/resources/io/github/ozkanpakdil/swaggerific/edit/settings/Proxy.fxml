@@ -53,6 +53,13 @@
         <Label text="Proxy Bypass:" GridPane.columnIndex="0" GridPane.rowIndex="14"/>
         <TextArea fx:id="proxyBypass" GridPane.columnIndex="1" GridPane.rowIndex="14" prefRowCount="3" prefColumnCount="10"/>
 
-        <Button text="Save" onAction="#saveProxySettings" GridPane.columnIndex="1" GridPane.rowIndex="15"/>
+        <Label text="SSL Security:" GridPane.columnIndex="0" GridPane.rowIndex="15" GridPane.columnSpan="2"/>
+        <CheckBox fx:id="disableSslValidation" text="Disable SSL certificate validation (for self-signed certificates, not recommended for production)" 
+                 GridPane.columnIndex="0" GridPane.rowIndex="16" GridPane.columnSpan="2"/>
+        <Label text="Warning: Disabling SSL certificate validation is a security risk. Use only for development/testing." 
+              GridPane.columnIndex="0" GridPane.rowIndex="17" GridPane.columnSpan="2" 
+              style="-fx-text-fill: red;"/>
+
+        <Button text="Save" onAction="#saveProxySettings" GridPane.columnIndex="1" GridPane.rowIndex="18"/>
     </children>
 </GridPane>

@@ -88,8 +88,9 @@ public class SwaggerApplication extends Application {
 
     /**
      * Initializes proxy settings for the application. This sets up proxy authentication and system properties if needed.
+     * This method can be called to reinitialize proxy settings after they have been changed.
      */
-    private void initializeProxySettings() {
+    public static void initializeProxySettings() {
         log.info("Initializing proxy settings...");
 
         if (ProxySettings.useSystemProxy()) {
@@ -160,6 +161,11 @@ public class SwaggerApplication extends Application {
         }
 
         // Proxy authentication is now handled on a per-connection basis
+
+        // Recreate all HttpClient instances to apply new proxy settings
+        io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl.recreateAllHttpClients();
+
+        log.info("Proxy settings reinitialized successfully");
     }
 
     /**

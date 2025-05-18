@@ -1122,6 +1122,12 @@
         {
           "name": "initialize",
           "parameterTypes": []
+        },
+        {
+          "name": "saveProxySettings",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
         }
       ]
     },
@@ -5666,6 +5672,15 @@
     },
     {
       "type": "sun.security.ssl.SSLContextImpl$DefaultSSLContext",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.ssl.SSLContextImpl$TLSContext",
       "methods": [
         {
           "name": "<init>",

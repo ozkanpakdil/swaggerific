@@ -38,6 +38,8 @@ public class Proxy {
     private PasswordField proxyAuthPassword;
     @FXML
     private TextArea proxyBypass;
+    @FXML
+    private CheckBox disableSslValidation;
 
     @FXML
     public void initialize() {
@@ -73,6 +75,9 @@ public class Proxy {
         }
 
         proxyBypass.setText(String.join(",", ProxySettings.getProxyBypass()));
+
+        // Load SSL validation setting
+        disableSslValidation.setSelected(ProxySettings.disableSslValidation());
     }
 
     /**
@@ -103,15 +108,17 @@ public class Proxy {
                     proxyAuth.isSelected(),
                     proxyAuthUsername.getText(),
                     password,
-                    proxyBypass.getText()
+                    proxyBypass.getText(),
+                    disableSslValidation.isSelected()
             );
 
             // Clear password field for security
             proxyAuthPassword.clear();
 
-            // Proxy settings will be applied on a per-connection basis
+            // Reinitialize proxy settings to apply changes immediately
+            io.github.ozkanpakdil.swaggerific.SwaggerApplication.initializeProxySettings();
 
-            log.info("Proxy settings saved successfully");
+            log.info("Proxy settings saved and applied successfully");
         } catch (Exception e) {
             // Log error without including any sensitive information
             log.error("Error saving proxy settings: {}", e.getMessage());

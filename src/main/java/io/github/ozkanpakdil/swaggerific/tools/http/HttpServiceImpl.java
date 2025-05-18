@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -28,19 +32,26 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation of the HttpService interface.
- * This class provides methods for making HTTP requests without UI dependencies.
+ * Implementation of the HttpService interface. This class provides methods for making HTTP requests without UI dependencies.
  */
 public class HttpServiceImpl implements HttpService {
     private static final Logger log = LoggerFactory.getLogger(HttpServiceImpl.class);
     private final ObjectMapper mapper;
-    private final HttpClient client;
+    private HttpClient client;
+
+    // List of all active HttpServiceImpl instances
+    private static final List<HttpServiceImpl> instances = Collections.synchronizedList(new ArrayList<>());
 
     /**
      * Constructor with ObjectMapper.
@@ -50,6 +61,8 @@ public class HttpServiceImpl implements HttpService {
     public HttpServiceImpl(ObjectMapper mapper) {
         this.mapper = mapper;
         this.client = createHttpClient();
+        // Register this instance
+        instances.add(this);
     }
 
     /**
@@ -60,8 +73,63 @@ public class HttpServiceImpl implements HttpService {
     }
 
     /**
+     * Recreates the HttpClient for all instances. This method should be called when proxy settings change.
+     */
+    public static void recreateAllHttpClients() {
+        log.info("Recreating HttpClient for all instances due to proxy settings change");
+        synchronized (instances) {
+            for (HttpServiceImpl instance : instances) {
+                instance.client = instance.createHttpClient();
+            }
+        }
+    }
+
+    /**
+     * Closes this instance and removes it from the list of instances. This method should be called when this instance is no
+     * longer needed.
+     */
+    public void close() {
+        synchronized (instances) {
+            instances.remove(this);
+        }
+        log.debug("HttpServiceImpl instance removed from the list of instances");
+    }
+
+    /**
+     * Creates an SSLContext that trusts all certificates. WARNING: This should only be used for development/testing purposes.
+     *
+     * @return an SSLContext that trusts all certificates
+     * @throws NoSuchAlgorithmException if the TLS algorithm is not available
+     * @throws KeyManagementException if the SSLContext cannot be initialized
+     */
+    private SSLContext createTrustAllSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        // No validation
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        // No validation
+                    }
+                }
+        };
+
+        // Create and initialize an SSLContext with the trust-all trust manager
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new SecureRandom());
+
+        return sslContext;
+    }
+
+    /**
      * Creates an HttpClient with the appropriate proxy configuration.
-     * 
+     *
      * @return a configured HttpClient
      */
     private HttpClient createHttpClient() {
@@ -69,6 +137,26 @@ public class HttpServiceImpl implements HttpService {
         HttpClient.Builder builder = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.NORMAL);
+
+        // If SSL certificate validation is disabled, use a trust-all SSLContext
+        if (ProxySettings.disableSslValidation()) {
+            try {
+                SSLContext sslContext = createTrustAllSSLContext();
+
+                // Create SSLParameters that disable hostname verification
+                SSLParameters sslParameters = new SSLParameters();
+                sslParameters.setEndpointIdentificationAlgorithm(null);
+
+                // Set the SSLContext and SSLParameters
+                builder.sslContext(sslContext)
+                        .sslParameters(sslParameters);
+
+                log.warn(
+                        "SSL certificate validation and hostname verification are disabled. This is a security risk and should only be used for development/testing.");
+            } catch (Exception e) {
+                log.error("Failed to create trust-all SSLContext", e);
+            }
+        }
 
         // Set up proxy authenticator if needed
         Authenticator authenticator = ProxySettings.createProxyAuthenticator();
@@ -197,8 +285,8 @@ public class HttpServiceImpl implements HttpService {
     /**
      * Pretty prints XML string.
      *
-     * @param xmlString       the XML string to format
-     * @param indent          the indentation level
+     * @param xmlString the XML string to format
+     * @param indent the indentation level
      * @param ignoreDeclaration whether to ignore XML declaration
      * @return the formatted XML string
      * @throws XmlFormattingException if an error occurs during formatting

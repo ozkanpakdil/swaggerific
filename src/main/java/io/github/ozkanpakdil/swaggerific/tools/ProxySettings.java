@@ -7,21 +7,20 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.crypto.spec.GCMParameterSpec;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
@@ -44,6 +43,7 @@ public class ProxySettings {
     private static final String PROXY_AUTH_USERNAME = "proxyAuthUsername";
     private static final String PROXY_AUTH_PASSWORD = "proxyAuthPassword";
     private static final String PROXY_BYPASS = "proxyBypass";
+    private static final String DISABLE_SSL_VALIDATION = "disableSslValidation";
 
     // Default values
     private static final boolean DEFAULT_USE_SYSTEM_PROXY = true;
@@ -54,6 +54,7 @@ public class ProxySettings {
     private static final String DEFAULT_PROXY_AUTH_USERNAME = "";
     private static final String DEFAULT_PROXY_AUTH_PASSWORD = "";
     private static final String DEFAULT_PROXY_BYPASS = "localhost,127.0.0.1";
+    private static final boolean DEFAULT_DISABLE_SSL_VALIDATION = false;
 
     /**
      * Loads proxy settings from preferences.
@@ -88,9 +89,19 @@ public class ProxySettings {
     }
 
     /**
-     * Gets the proxy authentication password as a char array.
-     * The caller is responsible for clearing the returned char array after use.
-     * 
+     * Checks if SSL certificate validation should be disabled. This is useful for development and testing with self-signed
+     * certificates. WARNING: Disabling SSL certificate validation is a security risk in production.
+     *
+     * @return true if SSL certificate validation should be disabled, false otherwise
+     */
+    public static boolean disableSslValidation() {
+        return userPrefs.getBoolean(DISABLE_SSL_VALIDATION, DEFAULT_DISABLE_SSL_VALIDATION);
+    }
+
+    /**
+     * Gets the proxy authentication password as a char array. The caller is responsible for clearing the returned char array
+     * after use.
+     *
      * @return The proxy authentication password as a char array
      */
     public static char[] getProxyAuthPassword() {
@@ -111,9 +122,9 @@ public class ProxySettings {
     }
 
     /**
-     * Saves proxy settings to preferences.
-     * This method securely handles proxy credentials and ensures they are properly encrypted.
-     * 
+     * Saves proxy settings to preferences. This method securely handles proxy credentials and ensures they are properly
+     * encrypted.
+     *
      * @param useSystemProxy Whether to use system proxy
      * @param proxyType The proxy type
      * @param proxyServer The proxy server
@@ -122,10 +133,11 @@ public class ProxySettings {
      * @param proxyAuthUsername The proxy authentication username
      * @param proxyAuthPassword The proxy authentication password
      * @param proxyBypass The proxy bypass list
+     * @param disableSslValidation Whether to disable SSL certificate validation
      */
     public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer,
             int proxyPort, boolean proxyAuth, String proxyAuthUsername,
-            String proxyAuthPassword, String proxyBypass) {
+            String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
         try {
             userPrefs.putBoolean(USE_SYSTEM_PROXY, useSystemProxy);
             userPrefs.put(PROXY_TYPE, proxyType != null ? proxyType : DEFAULT_PROXY_TYPE);
@@ -142,6 +154,7 @@ public class ProxySettings {
             userPrefs.put(PROXY_AUTH_PASSWORD, encryptedPassword);
 
             userPrefs.put(PROXY_BYPASS, proxyBypass != null ? proxyBypass : DEFAULT_PROXY_BYPASS);
+            userPrefs.putBoolean(DISABLE_SSL_VALIDATION, disableSslValidation);
 
             // Log without sensitive information
             log.info("Proxy settings saved. Using system proxy: {}", useSystemProxy);
@@ -197,12 +210,12 @@ public class ProxySettings {
     }
 
     /**
-     * Sets up proxy authentication if needed.
-     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
-     * 
-     * @deprecated This method sets a global JVM authenticator which affects all HTTP connections
-     * and can potentially break other components. Use {@link #createProxyAuthenticator()} for HttpClient
-     * or {@link #getProxyAuthorizationHeader()} for HttpURLConnection instead.
+     * Sets up proxy authentication if needed. This method securely handles proxy credentials and ensures they are cleared from
+     * memory after use.
+     *
+     * @deprecated This method sets a global JVM authenticator which affects all HTTP connections and can potentially break
+     * other components. Use {@link #createProxyAuthenticator()} for HttpClient or {@link #getProxyAuthorizationHeader()} for
+     * HttpURLConnection instead.
      */
     @Deprecated
     public static void setupProxyAuthentication() {
@@ -213,9 +226,9 @@ public class ProxySettings {
     }
 
     /**
-     * Creates an Authenticator for use with HttpClient that handles proxy authentication.
-     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
-     * 
+     * Creates an Authenticator for use with HttpClient that handles proxy authentication. This method securely handles proxy
+     * credentials and ensures they are cleared from memory after use.
+     *
      * @return An Authenticator that can be used with HttpClient.Builder.authenticator()
      */
     public static Authenticator createProxyAuthenticator() {
@@ -255,9 +268,9 @@ public class ProxySettings {
     }
 
     /**
-     * Gets the "Proxy-Authorization" header value for use with HttpURLConnection.
-     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
-     * 
+     * Gets the "Proxy-Authorization" header value for use with HttpURLConnection. This method securely handles proxy
+     * credentials and ensures they are cleared from memory after use.
+     *
      * @return The "Proxy-Authorization" header value, or null if proxy authentication is not needed
      */
     public static String getProxyAuthorizationHeader() {
@@ -287,11 +300,9 @@ public class ProxySettings {
     }
 
     /**
-     * Checks if a host should bypass the proxy.
-     * This method performs precise matching to avoid false positives:
-     * 1. Exact match: host exactly matches a bypass entry
-     * 2. Domain suffix match: host ends with a bypass entry preceded by a dot
-     * 3. Wildcard match: supports simple wildcard patterns like "*.example.com"
+     * Checks if a host should bypass the proxy. This method performs precise matching to avoid false positives: 1. Exact match:
+     * host exactly matches a bypass entry 2. Domain suffix match: host ends with a bypass entry preceded by a dot 3. Wildcard
+     * match: supports simple wildcard patterns like "*.example.com"
      */
     public static boolean shouldBypassProxy(String host) {
         if (host == null || host.isEmpty()) {
@@ -328,113 +339,45 @@ public class ProxySettings {
     }
 
     private static class PasswordEncryption {
-        private static final String ALGORITHM = "AES";
+        private static final String ALGORITHM = "AES/GCM/NoPadding";
         private static final String KEYSTORE_TYPE = "PKCS12";
         private static final String KEY_ALIAS = "swaggerific-proxy-key";
         private static final String KEYSTORE_FILENAME = "swaggerific-keystore.p12";
-
-        // Environment variable name for the keystore password
-        private static final String KEYSTORE_PASSWORD_ENV_VAR = "SWAGGERIFIC_KEYSTORE_PASSWORD";
-
-        // Configuration file for the keystore password
-        private static final String KEYSTORE_PASSWORD_CONFIG_FILE = ".swaggerific-keystore-password";
-
-        // Default password as a fallback (SECURITY LIMITATION)
-        private static final String DEFAULT_KEYSTORE_PASSWORD = "swaggerific-keystore-password";
+        private static final int GCM_TAG_LENGTH = 128;
+        private static final int GCM_IV_LENGTH = 12;
 
         /**
-         * Gets the keystore password from a secure source.
-         * 
-         * This method attempts to retrieve the keystore password from the following sources in order:
-         * 1. Environment variable (SWAGGERIFIC_KEYSTORE_PASSWORD)
-         * 2. Configuration file (~/.swaggerific-keystore-password)
-         * 3. Default hard-coded password (as a fallback)
-         * 
-         * SECURITY LIMITATION: Using a default hard-coded password is a security risk.
-         * In a production environment, it's recommended to set the environment variable
-         * or use a properly secured configuration file.
-         * 
-         * @return The keystore password as a char array
+         * Encrypts a string using AES-GCM with a secure key from the keystore
          */
-        private static char[] getKeystorePassword() {
-            // Try to get the password from environment variable
-            String envPassword = System.getenv(KEYSTORE_PASSWORD_ENV_VAR);
-            if (envPassword != null && !envPassword.isEmpty()) {
-                log.debug("Using keystore password from environment variable");
-                return envPassword.toCharArray();
-            }
-
-            // Try to get the password from configuration file
-            String userHome = System.getProperty("user.home");
-            Path configFile = Paths.get(userHome, KEYSTORE_PASSWORD_CONFIG_FILE);
-            if (Files.exists(configFile)) {
-                try {
-                    String filePassword = new String(Files.readAllBytes(configFile)).trim();
-                    if (!filePassword.isEmpty()) {
-                        log.debug("Using keystore password from configuration file");
-                        return filePassword.toCharArray();
-                    }
-                } catch (IOException e) {
-                    log.warn("Failed to read keystore password from configuration file: {}", e.getMessage());
-                }
-            }
-
-            // Fall back to default password
-            log.warn("SECURITY LIMITATION: Using default hard-coded keystore password. " +
-                    "For better security, set the {} environment variable or create a {} file in your home directory.",
-                    KEYSTORE_PASSWORD_ENV_VAR, KEYSTORE_PASSWORD_CONFIG_FILE);
-            return DEFAULT_KEYSTORE_PASSWORD.toCharArray();
-        }
-
-        /**
-         * Encrypts a password stored as a char array
-         * 
-         * @param password The password to encrypt
-         * @return Base64 encoded encrypted password
-         */
-        static String encrypt(String password) {
-            if (password == null || password.isEmpty()) {
+        static String encrypt(String value) throws NoSuchAlgorithmException {
+            if (value == null || value.isEmpty()) {
                 return "";
             }
 
-            char[] passwordChars = password.toCharArray();
             try {
                 SecretKey key = getOrCreateSecretKey();
+                byte[] iv = generateIv();
+
+                GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
                 Cipher cipher = Cipher.getInstance(ALGORITHM);
-                cipher.init(Cipher.ENCRYPT_MODE, key);
+                cipher.init(Cipher.ENCRYPT_MODE, key, gcmSpec);
 
-                // Convert char[] to byte[] for encryption
-                ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(passwordChars));
-                byte[] passwordBytes = new byte[byteBuffer.remaining()];
-                byteBuffer.get(passwordBytes);
+                byte[] encryptedData = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
 
-                // Clear the ByteBuffer
-                clearBuffer(byteBuffer);
+                // Combine IV and encrypted data
+                ByteBuffer combined = ByteBuffer.allocate(iv.length + encryptedData.length);
+                combined.put(iv);
+                combined.put(encryptedData);
 
-                // Encrypt the password
-                byte[] encryptedBytes = cipher.doFinal(passwordBytes);
-
-                // Clear the password bytes
-                Arrays.fill(passwordBytes, (byte) 0);
-
-                // Clear the password char array
-                Arrays.fill(passwordChars, '\0');
-
-                return Base64.getEncoder().encodeToString(encryptedBytes);
+                return Base64.getEncoder().encodeToString(combined.array());
             } catch (Exception e) {
-                log.error("Failed to encrypt proxy password", e);
+                log.error("Encryption failed", e);
                 return "";
-            } finally {
-                // Ensure password is cleared from memory
-                Arrays.fill(passwordChars, '\0');
             }
         }
 
         /**
-         * Decrypts a password and returns it as a char array
-         * 
-         * @param encrypted The encrypted password
-         * @return The decrypted password as a char array
+         * Decrypts a string using AES-GCM with a secure key from the keystore
          */
         static String decrypt(String encrypted) {
             if (encrypted == null || encrypted.isEmpty()) {
@@ -442,121 +385,109 @@ public class ProxySettings {
             }
 
             try {
+                byte[] combined = Base64.getDecoder().decode(encrypted);
+                if (combined.length < GCM_IV_LENGTH) {
+                    throw new IllegalArgumentException("Invalid encrypted data");
+                }
+
+                // Extract IV and encrypted data
+                ByteBuffer buffer = ByteBuffer.wrap(combined);
+                byte[] iv = new byte[GCM_IV_LENGTH];
+                buffer.get(iv);
+                byte[] encryptedData = new byte[buffer.remaining()];
+                buffer.get(encryptedData);
+
                 SecretKey key = getOrCreateSecretKey();
+                GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+
                 Cipher cipher = Cipher.getInstance(ALGORITHM);
-                cipher.init(Cipher.DECRYPT_MODE, key);
+                cipher.init(Cipher.DECRYPT_MODE, key, gcmSpec);
 
-                byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encrypted));
-
-                // Convert byte[] to String
-                String result = new String(decryptedBytes, StandardCharsets.UTF_8);
-
-                // Clear the decrypted bytes
-                Arrays.fill(decryptedBytes, (byte) 0);
-
-                return result;
+                return new String(cipher.doFinal(encryptedData), StandardCharsets.UTF_8);
             } catch (Exception e) {
-                log.error("Failed to decrypt proxy password", e);
+                log.error("Decryption failed", e);
                 return "";
             }
         }
 
         /**
-         * Gets the secret key from the keystore or creates a new one if it doesn't exist
-         * 
-         * @return The secret key
-         * @throws Exception If there's an error accessing or creating the key
+         * Gets or creates a secret key from the keystore
          */
         private static SecretKey getOrCreateSecretKey() throws Exception {
             KeyStore keyStore = loadOrCreateKeyStore();
 
-            // Check if the key already exists
-            if (keyStore.containsAlias(KEY_ALIAS)) {
-                return (SecretKey) keyStore.getKey(KEY_ALIAS, getKeystorePassword());
+            if (!keyStore.containsAlias(KEY_ALIAS)) {
+                // Generate new key with proper strength
+                KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+                keyGen.init(256, SecureRandom.getInstanceStrong());
+                SecretKey key = keyGen.generateKey();
+
+                // Store in keystore
+                KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
+                keyStore.setEntry(KEY_ALIAS, entry,
+                        new KeyStore.PasswordProtection(getKeystorePassword()));
+
+                saveKeyStore(keyStore);
+                return key;
             }
 
-            // Generate a new key
-            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-            keyGen.init(256, new SecureRandom());
-            SecretKey key = keyGen.generateKey();
-
-            // Store the key
-            KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
-            keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(getKeystorePassword()));
-
-            // Save the keystore
-            saveKeyStore(keyStore);
-
-            return key;
+            return (SecretKey) keyStore.getKey(KEY_ALIAS, getKeystorePassword());
         }
 
         /**
-         * Loads the keystore or creates a new one if it doesn't exist
-         * 
-         * @return The keystore
-         * @throws Exception If there's an error loading or creating the keystore
+         * Generates a random IV for each encryption
          */
+        private static byte[] generateIv() throws NoSuchAlgorithmException {
+            byte[] iv = new byte[GCM_IV_LENGTH];
+            SecureRandom.getInstanceStrong().nextBytes(iv);
+            return iv;
+        }
+
+        /**
+         * Gets the keystore password from system properties or environment
+         */
+        private static char[] getKeystorePassword() throws NoSuchAlgorithmException {
+            String password = System.getProperty("swaggerific.keystore.password");
+            if (password == null) {
+                password = System.getenv("SWAGGERIFIC_KEYSTORE_PASSWORD");
+            }
+            if (password == null) {
+                // Generate a random password if none exists
+                byte[] randomBytes = new byte[32];
+                SecureRandom.getInstanceStrong().nextBytes(randomBytes);
+                password = Base64.getEncoder().encodeToString(randomBytes);
+                System.setProperty("swaggerific.keystore.password", password);
+            }
+            return password.toCharArray();
+        }
+
         private static KeyStore loadOrCreateKeyStore() throws Exception {
             KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-            File keystoreFile = getKeystoreFile();
+            Path keystorePath = getKeystorePath();
 
-            if (keystoreFile.exists()) {
-                try (FileInputStream fis = new FileInputStream(keystoreFile)) {
-                    keyStore.load(fis, getKeystorePassword());
+            if (Files.exists(keystorePath)) {
+                try (InputStream is = Files.newInputStream(keystorePath)) {
+                    keyStore.load(is, getKeystorePassword());
                 }
             } else {
-                // Initialize a new keystore
                 keyStore.load(null, getKeystorePassword());
             }
-
             return keyStore;
         }
 
-        /**
-         * Saves the keystore to disk
-         * 
-         * @param keyStore The keystore to save
-         * @throws Exception If there's an error saving the keystore
-         */
         private static void saveKeyStore(KeyStore keyStore) throws Exception {
-            File keystoreFile = getKeystoreFile();
+            Path keystorePath = getKeystorePath();
+            Files.createDirectories(keystorePath.getParent());
 
-            // Ensure the parent directory exists
-            keystoreFile.getParentFile().mkdirs();
-
-            try (FileOutputStream fos = new FileOutputStream(keystoreFile)) {
-                keyStore.store(fos, getKeystorePassword());
+            try (OutputStream os = Files.newOutputStream(keystorePath)) {
+                keyStore.store(os, getKeystorePassword());
             }
         }
 
-        /**
-         * Gets the keystore file
-         * 
-         * @return The keystore file
-         */
-        private static File getKeystoreFile() {
-            String userHome = System.getProperty("user.home");
-            Path appDir = Paths.get(userHome, ".swaggerific");
-
-            // Create the directory if it doesn't exist
-            try {
-                Files.createDirectories(appDir);
-            } catch (IOException e) {
-                log.error("Failed to create application directory", e);
-            }
-
-            return appDir.resolve(KEYSTORE_FILENAME).toFile();
-        }
-
-        /**
-         * Clears a ByteBuffer
-         * 
-         * @param buffer The buffer to clear
-         */
-        private static void clearBuffer(ByteBuffer buffer) {
-            buffer.clear();
-            byte[] array = buffer.array();
-            Arrays.fill(array, (byte) 0);
+        private static Path getKeystorePath() {
+            return Paths.get(System.getProperty("user.home"))
+                    .resolve(".swaggerific")
+                    .resolve(KEYSTORE_FILENAME);
         }
     }
 }
