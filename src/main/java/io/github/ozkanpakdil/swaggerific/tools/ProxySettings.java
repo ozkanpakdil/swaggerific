@@ -288,6 +288,10 @@ public class ProxySettings {
 
     /**
      * Checks if a host should bypass the proxy.
+     * This method performs precise matching to avoid false positives:
+     * 1. Exact match: host exactly matches a bypass entry
+     * 2. Domain suffix match: host ends with a bypass entry preceded by a dot
+     * 3. Wildcard match: supports simple wildcard patterns like "*.example.com"
      */
     public static boolean shouldBypassProxy(String host) {
         if (host == null || host.isEmpty()) {
@@ -295,9 +299,28 @@ public class ProxySettings {
         }
 
         List<String> bypassList = getProxyBypass();
-        for (String bypass : bypassList) {
-            if (host.contains(bypass.trim())) {
+        for (String bypassEntry : bypassList) {
+            String bypass = bypassEntry.trim();
+            if (bypass.isEmpty()) {
+                continue;
+            }
+
+            // Case 1: Exact match
+            if (host.equalsIgnoreCase(bypass)) {
                 return true;
+            }
+
+            // Case 2: Domain suffix match (e.g., ".example.com" matches "sub.example.com")
+            if (bypass.startsWith(".") && host.toLowerCase().endsWith(bypass.toLowerCase())) {
+                return true;
+            }
+
+            // Case 3: Wildcard match (e.g., "*.example.com" matches "sub.example.com")
+            if (bypass.startsWith("*.")) {
+                String suffix = bypass.substring(1); // Remove the *
+                if (host.toLowerCase().endsWith(suffix.toLowerCase())) {
+                    return true;
+                }
             }
         }
 
