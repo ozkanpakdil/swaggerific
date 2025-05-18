@@ -159,8 +159,7 @@ public class SwaggerApplication extends Application {
             }
         }
 
-        // Setup proxy authentication if needed
-        ProxySettings.setupProxyAuthentication();
+        // Proxy authentication is now handled on a per-connection basis
     }
 
     /**

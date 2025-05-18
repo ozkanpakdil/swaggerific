@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.Authenticator;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -64,13 +65,16 @@ public class HttpServiceImpl implements HttpService {
      * @return a configured HttpClient
      */
     private HttpClient createHttpClient() {
-        // Set up proxy authentication if needed
-        ProxySettings.setupProxyAuthentication();
-
         // Create HttpClient builder
         HttpClient.Builder builder = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.NORMAL);
+
+        // Set up proxy authenticator if needed
+        Authenticator authenticator = ProxySettings.createProxyAuthenticator();
+        if (authenticator != null) {
+            builder.authenticator(authenticator);
+        }
 
         // Only set custom proxy selector if not using system proxy
         if (!ProxySettings.useSystemProxy()) {

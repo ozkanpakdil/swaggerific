@@ -109,8 +109,7 @@ public class Proxy {
             // Clear password field for security
             proxyAuthPassword.clear();
 
-            // Apply proxy settings immediately
-            ProxySettings.setupProxyAuthentication();
+            // Proxy settings will be applied on a per-connection basis
 
             log.info("Proxy settings saved successfully");
         } catch (Exception e) {

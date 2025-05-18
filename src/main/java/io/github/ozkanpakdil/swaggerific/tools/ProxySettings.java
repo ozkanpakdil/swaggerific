@@ -185,14 +185,32 @@ public class ProxySettings {
     /**
      * Sets up proxy authentication if needed.
      * This method securely handles proxy credentials and ensures they are cleared from memory after use.
+     * 
+     * @deprecated This method sets a global JVM authenticator which affects all HTTP connections
+     * and can potentially break other components. Use {@link #createProxyAuthenticator()} for HttpClient
+     * or {@link #getProxyAuthorizationHeader()} for HttpURLConnection instead.
      */
+    @Deprecated
     public static void setupProxyAuthentication() {
+        // This method is deprecated and should not be used.
+        // It's kept for backward compatibility but does nothing.
+        log.warn("setupProxyAuthentication() is deprecated and does nothing. " +
+                "Use createProxyAuthenticator() for HttpClient or getProxyAuthorizationHeader() for HttpURLConnection instead.");
+    }
+
+    /**
+     * Creates an Authenticator for use with HttpClient that handles proxy authentication.
+     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
+     * 
+     * @return An Authenticator that can be used with HttpClient.Builder.authenticator()
+     */
+    public static Authenticator createProxyAuthenticator() {
         if (!useSystemProxy() && useProxyAuth()) {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
             if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
-                Authenticator.setDefault(new Authenticator() {
+                Authenticator authenticator = new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         if (getRequestingHost().equalsIgnoreCase(getProxyServer())) {
@@ -202,13 +220,15 @@ public class ProxySettings {
                         }
                         return null;
                     }
-                });
+                };
 
                 // Log that authentication is set up but don't log the username
                 log.info("Proxy authentication set up");
 
                 // Clear the password from memory
                 Arrays.fill(passwordChars, '\0');
+
+                return authenticator;
             } else {
                 // Clear the password from memory even if not used
                 if (passwordChars != null) {
@@ -216,6 +236,40 @@ public class ProxySettings {
                 }
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Gets the "Proxy-Authorization" header value for use with HttpURLConnection.
+     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
+     * 
+     * @return The "Proxy-Authorization" header value, or null if proxy authentication is not needed
+     */
+    public static String getProxyAuthorizationHeader() {
+        if (!useSystemProxy() && useProxyAuth()) {
+            final String username = getProxyAuthUsername();
+            final char[] passwordChars = getProxyAuthPassword();
+
+            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
+                // Create the authorization header value
+                String auth = username + ":" + new String(passwordChars);
+                String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+                String authHeader = "Basic " + encodedAuth;
+
+                // Clear the password from memory
+                Arrays.fill(passwordChars, '\0');
+
+                return authHeader;
+            } else {
+                // Clear the password from memory even if not used
+                if (passwordChars != null) {
+                    Arrays.fill(passwordChars, '\0');
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
