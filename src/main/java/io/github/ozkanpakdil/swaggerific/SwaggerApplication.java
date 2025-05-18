@@ -3,6 +3,7 @@ package io.github.ozkanpakdil.swaggerific;
 import atlantafx.base.theme.PrimerLight;
 import io.github.ozkanpakdil.swaggerific.animation.Preloader;
 import io.github.ozkanpakdil.swaggerific.model.ShortcutModel;
+import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,9 @@ public class SwaggerApplication extends Application {
         String fontSize = userPrefs.get(FONT_SIZE, ".93em");
         String selectedFont = userPrefs.get(SELECTED_FONT, "Verdana");
 
+        // Initialize proxy settings
+        initializeProxySettings();
+
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
@@ -74,6 +78,37 @@ public class SwaggerApplication extends Application {
         primaryStage.setY(userPrefs.getDouble(STAGE_Y, 0));
         primaryStage.setWidth(userPrefs.getDouble(STAGE_WIDTH, 800));
         primaryStage.setHeight(userPrefs.getDouble(STAGE_HEIGHT, 600));
+    }
+
+    /**
+     * Initializes proxy settings for the application.
+     * This sets up proxy authentication and system properties if needed.
+     */
+    private void initializeProxySettings() {
+        try {
+            log.info("Initializing proxy settings");
+
+            // Set up proxy authentication
+            ProxySettings.setupProxyAuthentication();
+
+            // If using system proxy, we don't need to do anything else
+            if (ProxySettings.useSystemProxy()) {
+                log.info("Using system proxy settings");
+                return;
+            }
+
+            // If custom proxy is configured, log the details
+            if (ProxySettings.getProxyServer() != null && !ProxySettings.getProxyServer().isEmpty()) {
+                log.info("Using custom proxy: {}:{}", ProxySettings.getProxyServer(), ProxySettings.getProxyPort());
+                if (ProxySettings.useProxyAuth()) {
+                    log.info("Proxy authentication is enabled");
+                }
+            } else {
+                log.info("No proxy configured");
+            }
+        } catch (Exception e) {
+            log.error("Error initializing proxy settings", e);
+        }
     }
 
     /**

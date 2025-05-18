@@ -1,6 +1,7 @@
 package io.github.ozkanpakdil.swaggerific.tools.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.github.ozkanpakdil.swaggerific.tools.exceptions.XmlFormattingException;
 import io.swagger.v3.core.util.Json;
 import org.slf4j.Logger;
@@ -15,13 +16,20 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,7 +48,7 @@ public class HttpServiceImpl implements HttpService {
      */
     public HttpServiceImpl(ObjectMapper mapper) {
         this.mapper = mapper;
-        this.client = HttpClient.newHttpClient();
+        this.client = createHttpClient();
     }
 
     /**
@@ -48,6 +56,50 @@ public class HttpServiceImpl implements HttpService {
      */
     public HttpServiceImpl() {
         this(Json.mapper());
+    }
+
+    /**
+     * Creates an HttpClient with the appropriate proxy configuration.
+     * 
+     * @return a configured HttpClient
+     */
+    private HttpClient createHttpClient() {
+        // Set up proxy authentication if needed
+        ProxySettings.setupProxyAuthentication();
+
+        // Create HttpClient builder
+        HttpClient.Builder builder = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(30))
+                .followRedirects(HttpClient.Redirect.NORMAL);
+
+        // Add proxy if configured
+        final Proxy proxy = ProxySettings.createProxy();
+        if (proxy != null && !ProxySettings.useSystemProxy()) {
+            // Create a custom proxy selector
+            ProxySelector proxySelector = new ProxySelector() {
+                @Override
+                public List<Proxy> select(URI uri) {
+                    // Check if this host should bypass the proxy
+                    if (uri != null && ProxySettings.shouldBypassProxy(uri.getHost())) {
+                        log.debug("Bypassing proxy for host: {}", uri.getHost());
+                        return Collections.singletonList(Proxy.NO_PROXY);
+                    }
+
+                    log.debug("Using proxy for host: {}", uri != null ? uri.getHost() : "unknown");
+                    return Collections.singletonList(proxy);
+                }
+
+                @Override
+                public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+                    log.error("Proxy connection failed for URI: {}", uri, ioe);
+                }
+            };
+
+            // Set the proxy selector
+            builder.proxy(proxySelector);
+        }
+
+        return builder.build();
     }
 
     @Override
