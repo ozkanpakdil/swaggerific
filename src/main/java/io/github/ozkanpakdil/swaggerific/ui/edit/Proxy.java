@@ -89,8 +89,7 @@ public class Proxy {
      */
     public void saveProxySettings(ActionEvent actionEvent) {
         try {
-            // Parse port number
-            int port = 8080;
+            int port;
             try {
                 port = Integer.parseInt(proxyPort.getText());
             } catch (NumberFormatException e) {
