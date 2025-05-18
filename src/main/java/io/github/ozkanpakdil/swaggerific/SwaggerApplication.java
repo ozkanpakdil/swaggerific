@@ -17,6 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
@@ -81,39 +87,85 @@ public class SwaggerApplication extends Application {
     }
 
     /**
-     * Initializes proxy settings for the application.
-     * This sets up proxy authentication and system properties if needed.
+     * Initializes proxy settings for the application. This sets up proxy authentication and system properties if needed.
      */
     private void initializeProxySettings() {
-        try {
-            log.info("Initializing proxy settings");
+        log.info("Initializing proxy settings...");
 
-            // Set up proxy authentication
-            ProxySettings.setupProxyAuthentication();
+        if (ProxySettings.useSystemProxy()) {
+            System.setProperty("java.net.useSystemProxies", "true");
+            log.info("Using system proxy settings");
+        } else {
+            System.setProperty("java.net.useSystemProxies", "false");
 
-            // If using system proxy, we don't need to do anything else
-            if (ProxySettings.useSystemProxy()) {
-                log.info("Using system proxy settings");
-                return;
-            }
+            String proxyHost = ProxySettings.getProxyServer();
+            int proxyPort = ProxySettings.getProxyPort();
 
-            // If custom proxy is configured, log the details
-            if (ProxySettings.getProxyServer() != null && !ProxySettings.getProxyServer().isEmpty()) {
-                log.info("Using custom proxy: {}:{}", ProxySettings.getProxyServer(), ProxySettings.getProxyPort());
-                if (ProxySettings.useProxyAuth()) {
-                    log.info("Proxy authentication is enabled");
-                }
+            if (proxyHost != null && !proxyHost.isEmpty()) {
+                // Set HTTP proxy
+                System.setProperty("http.proxyHost", proxyHost);
+                System.setProperty("http.proxyPort", String.valueOf(proxyPort));
+                System.setProperty("https.proxyHost", proxyHost);
+                System.setProperty("https.proxyPort", String.valueOf(proxyPort));
+                System.setProperty("ftp.proxyHost", proxyHost);
+                System.setProperty("ftp.proxyPort", String.valueOf(proxyPort));
+                System.setProperty("socksProxyHost", proxyHost);
+                System.setProperty("socksProxyPort", String.valueOf(proxyPort));
+
+                String nonProxyHosts = String.join("|", ProxySettings.getProxyBypass());
+                System.setProperty("http.nonProxyHosts", nonProxyHosts);
+                System.setProperty("https.nonProxyHosts", nonProxyHosts);
+                System.setProperty("ftp.nonProxyHosts", nonProxyHosts);
+
+                log.info("Custom proxy configured: {}:{}", proxyHost, proxyPort);
+
+                // Install JVM-wide ProxySelector
+                ProxySelector.setDefault(new ProxySelector() {
+                    private final ProxySelector defaultSelector = ProxySelector.getDefault();
+
+                    @Override
+                    public List<java.net.Proxy> select(URI uri) {
+                        if (ProxySettings.shouldBypassProxy(uri.getHost())) {
+                            return Collections.singletonList(java.net.Proxy.NO_PROXY);
+                        }
+                        java.net.Proxy proxy = new java.net.Proxy(
+                                java.net.Proxy.Type.HTTP,
+                                new InetSocketAddress(proxyHost, proxyPort)
+                        );
+                        return Collections.singletonList(proxy);
+                    }
+
+                    @Override
+                    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+                        log.error("Proxy connection failed for {}: {}", uri, ioe.getMessage());
+                        if (defaultSelector != null) {
+                            defaultSelector.connectFailed(uri, sa, ioe);
+                        }
+                    }
+                });
             } else {
+                // Clear all proxy settings
+                System.clearProperty("http.proxyHost");
+                System.clearProperty("http.proxyPort");
+                System.clearProperty("https.proxyHost");
+                System.clearProperty("https.proxyPort");
+                System.clearProperty("ftp.proxyHost");
+                System.clearProperty("ftp.proxyPort");
+                System.clearProperty("socksProxyHost");
+                System.clearProperty("socksProxyPort");
+                System.clearProperty("http.nonProxyHosts");
+                ProxySelector.setDefault(null);
                 log.info("No proxy configured");
             }
-        } catch (Exception e) {
-            log.error("Error initializing proxy settings", e);
         }
+
+        // Setup proxy authentication if needed
+        ProxySettings.setupProxyAuthentication();
     }
 
     /**
      * Applies custom shortcuts from preferences to menu items and other controls.
-     * 
+     *
      * @param root The root node of the scene graph
      */
     private void applyCustomShortcuts(Parent root) {
@@ -126,9 +178,8 @@ public class SwaggerApplication extends Application {
     }
 
     /**
-     * Static method to apply custom shortcuts to a scene.
-     * This can be called from anywhere to refresh shortcuts.
-     * 
+     * Static method to apply custom shortcuts to a scene. This can be called from anywhere to refresh shortcuts.
+     *
      * @param scene The scene to apply shortcuts to
      */
     public static void applyCustomShortcutsToScene(Scene scene) {
@@ -156,8 +207,7 @@ public class SwaggerApplication extends Application {
     }
 
     /**
-     * Static method to apply custom shortcuts to all open windows.
-     * This can be called from anywhere to refresh shortcuts.
+     * Static method to apply custom shortcuts to all open windows. This can be called from anywhere to refresh shortcuts.
      */
     public void applyCustomShortcutsToAllWindows() {
         if (primaryStage == null) {
@@ -182,7 +232,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Recursively finds all controls with shortcuts in the scene graph and applies custom shortcuts.
-     * 
+     *
      * @param parent The parent node to search
      */
     private void findAndApplyShortcuts(Parent parent) {
@@ -209,7 +259,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Processes a menu and its items, applying custom shortcuts.
-     * 
+     *
      * @param menu The menu to process
      */
     private void processMenu(javafx.scene.control.Menu menu) {
@@ -227,7 +277,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Applies a custom shortcut to a menu item if one exists in preferences.
-     * 
+     *
      * @param menuItem The menu item to apply the shortcut to
      */
     private void applyCustomShortcutToMenuItem(MenuItem menuItem) {
@@ -258,7 +308,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Gets the action name from a menu item.
-     * 
+     *
      * @param menuItem The menu item
      * @return The action name, or null if not found
      */
@@ -295,7 +345,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Applies a custom shortcut to a button if one exists in preferences.
-     * 
+     *
      * @param button The button to apply the shortcut to
      */
     private void applyCustomShortcutToButton(javafx.scene.control.Button button) {
@@ -335,7 +385,7 @@ public class SwaggerApplication extends Application {
                         // Insert underscore before the character to make it a mnemonic
                         String newText = text.substring(0, index) + "_" + text.substring(index);
                         button.setText(newText);
-                        log.info("Applied custom shortcut {} to button '{}' (action: {})", 
+                        log.info("Applied custom shortcut {} to button '{}' (action: {})",
                                 customShortcutStr, newText, onAction);
                     } else {
                         // If no suitable character is found, append the key code to the button text
@@ -348,10 +398,12 @@ public class SwaggerApplication extends Application {
                             // Insert underscore before the character to make it a mnemonic
                             newText = newText.substring(0, index) + "_" + newText.substring(index);
                             button.setText(newText);
-                            log.info("Applied custom shortcut {} to button '{}' with appended key code (action: {})", 
+                            log.info("Applied custom shortcut {} to button '{}' with appended key code (action: {})",
                                     customShortcutStr, newText, onAction);
                         } else {
-                            log.warn("Could not find a suitable character for mnemonic in button text '{}', even after appending key code", text);
+                            log.warn(
+                                    "Could not find a suitable character for mnemonic in button text '{}', even after appending key code",
+                                    text);
                         }
                     }
                 }
@@ -363,7 +415,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Finds a suitable character index in the text for a mnemonic based on the key code name.
-     * 
+     *
      * @param text The text to search in
      * @param keyCodeName The key code name to search for
      * @return The index of a suitable character, or -1 if none is found
@@ -405,7 +457,7 @@ public class SwaggerApplication extends Application {
 
     /**
      * Gets the action name from a button.
-     * 
+     *
      * @param button The button
      * @return The action name, or null if not found
      */
