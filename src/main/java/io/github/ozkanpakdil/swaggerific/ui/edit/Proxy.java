@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 
 public class Proxy {
@@ -81,9 +82,9 @@ public class Proxy {
     }
 
     /**
-     * Saves proxy settings when the save button is clicked.
-     * This method securely handles proxy credentials and ensures they are properly saved.
-     * 
+     * Saves proxy settings when the save button is clicked. This method securely handles proxy credentials and ensures they are
+     * properly saved.
+     *
      * @param actionEvent The action event
      */
     public void saveProxySettings(ActionEvent actionEvent) {
@@ -93,7 +94,8 @@ public class Proxy {
             try {
                 port = Integer.parseInt(proxyPort.getText());
             } catch (NumberFormatException e) {
-                log.warn("Invalid port number, using default: 8080");
+                log.error("Port must be an integer (1-65535)");
+                return; // abort save, keep dialog open
             }
 
             // Get password from UI
