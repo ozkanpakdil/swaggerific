@@ -177,7 +177,21 @@ public class ProxySettings {
             port = DEFAULT_PROXY_PORT;
         }
 
-        Proxy.Type type = Proxy.Type.HTTP;
+        // Convert string proxy type to Proxy.Type enum
+        Proxy.Type type;
+        String proxyTypeStr = getProxyType();
+
+        // Java's Proxy.Type enum only supports HTTP and SOCKS, not HTTPS
+        // Both HTTP and HTTPS proxy settings use Proxy.Type.HTTP
+        if ("HTTP".equalsIgnoreCase(proxyTypeStr) || "HTTPS".equalsIgnoreCase(proxyTypeStr)) {
+            type = Proxy.Type.HTTP;
+        } else if ("SOCKS".equalsIgnoreCase(proxyTypeStr)) {
+            type = Proxy.Type.SOCKS;
+        } else {
+            // Default to HTTP for any unrecognized type
+            log.warn("Unrecognized proxy type: {}. Using HTTP instead.", proxyTypeStr);
+            type = Proxy.Type.HTTP;
+        }
 
         return new Proxy(type, new InetSocketAddress(server, port));
     }
