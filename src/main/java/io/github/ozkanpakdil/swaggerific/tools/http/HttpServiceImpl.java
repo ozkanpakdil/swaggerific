@@ -72,21 +72,27 @@ public class HttpServiceImpl implements HttpService {
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.NORMAL);
 
-        // Add proxy if configured
-        final Proxy proxy = ProxySettings.createProxy();
-        if (proxy != null && !ProxySettings.useSystemProxy()) {
-            // Create a custom proxy selector
+        // Only set custom proxy selector if not using system proxy
+        if (!ProxySettings.useSystemProxy()) {
+            // Create a custom proxy selector that dynamically resolves proxy settings
             ProxySelector proxySelector = new ProxySelector() {
                 @Override
                 public List<Proxy> select(URI uri) {
-                    // Check if this host should bypass the proxy
                     if (uri != null && ProxySettings.shouldBypassProxy(uri.getHost())) {
                         log.debug("Bypassing proxy for host: {}", uri.getHost());
                         return Collections.singletonList(Proxy.NO_PROXY);
                     }
 
-                    log.debug("Using proxy for host: {}", uri != null ? uri.getHost() : "unknown");
-                    return Collections.singletonList(proxy);
+                    // Dynamically create proxy instance each time
+                    Proxy currentProxy = ProxySettings.createProxy();
+                    if (currentProxy != null) {
+                        log.debug("Using proxy for host: {}", uri != null ? uri.getHost() : "unknown");
+                        return Collections.singletonList(currentProxy);
+                    }
+
+                    log.debug("No proxy configured, using direct connection for: {}",
+                            uri != null ? uri.getHost() : "unknown");
+                    return Collections.singletonList(Proxy.NO_PROXY);
                 }
 
                 @Override
@@ -95,7 +101,6 @@ public class HttpServiceImpl implements HttpService {
                 }
             };
 
-            // Set the proxy selector
             builder.proxy(proxySelector);
         }
 
