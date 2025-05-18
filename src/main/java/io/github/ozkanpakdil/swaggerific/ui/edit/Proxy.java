@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Arrays;
 
 public class Proxy {
     private static final Logger log = LoggerFactory.getLogger(Proxy.class);
@@ -60,12 +61,26 @@ public class Proxy {
         proxyPort.setText(String.valueOf(ProxySettings.getProxyPort()));
         proxyAuth.setSelected(ProxySettings.useProxyAuth());
         proxyAuthUsername.setText(ProxySettings.getProxyAuthUsername());
-        proxyAuthPassword.setText(ProxySettings.getProxyAuthPassword());
-        proxyBypass.setText(String.join(",", ProxySettings.getProxyBypass()));
 
-        // TODO: Load system proxy auth settings if available
+        // Securely handle password
+        char[] passwordChars = ProxySettings.getProxyAuthPassword();
+        if (passwordChars != null && passwordChars.length > 0) {
+            proxyAuthPassword.setText(new String(passwordChars));
+            // Clear the password from memory
+            Arrays.fill(passwordChars, '\0');
+        } else {
+            proxyAuthPassword.setText("");
+        }
+
+        proxyBypass.setText(String.join(",", ProxySettings.getProxyBypass()));
     }
 
+    /**
+     * Saves proxy settings when the save button is clicked.
+     * This method securely handles proxy credentials and ensures they are properly saved.
+     * 
+     * @param actionEvent The action event
+     */
     public void saveProxySettings(ActionEvent actionEvent) {
         try {
             // Parse port number
@@ -76,24 +91,31 @@ public class Proxy {
                 log.warn("Invalid port number, using default: 8080");
             }
 
+            // Get password from UI
+            String password = proxyAuthPassword.getText();
+
             // Save settings to preferences
             ProxySettings.saveSettings(
-                useSystemProxy.isSelected(),
-                proxyType.getValue(),
-                proxyServer.getText(),
-                port,
-                proxyAuth.isSelected(),
-                proxyAuthUsername.getText(),
-                proxyAuthPassword.getText(),
-                proxyBypass.getText()
+                    useSystemProxy.isSelected(),
+                    proxyType.getValue() != null ? proxyType.getValue() : "HTTP",
+                    proxyServer.getText(),
+                    port,
+                    proxyAuth.isSelected(),
+                    proxyAuthUsername.getText(),
+                    password,
+                    proxyBypass.getText()
             );
+
+            // Clear password field for security
+            proxyAuthPassword.clear();
 
             // Apply proxy settings immediately
             ProxySettings.setupProxyAuthentication();
 
             log.info("Proxy settings saved successfully");
         } catch (Exception e) {
-            log.error("Error saving proxy settings", e);
+            // Log error without including any sensitive information
+            log.error("Error saving proxy settings: {}", e.getMessage());
         }
     }
 }

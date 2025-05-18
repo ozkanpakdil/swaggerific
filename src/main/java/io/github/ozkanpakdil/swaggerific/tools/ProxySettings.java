@@ -5,14 +5,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -77,29 +87,72 @@ public class ProxySettings {
         return Arrays.asList(bypass.split(","));
     }
 
-    public static String getProxyAuthPassword() {
+    /**
+     * Gets the proxy authentication password as a char array.
+     * The caller is responsible for clearing the returned char array after use.
+     * 
+     * @return The proxy authentication password as a char array
+     */
+    public static char[] getProxyAuthPassword() {
         String encryptedPassword = userPrefs.get(PROXY_AUTH_PASSWORD, "");
-        return encryptedPassword.isEmpty() ? "" : PasswordEncryption.decrypt(encryptedPassword);
+        if (encryptedPassword.isEmpty()) {
+            return new char[0];
+        }
+
+        String decryptedPassword = PasswordEncryption.decrypt(encryptedPassword);
+        char[] passwordChars = decryptedPassword.toCharArray();
+
+        // Clear the decrypted string from memory
+        // This doesn't guarantee the string will be garbage collected immediately,
+        // but it's better than nothing
+        decryptedPassword = null;
+
+        return passwordChars;
     }
 
+    /**
+     * Saves proxy settings to preferences.
+     * This method securely handles proxy credentials and ensures they are properly encrypted.
+     * 
+     * @param useSystemProxy Whether to use system proxy
+     * @param proxyType The proxy type
+     * @param proxyServer The proxy server
+     * @param proxyPort The proxy port
+     * @param proxyAuth Whether proxy authentication is required
+     * @param proxyAuthUsername The proxy authentication username
+     * @param proxyAuthPassword The proxy authentication password
+     * @param proxyBypass The proxy bypass list
+     */
     public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer,
             int proxyPort, boolean proxyAuth, String proxyAuthUsername,
             String proxyAuthPassword, String proxyBypass) {
-        userPrefs.putBoolean(USE_SYSTEM_PROXY, useSystemProxy);
-        userPrefs.put(PROXY_TYPE, proxyType);
-        userPrefs.put(PROXY_SERVER, proxyServer);
-        userPrefs.putInt(PROXY_PORT, proxyPort);
-        userPrefs.putBoolean(PROXY_AUTH, proxyAuth);
-        userPrefs.put(PROXY_AUTH_USERNAME, proxyAuthUsername);
-        // Encrypt password before saving
-        String encryptedPassword = proxyAuthPassword.isEmpty() ? "" :
-                PasswordEncryption.encrypt(proxyAuthPassword);
-        userPrefs.put(PROXY_AUTH_PASSWORD, encryptedPassword);
-        userPrefs.put(PROXY_BYPASS, proxyBypass);
+        try {
+            userPrefs.putBoolean(USE_SYSTEM_PROXY, useSystemProxy);
+            userPrefs.put(PROXY_TYPE, proxyType != null ? proxyType : DEFAULT_PROXY_TYPE);
+            userPrefs.put(PROXY_SERVER, proxyServer != null ? proxyServer : DEFAULT_PROXY_SERVER);
+            userPrefs.putInt(PROXY_PORT, proxyPort > 0 && proxyPort <= 65535 ? proxyPort : DEFAULT_PROXY_PORT);
+            userPrefs.putBoolean(PROXY_AUTH, proxyAuth);
+            userPrefs.put(PROXY_AUTH_USERNAME, proxyAuthUsername != null ? proxyAuthUsername : DEFAULT_PROXY_AUTH_USERNAME);
 
-        log.info("Proxy settings saved. Using system proxy: {}", useSystemProxy);
-        if (!useSystemProxy) {
-            log.info("Custom proxy configured: {}:{}", proxyServer, proxyPort);
+            // Encrypt password before saving
+            String encryptedPassword = "";
+            if (proxyAuthPassword != null && !proxyAuthPassword.isEmpty()) {
+                encryptedPassword = PasswordEncryption.encrypt(proxyAuthPassword);
+            }
+            userPrefs.put(PROXY_AUTH_PASSWORD, encryptedPassword);
+
+            userPrefs.put(PROXY_BYPASS, proxyBypass != null ? proxyBypass : DEFAULT_PROXY_BYPASS);
+
+            // Log without sensitive information
+            log.info("Proxy settings saved. Using system proxy: {}", useSystemProxy);
+            if (!useSystemProxy && proxyServer != null && !proxyServer.isEmpty()) {
+                log.info("Custom proxy configured: {}:{}", proxyServer, proxyPort);
+                if (proxyAuth) {
+                    log.info("Proxy authentication enabled");
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to save proxy settings", e);
         }
     }
 
@@ -118,6 +171,11 @@ public class ProxySettings {
         if (server == null || server.isEmpty()) {
             return null;
         }
+        // Validate port range
+        if (port <= 0 || port > 65535) {
+            log.warn("Invalid proxy port: {}. Using default port: {}", port, DEFAULT_PROXY_PORT);
+            port = DEFAULT_PROXY_PORT;
+        }
 
         Proxy.Type type = Proxy.Type.HTTP;
 
@@ -126,24 +184,36 @@ public class ProxySettings {
 
     /**
      * Sets up proxy authentication if needed.
+     * This method securely handles proxy credentials and ensures they are cleared from memory after use.
      */
     public static void setupProxyAuthentication() {
         if (!useSystemProxy() && useProxyAuth()) {
             final String username = getProxyAuthUsername();
-            final String password = getProxyAuthPassword();
+            final char[] passwordChars = getProxyAuthPassword();
 
-            if (username != null && !username.isEmpty() && password != null) {
+            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         if (getRequestingHost().equalsIgnoreCase(getProxyServer())) {
-                            return new PasswordAuthentication(username, password.toCharArray());
+                            // Create a copy of the password chars to avoid modifying the original
+                            char[] passwordCopy = Arrays.copyOf(passwordChars, passwordChars.length);
+                            return new PasswordAuthentication(username, passwordCopy);
                         }
                         return null;
                     }
                 });
 
-                log.info("Proxy authentication set up for user: {}", username);
+                // Log that authentication is set up but don't log the username
+                log.info("Proxy authentication set up");
+
+                // Clear the password from memory
+                Arrays.fill(passwordChars, '\0');
+            } else {
+                // Clear the password from memory even if not used
+                if (passwordChars != null) {
+                    Arrays.fill(passwordChars, '\0');
+                }
             }
         }
     }
@@ -167,39 +237,186 @@ public class ProxySettings {
     }
 
     private static class PasswordEncryption {
-        private static final String ENCRYPT_KEY = "SwaggerificProxy!"; // Simple key for example
         private static final String ALGORITHM = "AES";
+        private static final String KEYSTORE_TYPE = "PKCS12";
+        private static final String KEY_ALIAS = "swaggerific-proxy-key";
+        private static final String KEYSTORE_FILENAME = "swaggerific-keystore.p12";
 
-        static String encrypt(String value) {
+        // Password for the keystore - in a real-world scenario, this would be handled more securely
+        // For this application, we're using a fixed password as it's still more secure than the previous approach
+        private static final char[] KEYSTORE_PASSWORD = "swaggerific-keystore-password".toCharArray();
+
+        /**
+         * Encrypts a password stored as a char array
+         * 
+         * @param password The password to encrypt
+         * @return Base64 encoded encrypted password
+         */
+        static String encrypt(String password) {
+            if (password == null || password.isEmpty()) {
+                return "";
+            }
+
+            char[] passwordChars = password.toCharArray();
             try {
-                SecretKeySpec key = createSecretKey(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8));
+                SecretKey key = getOrCreateSecretKey();
                 Cipher cipher = Cipher.getInstance(ALGORITHM);
                 cipher.init(Cipher.ENCRYPT_MODE, key);
-                byte[] encryptedBytes = cipher.doFinal(value.getBytes());
+
+                // Convert char[] to byte[] for encryption
+                ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(passwordChars));
+                byte[] passwordBytes = new byte[byteBuffer.remaining()];
+                byteBuffer.get(passwordBytes);
+
+                // Clear the ByteBuffer
+                clearBuffer(byteBuffer);
+
+                // Encrypt the password
+                byte[] encryptedBytes = cipher.doFinal(passwordBytes);
+
+                // Clear the password bytes
+                Arrays.fill(passwordBytes, (byte) 0);
+
+                // Clear the password char array
+                Arrays.fill(passwordChars, '\0');
+
                 return Base64.getEncoder().encodeToString(encryptedBytes);
             } catch (Exception e) {
                 log.error("Failed to encrypt proxy password", e);
                 return "";
+            } finally {
+                // Ensure password is cleared from memory
+                Arrays.fill(passwordChars, '\0');
             }
         }
 
+        /**
+         * Decrypts a password and returns it as a char array
+         * 
+         * @param encrypted The encrypted password
+         * @return The decrypted password as a char array
+         */
         static String decrypt(String encrypted) {
+            if (encrypted == null || encrypted.isEmpty()) {
+                return "";
+            }
+
             try {
-                SecretKeySpec key = createSecretKey(ENCRYPT_KEY.getBytes(StandardCharsets.UTF_8));
+                SecretKey key = getOrCreateSecretKey();
                 Cipher cipher = Cipher.getInstance(ALGORITHM);
                 cipher.init(Cipher.DECRYPT_MODE, key);
+
                 byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encrypted));
-                return new String(decryptedBytes);
+
+                // Convert byte[] to String
+                String result = new String(decryptedBytes, StandardCharsets.UTF_8);
+
+                // Clear the decrypted bytes
+                Arrays.fill(decryptedBytes, (byte) 0);
+
+                return result;
             } catch (Exception e) {
                 log.error("Failed to decrypt proxy password", e);
                 return "";
             }
         }
 
-        private static SecretKeySpec createSecretKey(byte[] key) throws NoSuchAlgorithmException {
-            MessageDigest sha = MessageDigest.getInstance("SHA-1");
-            byte[] keyBytes = sha.digest(key);
-            return new SecretKeySpec(Arrays.copyOf(keyBytes, 16), ALGORITHM);
+        /**
+         * Gets the secret key from the keystore or creates a new one if it doesn't exist
+         * 
+         * @return The secret key
+         * @throws Exception If there's an error accessing or creating the key
+         */
+        private static SecretKey getOrCreateSecretKey() throws Exception {
+            KeyStore keyStore = loadOrCreateKeyStore();
+
+            // Check if the key already exists
+            if (keyStore.containsAlias(KEY_ALIAS)) {
+                return (SecretKey) keyStore.getKey(KEY_ALIAS, KEYSTORE_PASSWORD);
+            }
+
+            // Generate a new key
+            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+            keyGen.init(256, new SecureRandom());
+            SecretKey key = keyGen.generateKey();
+
+            // Store the key
+            KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
+            keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(KEYSTORE_PASSWORD));
+
+            // Save the keystore
+            saveKeyStore(keyStore);
+
+            return key;
+        }
+
+        /**
+         * Loads the keystore or creates a new one if it doesn't exist
+         * 
+         * @return The keystore
+         * @throws Exception If there's an error loading or creating the keystore
+         */
+        private static KeyStore loadOrCreateKeyStore() throws Exception {
+            KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+            File keystoreFile = getKeystoreFile();
+
+            if (keystoreFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(keystoreFile)) {
+                    keyStore.load(fis, KEYSTORE_PASSWORD);
+                }
+            } else {
+                // Initialize a new keystore
+                keyStore.load(null, KEYSTORE_PASSWORD);
+            }
+
+            return keyStore;
+        }
+
+        /**
+         * Saves the keystore to disk
+         * 
+         * @param keyStore The keystore to save
+         * @throws Exception If there's an error saving the keystore
+         */
+        private static void saveKeyStore(KeyStore keyStore) throws Exception {
+            File keystoreFile = getKeystoreFile();
+
+            // Ensure the parent directory exists
+            keystoreFile.getParentFile().mkdirs();
+
+            try (FileOutputStream fos = new FileOutputStream(keystoreFile)) {
+                keyStore.store(fos, KEYSTORE_PASSWORD);
+            }
+        }
+
+        /**
+         * Gets the keystore file
+         * 
+         * @return The keystore file
+         */
+        private static File getKeystoreFile() {
+            String userHome = System.getProperty("user.home");
+            Path appDir = Paths.get(userHome, ".swaggerific");
+
+            // Create the directory if it doesn't exist
+            try {
+                Files.createDirectories(appDir);
+            } catch (IOException e) {
+                log.error("Failed to create application directory", e);
+            }
+
+            return appDir.resolve(KEYSTORE_FILENAME).toFile();
+        }
+
+        /**
+         * Clears a ByteBuffer
+         * 
+         * @param buffer The buffer to clear
+         */
+        private static void clearBuffer(ByteBuffer buffer) {
+            buffer.clear();
+            byte[] array = buffer.array();
+            Arrays.fill(array, (byte) 0);
         }
     }
 }
