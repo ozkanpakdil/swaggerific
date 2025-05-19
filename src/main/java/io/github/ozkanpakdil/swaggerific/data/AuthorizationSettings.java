@@ -2,6 +2,7 @@ package io.github.ozkanpakdil.swaggerific.data;
 
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController.AuthType;
+import io.github.ozkanpakdil.swaggerific.security.CredentialEncryption;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,6 +19,9 @@ import java.util.Map;
 public class AuthorizationSettings implements Serializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthorizationSettings.class);
     
+    @Serial
+    private static final long serialVersionUID = -2338626292552177485L;
+
     // Map of URL to authorization settings
     private Map<String, AuthSetting> settingsByUrl = new HashMap<>();
     
@@ -25,13 +29,48 @@ public class AuthorizationSettings implements Serializable {
      * Inner class to store authorization settings for a specific URL.
      */
     public static class AuthSetting implements Serializable {
+        @Serial
+        private static final long serialVersionUID = -1234567890123456789L;
+
         private AuthType authType;
-        private String apiKeyName;
-        private String apiKeyValue;
-        private String username;
-        private String password;
-        private String bearerToken;
-        
+        private transient String apiKeyName;
+        private transient String apiKeyValue;
+        private transient String username;
+        private transient String password;
+        private transient String bearerToken;
+
+        // Encrypted versions of sensitive fields for serialization
+        private String encryptedApiKeyValue;
+        private String encryptedUsername;
+        private String encryptedPassword;
+        private String encryptedBearerToken;
+
+        @Serial
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            // Encrypt sensitive data before serialization
+            this.encryptedApiKeyValue = CredentialEncryption.encrypt(apiKeyValue);
+            this.encryptedUsername = CredentialEncryption.encrypt(username);
+            this.encryptedPassword = CredentialEncryption.encrypt(password);
+            this.encryptedBearerToken = CredentialEncryption.encrypt(bearerToken);
+
+            out.defaultWriteObject();
+            out.writeObject(apiKeyName); // apiKeyName is not sensitive, but still needs manual writing due to transient
+        }
+
+        @Serial
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+
+            // Read non-sensitive transient field
+            this.apiKeyName = (String) in.readObject();
+
+            // Decrypt sensitive data after deserialization
+            this.apiKeyValue = CredentialEncryption.decrypt(encryptedApiKeyValue);
+            this.username = CredentialEncryption.decrypt(encryptedUsername);
+            this.password = CredentialEncryption.decrypt(encryptedPassword);
+            this.bearerToken = CredentialEncryption.decrypt(encryptedBearerToken);
+        }
+
         public AuthSetting() {
             this.authType = AuthType.NO_AUTH;
         }
@@ -204,3 +243,4 @@ public class AuthorizationSettings implements Serializable {
         in.defaultReadObject();
     }
 }
+
