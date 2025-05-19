@@ -6055,10 +6055,12 @@
       "type": "com.fasterxml.jackson.databind.util.StdDateFormat"
     },
     {
-      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings"
+      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings",
+      "allDeclaredFields": true
     },
     {
-      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings$AuthSetting"
+      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings$AuthSetting",
+      "allDeclaredFields": true
     },
     {
       "type": "io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
