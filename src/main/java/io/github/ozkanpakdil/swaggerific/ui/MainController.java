@@ -5,6 +5,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.ozkanpakdil.swaggerific.DisableWindow;
+import io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings;
 import io.github.ozkanpakdil.swaggerific.data.SwaggerModal;
 import io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
@@ -86,6 +87,7 @@ public class MainController implements Initializable {
 
     //TODO this can go to Preferences.userNodeForPackage in the future
     final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
+    final String AUTH_SETTINGS = System.getProperty("user.home") + "/.swaggerific/auth_settings.bin";
 
     public TabPane tabRequests;
     public TextField txtFilterTree;
@@ -122,6 +124,7 @@ public class MainController implements Initializable {
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("loader.fxml"));
     VBox boxLoader;
     HttpUtility httpUtility = new HttpUtility();
+    AuthorizationSettings authorizationSettings = new AuthorizationSettings();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -485,19 +488,33 @@ public class MainController implements Initializable {
             if (treePaths.getRoot() == null) {
                 return;
             }
+
+            // Save tree structure
             treeFilter.filterTreeItems(treePaths.getRoot(), "");
             File sessionFile = new File(SESSION);
             sessionFile.getParentFile().mkdirs();
-            FileOutputStream out = new FileOutputStream(sessionFile);
-            ObjectOutputStream oos = new ObjectOutputStream(out);
-            oos.writeObject(new TreeItemSerialisationWrapper<>(treeItemRoot));
-            oos.flush();
+            try (FileOutputStream out = new FileOutputStream(sessionFile);
+                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                oos.writeObject(new TreeItemSerialisationWrapper<>(treeItemRoot));
+                oos.flush();
+            }
+
+            // Save authorization settings
+            File authSettingsFile = new File(AUTH_SETTINGS);
+            authSettingsFile.getParentFile().mkdirs();
+            try (FileOutputStream out = new FileOutputStream(authSettingsFile);
+                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                oos.writeObject(authorizationSettings);
+                oos.flush();
+                log.info("Saved authorization settings with {} entries", authorizationSettings.size());
+            }
         } catch (Exception e) {
             log.error("Problem serializing", e);
         }
     }
 
     public void onOpening() {
+        // Load tree structure
         if (Paths.get(SESSION).toFile().isFile()) {
             try (ObjectInputStream ois = new ObjectInputStream(
                     new ByteArrayInputStream(Files.readAllBytes(Path.of(SESSION))))) {
@@ -508,6 +525,23 @@ public class MainController implements Initializable {
                 log.error("Problem deserializing the last session", e);
                 try {
                     Files.delete(Paths.get(SESSION));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+
+        // Load authorization settings
+        if (Paths.get(AUTH_SETTINGS).toFile().isFile()) {
+            try (ObjectInputStream ois = new ObjectInputStream(
+                    new ByteArrayInputStream(Files.readAllBytes(Path.of(AUTH_SETTINGS))))) {
+                authorizationSettings = (AuthorizationSettings) ois.readObject();
+                log.info("Loaded authorization settings with {} entries", authorizationSettings.size());
+            } catch (Exception e) {
+                log.error("Problem deserializing authorization settings", e);
+                try {
+                    Files.delete(Paths.get(AUTH_SETTINGS));
+                    authorizationSettings = new AuthorizationSettings();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }

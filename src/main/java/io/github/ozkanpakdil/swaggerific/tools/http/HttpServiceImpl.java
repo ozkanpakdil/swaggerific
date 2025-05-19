@@ -202,11 +202,14 @@ public class HttpServiceImpl implements HttpService {
     @Override
     public HttpResponse sendRequest(HttpRequest request) {
         try {
+            log.info("HttpServiceImpl received request with headers: {}", request.headers());
+
             String[] headerArray = new String[request.headers().size() * 2];
             int i = 0;
             for (Map.Entry<String, String> entry : request.headers().entrySet()) {
                 headerArray[i++] = entry.getKey();
                 headerArray[i++] = entry.getValue();
+                log.info("Adding header: {} = {}", entry.getKey(), entry.getValue());
             }
 
             java.net.http.HttpRequest.Builder requestBuilder = java.net.http.HttpRequest.newBuilder()
@@ -216,6 +219,7 @@ public class HttpServiceImpl implements HttpService {
 
             if (headerArray.length > 0) {
                 requestBuilder.headers(headerArray);
+                log.info("Added {} headers to the request", headerArray.length / 2);
             }
 
             java.net.http.HttpRequest httpRequest = requestBuilder.build();

@@ -78,7 +78,39 @@ public class TabRequestController extends TabPane {
     @FXML
     TableView tableHeaders;
 
+    @FXML
+    private io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController authorizationController;
+
     JsonColorize jsonColorize = new JsonColorize();
+
+    /**
+     * Saves the current authorization settings for the current URL.
+     * This method is called when the authorization settings change.
+     */
+    private void saveAuthorizationSettings() {
+        if (mainController != null && authorizationController != null && txtAddress != null) {
+            String url = txtAddress.getText();
+            if (url != null && !url.isEmpty()) {
+                mainController.authorizationSettings.saveSettingsForUrl(url, authorizationController);
+                log.debug("Saved authorization settings for URL: {}", url);
+            }
+        }
+    }
+
+    /**
+     * Loads authorization settings for the specified URL.
+     * This method is called when the URL changes.
+     * 
+     * @param url the URL to load settings for
+     */
+    private void loadAuthorizationSettings(String url) {
+        if (mainController != null && authorizationController != null && url != null && !url.isEmpty()) {
+            boolean applied = mainController.authorizationSettings.applySettingsToController(url, authorizationController);
+            if (applied) {
+                log.debug("Loaded authorization settings for URL: {}", url);
+            }
+        }
+    }
     XmlColorizer xmlColorizer = new XmlColorizer();
 
     private void addTableRowIfFulfilled() {
@@ -246,6 +278,16 @@ public class TabRequestController extends TabPane {
                         }
                     });
 
+                    log.info("Headers before applying authentication: {}", headers);
+
+                    // Apply authentication headers if available
+                    if (authorizationController != null) {
+                        authorizationController.applyAuthHeaders(headers);
+                        log.info("Headers after applying authentication: {}", headers);
+                    } else {
+                        log.warn("Authorization controller is null, skipping authentication");
+                    }
+
                     // Get request body
                     String body = codeJsonRequest.getText();
 
@@ -280,6 +322,21 @@ public class TabRequestController extends TabPane {
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
         codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
+
+        // Set callback on authorization controller to save settings when they change
+        if (authorizationController != null) {
+            authorizationController.setOnSettingsChangeCallback(this::saveAuthorizationSettings);
+
+            // Load authorization settings for the current URL
+            loadAuthorizationSettings(uri);
+        }
+
+        // Add listener to txtAddress to load authorization settings when URL changes
+        txtAddress.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                loadAuthorizationSettings(newValue);
+            }
+        });
 
         // Apply custom shortcuts to the send button
         // First, ensure the button is fully initialized

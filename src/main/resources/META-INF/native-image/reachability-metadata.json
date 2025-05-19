@@ -1070,6 +1070,7 @@
     },
     {
       "type": "io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController",
+      "allDeclaredFields": true,
       "methods": [
         {
           "name": "<init>",
@@ -6054,7 +6055,18 @@
       "type": "com.fasterxml.jackson.databind.util.StdDateFormat"
     },
     {
+      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings",
+      "allDeclaredFields": true
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings$AuthSetting",
+      "allDeclaredFields": true
+    },
+    {
       "type": "io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController$AuthType"
     },
     {
       "type": "java.lang.Enum"

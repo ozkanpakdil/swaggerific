@@ -162,6 +162,8 @@ public class HttpUtility {
         try {
             URI uri = buildUri(targetUri, queryParams, pathParams);
 
+            log.info("Headers before creating request: {}", headers);
+
             HttpRequest request = new HttpRequest.Builder()
                     .uri(uri)
                     .method(httpMethod.name())
@@ -169,7 +171,7 @@ public class HttpUtility {
                     .body(body)
                     .build();
 
-            log.info("Sending {} request to {}", httpMethod.name(), uri);
+            log.info("Sending {} request to {} with headers: {}", httpMethod.name(), uri, request.headers());
             return httpService.sendRequest(request);
         } catch (Exception e) {
             log.error("Error preparing request: {}", e.getMessage(), e);

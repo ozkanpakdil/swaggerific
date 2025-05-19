@@ -1,10 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController"
             prefHeight="400.0" prefWidth="600.0">
-    <Label text="here must be some configuration for Authorization"/>
+    <ScrollPane fitToWidth="true" fitToHeight="true" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" 
+                AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+        <VBox spacing="10" maxWidth="Infinity">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Label text="Authentication Type:" />
+            <ComboBox fx:id="authTypeComboBox" prefWidth="200" maxWidth="Infinity" />
+
+            <!-- API Key Authentication -->
+            <VBox fx:id="apiKeyContainer" spacing="10" visible="false" managed="false" maxWidth="Infinity">
+                <Label text="API Key:" />
+                <TextField fx:id="apiKeyField" promptText="Enter API key" maxWidth="Infinity" />
+                <Label text="Key Name:" />
+                <TextField fx:id="apiKeyNameField" promptText="Enter key name" maxWidth="Infinity" />
+            </VBox>
+
+            <!-- Basic Authentication -->
+            <VBox fx:id="basicAuthContainer" spacing="10" visible="false" managed="false" maxWidth="Infinity">
+                <Label text="Username:" />
+                <TextField fx:id="usernameField" promptText="Enter username" maxWidth="Infinity" />
+                <Label text="Password:" />
+                <PasswordField fx:id="passwordField" promptText="Enter password" maxWidth="Infinity" />
+            </VBox>
+
+            <!-- Bearer Token Authentication -->
+            <VBox fx:id="bearerTokenContainer" spacing="10" visible="false" managed="false" maxWidth="Infinity">
+                <Label text="Token:" />
+                <TextField fx:id="tokenField" promptText="Enter bearer token" maxWidth="Infinity" />
+            </VBox>
+        </VBox>
+    </ScrollPane>
 </AnchorPane>

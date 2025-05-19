@@ -88,7 +88,7 @@
                         </VirtualizedScrollPane>
                     </Tab>
                     <Tab text="Authorization">
-                        <fx:include source="edit/authorization.fxml"/>
+                        <fx:include fx:id="authorization" source="edit/authorization.fxml"/>
                     </Tab>
                 </TabPane>
             </VBox>
