@@ -12,22 +12,22 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
-        <javafx.version>24</javafx.version>
+        <javafx.version>24.0.1</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.23</gluonfx.plugin.version>
-        <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <gluonfx.plugin.version>1.0.26</gluonfx.plugin.version>
+        <mainClass>io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
         <maven.version>${maven.version}</maven.version>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <jackson-databind.version>2.18.2</jackson-databind.version>
         <swagger-core.version>2.2.28</swagger-core.version>
-        <richtextfx.version>0.11.4</richtextfx.version>
-        <controlsfx.version>11.2.1</controlsfx.version>
+        <richtextfx.version>0.11.5</richtextfx.version>
+        <controlsfx.version>11.2.2</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>23</graalvm.version>
+        <graalvm.version>24.0.1</graalvm.version>
     </properties>
 
     <dependencies>

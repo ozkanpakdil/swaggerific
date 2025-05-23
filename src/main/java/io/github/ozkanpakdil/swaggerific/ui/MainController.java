@@ -250,7 +250,7 @@ public class MainController implements Initializable {
 
     private Properties loadAppProperties() throws IOException {
         Properties properties = new Properties();
-        try (var stream = getClass().getResourceAsStream("/application.properties")) {
+        try (var stream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
             if (stream != null) {
                 properties.load(stream);
             }

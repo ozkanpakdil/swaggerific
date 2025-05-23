@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven 3.8.8
+Built-By: ozkan
+Build-Jdk: 23.0.2
+Main-Class: io.github.ozkanpakdil.swaggerific.SwaggerApplication
+
