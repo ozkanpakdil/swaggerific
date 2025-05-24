@@ -14,7 +14,7 @@
         <junit.version>5.9.2</junit.version>
         <javafx.version>24</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.23</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.24</gluonfx.plugin.version>
         <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -328,6 +328,9 @@
                         <list>statusbar</list>
                         <list>storage</list>
                     </attachList>
+                    <resourcesList>
+                        <list>application.properties</list>
+                    </resourcesList>
                     <releaseConfiguration>
                         <skipSigning>true</skipSigning>
                         <vendor>${project.groupId}</vendor>
@@ -348,6 +351,9 @@
 					<nativeImageArgs>
 						<arg>--enable-native-access=ALL-UNNAMED</arg>
 					</nativeImageArgs>
+					<reflectionList>
+						<list>java.util.Properties</list>
+					</reflectionList>
                 </configuration>
             </plugin>
         </plugins>
