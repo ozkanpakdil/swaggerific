@@ -7,9 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gluonhq/setup-graalvm@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '23.0.2'
+          distribution: 'graalvm-community'
+          github-token:
+            ${{ secrets.GITHUB_TOKEN }}
       - name: Install libraries
         run: |
           sudo apt update
