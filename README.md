@@ -42,12 +42,50 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 # look
 ![using-get](https://github.com/ozkanpakdil/swaggerific/assets/604405/748eb2a8-3578-45e3-ac95-e8246ef27785)
 
-# native build
+# Running Without Maven
+
+## Using the Run Script
+We've added a convenient bash script to run the application without requiring Maven:
+
+```shell
+# Make the script executable (first time only)
+chmod +x run.sh
+
+# Run the application
+./run.sh
+```
+
+The script will:
+1. Check if Java 17+ is installed
+2. Look for the JAR file in the target directory
+3. Build the project if the JAR doesn't exist (requires Maven)
+4. Run the application with all necessary JVM arguments
+
+## Distribution Package
+For easy distribution to users, you can create a zip package:
+
+```shell
+# Make the script executable (first time only)
+chmod +x package.sh
+
+# Create the distribution package
+./package.sh
+```
+
+This will create a zip file in the `dist` directory containing:
+- The application JAR
+- Run scripts for Linux/macOS (run.sh) and Windows (run.bat)
+- README with instructions
+- Required resources
+
+Users can simply download the zip, extract it, and run the application using the provided scripts.
+
+# Native Build
 ```shell
 mvn gluonfx:build gluonfx:nativerun
 ```
-# update reflection classes
-there are classes needs to be in the list of reflection list of the compiler(which was in the pom.xml before check 'git history'), that list can be generated from command below, that will update the jsons under META-INF/native-image  
+# Update Reflection Classes
+There are classes needs to be in the list of reflection list of the compiler(which was in the pom.xml before check 'git history'), that list can be generated from command below, that will update the jsons under META-INF/native-image  
 ```shell
 ./mvnw gluonfx:runagent
 ```
