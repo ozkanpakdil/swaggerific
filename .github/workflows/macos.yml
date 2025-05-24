@@ -8,12 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '23'
-          distribution: 'graalvm-community'
-          github-token:
-            ${{ secrets.GITHUB_TOKEN }}
+      - uses: gluonhq/setup-graalvm@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Show system info
         run: |
           system_profiler SPSoftwareDataType SPHardwareDataType
