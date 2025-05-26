@@ -65,7 +65,8 @@ public class Another {
     }
 
     public static void main(String[] args) {
-
+        String string = new StringBuilder("🇺🇦").reverse().toString();
+        System.out.println(string);
        /* String run = run("3a", 1, 1);
         System.out.println(run);
         run = run("8a", 1, 1);
