@@ -27,8 +27,12 @@ if [[ "$JAVA_MAJOR_VERSION" -lt 17 ]]; then
     exit 1
 fi
 
+VERSION=$(grep -m 1 "<version>" pom.xml | sed -e 's/<version>\(.*\)<\/version>/\1/' -e 's/[[:space:]]//g')
+APP_NAME="swaggerific"
+PACKAGE_NAME="${APP_NAME}-${VERSION}"
+
 # Check if the JAR file exists
-JAR_FILE="$SCRIPT_DIR/target/swaggerific-0.0.3.jar"
+JAR_FILE="$SCRIPT_DIR/target/${PACKAGE_NAME}.jar"
 if [ ! -f "$JAR_FILE" ]; then
     echo "JAR file not found: $JAR_FILE"
 
@@ -65,13 +69,21 @@ echo "Using JavaFX version: $JAVAFX_VERSION"
 
 # Determine OS-specific JavaFX modules
 OS_NAME=$(uname -s)
+ARCH=$(uname -m)
+
 case "$OS_NAME" in
     Linux*)     JAVAFX_OS="linux" ;;
-    Darwin*)    JAVAFX_OS="mac" ;;
+    Darwin*)    
+        if [ "$ARCH" = "arm64" ]; then
+            JAVAFX_OS="mac-aarch64"
+        else
+            JAVAFX_OS="mac"
+        fi
+        ;;
     MINGW*|MSYS*|CYGWIN*) JAVAFX_OS="win" ;;
     *)          JAVAFX_OS="linux" ;;
 esac
-echo "Detected OS: $JAVAFX_OS"
+echo "Detected OS: $JAVAFX_OS (Architecture: $ARCH)"
 
 # Find Maven repository location
 if [ -d "$HOME/.m2/repository" ]; then

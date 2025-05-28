@@ -1,4 +1,4 @@
-name: Package and Release
+name: Package and release the zip
 
 on:
   push:
@@ -89,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: "!startsWith(github.ref, 'refs/tags/')"
         with:
-          name: swaggerific-package
+          name: swaggerific-zip
           path: dist/*.zip
 
       - name: Create automatic release (for non-tag pushes)
@@ -99,6 +99,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
-          title: "Latest Development Build"
+          title: "Latest Development Zip Package"
           files: |
             dist/*.zip

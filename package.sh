@@ -43,7 +43,7 @@ cp "$SCRIPT_DIR/target/${APP_NAME}-${VERSION}.jar" "$PACKAGE_DIR/"
 echo "Copying JavaFX modules (version $JAVAFX_VERSION)..."
 
 # Determine OS-specific JavaFX modules for each platform
-PLATFORMS=("linux" "mac" "win")
+PLATFORMS=("linux" "mac" "mac-aarch64" "win")
 JAVAFX_MODULES=(
     "javafx-base"
     "javafx-controls"
@@ -123,13 +123,21 @@ echo "Using JavaFX version: \$JAVAFX_VERSION"
 
 # Determine OS-specific JavaFX modules
 OS_NAME=\$(uname -s)
+ARCH=\$(uname -m)
+
 case "\$OS_NAME" in
     Linux*)     JAVAFX_OS="linux" ;;
-    Darwin*)    JAVAFX_OS="mac" ;;
+    Darwin*)    
+        if [ "\$ARCH" = "arm64" ]; then
+            JAVAFX_OS="mac-aarch64"
+        else
+            JAVAFX_OS="mac"
+        fi
+        ;;
     MINGW*|MSYS*|CYGWIN*) JAVAFX_OS="win" ;;
     *)          JAVAFX_OS="linux" ;;
 esac
-echo "Detected OS: \$JAVAFX_OS"
+echo "Detected OS: \$JAVAFX_OS (Architecture: \$ARCH)"
 
 # Build module path for JavaFX using local lib directory
 JAVAFX_MODULES=(
