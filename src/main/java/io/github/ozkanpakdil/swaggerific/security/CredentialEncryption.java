@@ -15,7 +15,6 @@ import java.util.Base64;
 public class CredentialEncryption {
     private static final String ALGORITHM = "AES/GCM/NoPadding";
     private static final String KEY_ALGORITHM = "AES";
-    private static final byte[] SALT = "SwaggerificSalt".getBytes(StandardCharsets.UTF_8);
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_LENGTH = 128;
     private static final SecretKey secretKey;
@@ -27,6 +26,8 @@ public class CredentialEncryption {
                                   System.getProperty("user.home");
 
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] SALT;
+            new SecureRandom().nextBytes(SALT = new byte[16]); // Generate a random salt
             KeySpec spec = new PBEKeySpec(systemSpecific.toCharArray(), SALT, 65536, 256);
             SecretKey tmp = factory.generateSecret(spec);
             secretKey = new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
