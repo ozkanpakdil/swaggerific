@@ -86,8 +86,9 @@ public class MainController implements Initializable {
     private static final Logger log = (Logger) LoggerFactory.getLogger(MainController.class);
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
-    final String AUTH_SETTINGS = System.getProperty("user.home") + "/.swaggerific/auth_settings.bin";
+    final String APP_SETTINGS_HOME = System.getProperty("user.home")+ "/.swaggerific";
+    final String SESSION = APP_SETTINGS_HOME + "/session.bin";
+    final String AUTH_SETTINGS = APP_SETTINGS_HOME + "/auth_settings.bin";
 
     public TabPane tabRequests;
     public TextField txtFilterTree;
