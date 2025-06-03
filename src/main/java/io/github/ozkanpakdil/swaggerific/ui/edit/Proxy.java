@@ -67,7 +67,7 @@ public class Proxy {
 
         // Securely handle password
         char[] passwordChars = ProxySettings.getProxyAuthPassword();
-        if (passwordChars != null && passwordChars.length > 0) {
+        if (passwordChars.length > 0) {
             proxyAuthPassword.setText(new String(passwordChars));
             // Clear the password from memory
             Arrays.fill(passwordChars, '\0');

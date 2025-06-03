@@ -52,7 +52,6 @@ public class ProxySettings {
     private static final int DEFAULT_PROXY_PORT = 8080;
     private static final boolean DEFAULT_PROXY_AUTH = false;
     private static final String DEFAULT_PROXY_AUTH_USERNAME = "";
-    private static final String DEFAULT_PROXY_AUTH_PASSWORD = "";
     private static final String DEFAULT_PROXY_BYPASS = "localhost,127.0.0.1";
     private static final boolean DEFAULT_DISABLE_SSL_VALIDATION = false;
 
@@ -111,6 +110,12 @@ public class ProxySettings {
         }
 
         String decryptedPassword = PasswordEncryption.decrypt(encryptedPassword);
+        if (decryptedPassword.isEmpty()) {
+            // Decryption failed, clear the stored value to avoid repeated errors
+            log.warn("Proxy password decryption failed, clearing stored encrypted password.");
+            userPrefs.remove(PROXY_AUTH_PASSWORD);
+            return new char[0];
+        }
         char[] passwordChars = decryptedPassword.toCharArray();
 
         // Clear the decrypted string from memory
@@ -446,17 +451,14 @@ public class ProxySettings {
         /**
          * Gets the keystore password from system properties or environment
          */
-        private static char[] getKeystorePassword() throws NoSuchAlgorithmException {
+        private static char[] getKeystorePassword() {
             String password = System.getProperty("swaggerific.keystore.password");
             if (password == null) {
                 password = System.getenv("SWAGGERIFIC_KEYSTORE_PASSWORD");
             }
             if (password == null) {
-                // Generate a random password if none exists
-                byte[] randomBytes = new byte[32];
-                SecureRandom.getInstanceStrong().nextBytes(randomBytes);
-                password = Base64.getEncoder().encodeToString(randomBytes);
-                System.setProperty("swaggerific.keystore.password", password);
+                // Use a fixed password for development; change for production!
+                password = "swaggerific-default-keystore-password";
             }
             return password.toCharArray();
         }
@@ -468,6 +470,11 @@ public class ProxySettings {
             if (Files.exists(keystorePath)) {
                 try (InputStream is = Files.newInputStream(keystorePath)) {
                     keyStore.load(is, getKeystorePassword());
+                } catch (java.io.IOException e) {
+                    // If integrity check fails, delete and recreate the keystore
+                    log.warn("Keystore integrity check failed, deleting and recreating keystore: {}", e.getMessage());
+                    Files.delete(keystorePath);
+                    keyStore.load(null, getKeystorePassword());
                 }
             } else {
                 keyStore.load(null, getKeystorePassword());
