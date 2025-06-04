@@ -8,12 +8,24 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,10 +34,14 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Properties;
 import java.util.prefs.Preferences;
+
+import static io.github.ozkanpakdil.swaggerific.ui.MainController.APP_SETTINGS_HOME;
 
 /**
  * Manages proxy settings for the application. This class handles loading, saving, and applying proxy settings.
@@ -33,6 +49,8 @@ import java.util.prefs.Preferences;
 public class ProxySettings {
     private static final Logger log = LoggerFactory.getLogger(ProxySettings.class);
     private static final Preferences userPrefs = Preferences.userNodeForPackage(SwaggerApplication.class);
+    private static final String PROXY_SETTINGS_FILE = APP_SETTINGS_HOME + "/proxy_settings.bin";
+    private static volatile Proxy cachedProxy = null;
 
     // Preference keys
     private static final String USE_SYSTEM_PROXY = "useSystemProxy";
@@ -52,130 +70,294 @@ public class ProxySettings {
     private static final int DEFAULT_PROXY_PORT = 8080;
     private static final boolean DEFAULT_PROXY_AUTH = false;
     private static final String DEFAULT_PROXY_AUTH_USERNAME = "";
-    private static final String DEFAULT_PROXY_AUTH_PASSWORD = "";
     private static final String DEFAULT_PROXY_BYPASS = "localhost,127.0.0.1";
     private static final boolean DEFAULT_DISABLE_SSL_VALIDATION = false;
+    private static Authenticator cachedAuthenticator = null;
 
-    /**
-     * Loads proxy settings from preferences.
-     */
+    private static boolean isProduction() {
+        // Check if running in IntelliJ IDEA
+        if (System.getProperty("java.class.path").contains("idea_rt.jar")) {
+            return false;
+        }
+
+        // Fall back to environment property check
+        String env = System.getProperty("app.environment", "production");
+        return "production".equalsIgnoreCase(env);
+    }
+
+    private static ProxySettingsStorage getStorage() {
+        return isProduction() ? new PreferencesStorage() : new FileStorage();
+    }
+
+    private interface ProxySettingsStorage {
+        void putBoolean(String key, boolean value);
+
+        void putString(String key, String value);
+
+        void putInt(String key, int value);
+
+        boolean getBoolean(String key, boolean defaultValue);
+
+        String getString(String key, String defaultValue);
+
+        int getInt(String key, int defaultValue);
+
+        void remove(String key);
+
+        void save() throws Exception;
+    }
+
+    private static class PreferencesStorage implements ProxySettingsStorage {
+        @Override
+        public void putBoolean(String key, boolean value) {
+            userPrefs.putBoolean(key, value);
+        }
+
+        @Override
+        public void putString(String key, String value) {
+            userPrefs.put(key, value);
+        }
+
+        @Override
+        public void putInt(String key, int value) {
+            userPrefs.putInt(key, value);
+        }
+
+        @Override
+        public boolean getBoolean(String key, boolean defaultValue) {
+            return userPrefs.getBoolean(key, defaultValue);
+        }
+
+        @Override
+        public String getString(String key, String defaultValue) {
+            return userPrefs.get(key, defaultValue);
+        }
+
+        @Override
+        public int getInt(String key, int defaultValue) {
+            return userPrefs.getInt(key, defaultValue);
+        }
+
+        @Override
+        public void remove(String key) {
+            userPrefs.remove(key);
+        }
+
+        @Override
+        public void save() {
+            // No need to explicitly save for Preferences
+        }
+    }
+
+    private static class FileStorage implements ProxySettingsStorage {
+        private final Properties properties = new Properties();
+        private final File file;
+
+        public FileStorage() {
+            file = new File(PROXY_SETTINGS_FILE);
+            load();
+        }
+
+        private void load() {
+            if (file.exists()) {
+                try (InputStream in = new FileInputStream(file)) {
+                    properties.load(in);
+                } catch (IOException e) {
+                    log.error("Failed to load proxy settings from file", e);
+                }
+            }
+        }
+
+        @Override
+        public void putBoolean(String key, boolean value) {
+            properties.setProperty(key, String.valueOf(value));
+        }
+
+        @Override
+        public void putString(String key, String value) {
+            properties.setProperty(key, value);
+        }
+
+        @Override
+        public void putInt(String key, int value) {
+            properties.setProperty(key, String.valueOf(value));
+        }
+
+        @Override
+        public boolean getBoolean(String key, boolean defaultValue) {
+            return Boolean.parseBoolean(properties.getProperty(key, String.valueOf(defaultValue)));
+        }
+
+        @Override
+        public String getString(String key, String defaultValue) {
+            return properties.getProperty(key, defaultValue);
+        }
+
+        @Override
+        public int getInt(String key, int defaultValue) {
+            try {
+                return Integer.parseInt(properties.getProperty(key, String.valueOf(defaultValue)));
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        }
+
+        @Override
+        public void remove(String key) {
+            properties.remove(key);
+        }
+
+        @Override
+        public void save() throws Exception {
+            File parent = file.getParentFile();
+            if (!parent.exists() && !parent.mkdirs()) {
+                throw new IOException("Failed to create directory: " + parent);
+            }
+            try (OutputStream out = new FileOutputStream(file)) {
+                properties.store(out, "Proxy Settings");
+            }
+        }
+    }
+
     public static boolean useSystemProxy() {
-        return userPrefs.getBoolean(USE_SYSTEM_PROXY, DEFAULT_USE_SYSTEM_PROXY);
+        return getStorage().getBoolean(USE_SYSTEM_PROXY, DEFAULT_USE_SYSTEM_PROXY);
     }
 
     public static String getProxyType() {
-        return userPrefs.get(PROXY_TYPE, DEFAULT_PROXY_TYPE);
+        return getStorage().getString(PROXY_TYPE, DEFAULT_PROXY_TYPE);
     }
 
     public static String getProxyServer() {
-        return userPrefs.get(PROXY_SERVER, DEFAULT_PROXY_SERVER);
+        return getStorage().getString(PROXY_SERVER, DEFAULT_PROXY_SERVER);
     }
 
     public static int getProxyPort() {
-        return userPrefs.getInt(PROXY_PORT, DEFAULT_PROXY_PORT);
+        return getStorage().getInt(PROXY_PORT, DEFAULT_PROXY_PORT);
     }
 
     public static boolean useProxyAuth() {
-        return userPrefs.getBoolean(PROXY_AUTH, DEFAULT_PROXY_AUTH);
+        return getStorage().getBoolean(PROXY_AUTH, DEFAULT_PROXY_AUTH);
     }
 
     public static String getProxyAuthUsername() {
-        return userPrefs.get(PROXY_AUTH_USERNAME, DEFAULT_PROXY_AUTH_USERNAME);
+        return getStorage().getString(PROXY_AUTH_USERNAME, DEFAULT_PROXY_AUTH_USERNAME);
     }
 
     public static List<String> getProxyBypass() {
-        String bypass = userPrefs.get(PROXY_BYPASS, DEFAULT_PROXY_BYPASS);
+        String bypass = getStorage().getString(PROXY_BYPASS, DEFAULT_PROXY_BYPASS);
         return Arrays.asList(bypass.split(","));
     }
 
-    /**
-     * Checks if SSL certificate validation should be disabled. This is useful for development and testing with self-signed
-     * certificates. WARNING: Disabling SSL certificate validation is a security risk in production.
-     *
-     * @return true if SSL certificate validation should be disabled, false otherwise
-     */
     public static boolean disableSslValidation() {
-        return userPrefs.getBoolean(DISABLE_SSL_VALIDATION, DEFAULT_DISABLE_SSL_VALIDATION);
+        return getStorage().getBoolean(DISABLE_SSL_VALIDATION, DEFAULT_DISABLE_SSL_VALIDATION);
     }
 
-    /**
-     * Gets the proxy authentication password as a char array. The caller is responsible for clearing the returned char array
-     * after use.
-     *
-     * @return The proxy authentication password as a char array
-     */
     public static char[] getProxyAuthPassword() {
-        String encryptedPassword = userPrefs.get(PROXY_AUTH_PASSWORD, "");
+        String encryptedPassword = getStorage().getString(PROXY_AUTH_PASSWORD, "");
         if (encryptedPassword.isEmpty()) {
             return new char[0];
         }
 
         String decryptedPassword = PasswordEncryption.decrypt(encryptedPassword);
-        char[] passwordChars = decryptedPassword.toCharArray();
-
-        // Clear the decrypted string from memory
-        // This doesn't guarantee the string will be garbage collected immediately,
-        // but it's better than nothing
-        decryptedPassword = null;
-
-        return passwordChars;
+        if (decryptedPassword.isEmpty()) {
+            log.warn("Proxy password decryption failed, clearing stored encrypted password.");
+            getStorage().remove(PROXY_AUTH_PASSWORD);
+            return new char[0];
+        }
+        return decryptedPassword.toCharArray();
     }
 
-    /**
-     * Saves proxy settings to preferences. This method securely handles proxy credentials and ensures they are properly
-     * encrypted.
-     *
-     * @param useSystemProxy Whether to use system proxy
-     * @param proxyType The proxy type
-     * @param proxyServer The proxy server
-     * @param proxyPort The proxy port
-     * @param proxyAuth Whether proxy authentication is required
-     * @param proxyAuthUsername The proxy authentication username
-     * @param proxyAuthPassword The proxy authentication password
-     * @param proxyBypass The proxy bypass list
-     * @param disableSslValidation Whether to disable SSL certificate validation
-     */
-    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer,
-            int proxyPort, boolean proxyAuth, String proxyAuthUsername,
-            String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
-        try {
-            userPrefs.putBoolean(USE_SYSTEM_PROXY, useSystemProxy);
-            userPrefs.put(PROXY_TYPE, proxyType != null ? proxyType : DEFAULT_PROXY_TYPE);
-            userPrefs.put(PROXY_SERVER, proxyServer != null ? proxyServer : DEFAULT_PROXY_SERVER);
-            userPrefs.putInt(PROXY_PORT, proxyPort > 0 && proxyPort <= 65535 ? proxyPort : DEFAULT_PROXY_PORT);
-            userPrefs.putBoolean(PROXY_AUTH, proxyAuth);
-            userPrefs.put(PROXY_AUTH_USERNAME, proxyAuthUsername != null ? proxyAuthUsername : DEFAULT_PROXY_AUTH_USERNAME);
+    public static void validateProxySettings() {
+        if (!useSystemProxy()) {
+            String server = getProxyServer();
+            int port = getProxyPort();
 
-            // Encrypt password before saving
+            if (server == null || server.trim().isEmpty()) {
+                throw new IllegalStateException("Proxy server cannot be empty when proxy is enabled");
+            }
+
+            if (port <= 0 || port > 65535) {
+                throw new IllegalStateException("Invalid proxy port: " + port + ". Port must be between 1 and 65535");
+            }
+
+            if (useProxyAuth()) {
+                String username = getProxyAuthUsername();
+                char[] password = getProxyAuthPassword();
+
+                try {
+                    if (username == null || username.trim().isEmpty()) {
+                        throw new IllegalStateException("Proxy username cannot be empty when authentication is enabled");
+                    }
+
+                    if (password.length == 0) {
+                        throw new IllegalStateException("Proxy password cannot be empty when authentication is enabled");
+                    }
+                } finally {
+                    Arrays.fill(password, '\0');
+                }
+            }
+        }
+    }
+
+    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort, boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
+        try {
+            // Validate inputs before saving
+            if (!useSystemProxy && (proxyServer == null || proxyServer.trim().isEmpty())) {
+                throw new IllegalStateException("Proxy server cannot be empty");
+            }
+
+            if (!useSystemProxy && (proxyPort <= 0 || proxyPort > 65535)) {
+                throw new IllegalStateException("Invalid proxy port: " + proxyPort);
+            }
+
+            if (!useSystemProxy && proxyAuth) {
+                if (proxyAuthUsername == null || proxyAuthUsername.trim().isEmpty()) {
+                    throw new IllegalStateException("Proxy username cannot be empty when authentication is enabled");
+                }
+                if (proxyAuthPassword == null || proxyAuthPassword.trim().isEmpty()) {
+                    throw new IllegalStateException("Proxy password cannot be empty when authentication is enabled");
+                }
+            }
+
+            ProxySettingsStorage storage = getStorage();
+            storage.putBoolean(USE_SYSTEM_PROXY, useSystemProxy);
+            storage.putString(PROXY_TYPE, proxyType != null ? proxyType : DEFAULT_PROXY_TYPE);
+            storage.putString(PROXY_SERVER, proxyServer != null ? proxyServer : DEFAULT_PROXY_SERVER);
+            storage.putInt(PROXY_PORT, proxyPort > 0 && proxyPort <= 65535 ? proxyPort : DEFAULT_PROXY_PORT);
+            storage.putBoolean(PROXY_AUTH, proxyAuth);
+            storage.putString(PROXY_AUTH_USERNAME, proxyAuthUsername != null ? proxyAuthUsername : DEFAULT_PROXY_AUTH_USERNAME);
+
             String encryptedPassword = "";
             if (proxyAuthPassword != null && !proxyAuthPassword.isEmpty()) {
                 encryptedPassword = PasswordEncryption.encrypt(proxyAuthPassword);
             }
-            userPrefs.put(PROXY_AUTH_PASSWORD, encryptedPassword);
+            storage.putString(PROXY_AUTH_PASSWORD, encryptedPassword);
 
-            userPrefs.put(PROXY_BYPASS, proxyBypass != null ? proxyBypass : DEFAULT_PROXY_BYPASS);
-            userPrefs.putBoolean(DISABLE_SSL_VALIDATION, disableSslValidation);
+            storage.putString(PROXY_BYPASS, proxyBypass != null ? proxyBypass : DEFAULT_PROXY_BYPASS);
+            storage.putBoolean(DISABLE_SSL_VALIDATION, disableSslValidation);
 
-            // Log without sensitive information
+            storage.save();
+
             log.info("Proxy settings saved. Using system proxy: {}", useSystemProxy);
-            if (!useSystemProxy && proxyServer != null && !proxyServer.isEmpty()) {
+            if (!useSystemProxy && !proxyServer.isEmpty()) {
                 log.info("Custom proxy configured: {}:{}", proxyServer, proxyPort);
                 if (proxyAuth) {
-                    log.info("Proxy authentication enabled");
+                    log.info("Proxy authentication enabled for user: {}", proxyAuthUsername);
                 }
             }
         } catch (Exception e) {
-            log.error("Failed to save proxy settings", e);
+            String errorMsg = "Failed to save proxy settings: " + e.getMessage();
+            log.error(errorMsg);
+            throw new IllegalStateException(errorMsg, e);
         }
     }
 
-    /**
-     * Creates a Proxy object based on current settings. Returns null if no proxy should be used.
-     */
     public static Proxy createProxy() {
         if (useSystemProxy()) {
-            // System proxy settings are handled by the JVM
             return null;
+        }
+        if (cachedProxy != null) {
+            return cachedProxy;
         }
 
         String server = getProxyServer();
@@ -184,126 +366,71 @@ public class ProxySettings {
         if (server == null || server.isEmpty()) {
             return null;
         }
-        // Validate port range
         if (port <= 0 || port > 65535) {
             log.warn("Invalid proxy port: {}. Using default port: {}", port, DEFAULT_PROXY_PORT);
             port = DEFAULT_PROXY_PORT;
         }
 
-        // Convert string proxy type to Proxy.Type enum
         Proxy.Type type;
         String proxyTypeStr = getProxyType();
 
-        // Java's Proxy.Type enum only supports HTTP and SOCKS, not HTTPS
-        // Both HTTP and HTTPS proxy settings use Proxy.Type.HTTP
         if ("HTTP".equalsIgnoreCase(proxyTypeStr) || "HTTPS".equalsIgnoreCase(proxyTypeStr)) {
             type = Proxy.Type.HTTP;
         } else if ("SOCKS".equalsIgnoreCase(proxyTypeStr)) {
             type = Proxy.Type.SOCKS;
         } else {
-            // Default to HTTP for any unrecognized type
             log.warn("Unrecognized proxy type: {}. Using HTTP instead.", proxyTypeStr);
             type = Proxy.Type.HTTP;
         }
-
-        return new Proxy(type, new InetSocketAddress(server, port));
+        cachedProxy = new Proxy(type, new InetSocketAddress(server, port));
+        return cachedProxy;
     }
 
-    /**
-     * Sets up proxy authentication if needed. This method securely handles proxy credentials and ensures they are cleared from
-     * memory after use.
-     *
-     * @deprecated This method sets a global JVM authenticator which affects all HTTP connections and can potentially break
-     * other components. Use {@link #createProxyAuthenticator()} for HttpClient or {@link #getProxyAuthorizationHeader()} for
-     * HttpURLConnection instead.
-     */
-    @Deprecated
-    public static void setupProxyAuthentication() {
-        // This method is deprecated and should not be used.
-        // It's kept for backward compatibility but does nothing.
-        log.warn("setupProxyAuthentication() is deprecated and does nothing. " +
-                "Use createProxyAuthenticator() for HttpClient or getProxyAuthorizationHeader() for HttpURLConnection instead.");
-    }
-
-    /**
-     * Creates an Authenticator for use with HttpClient that handles proxy authentication. This method securely handles proxy
-     * credentials and ensures they are cleared from memory after use.
-     *
-     * @return An Authenticator that can be used with HttpClient.Builder.authenticator()
-     */
     public static Authenticator createProxyAuthenticator() {
-        if (!useSystemProxy() && useProxyAuth()) {
+        if (cachedAuthenticator != null) {
+            return cachedAuthenticator;
+        }
+        if (!useSystemProxy() && useProxyAuth() && Authenticator.getDefault() == null) {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
-            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
-                Authenticator authenticator = new Authenticator() {
+            log.debug("Creating proxy authenticator - Username: {}", username);
+
+            if (username != null && !username.isEmpty() && passwordChars.length > 0) {
+                cachedAuthenticator = new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        if (getRequestingHost().equalsIgnoreCase(getProxyServer())) {
-                            // Create a copy of the password chars to avoid modifying the original
-                            char[] passwordCopy = Arrays.copyOf(passwordChars, passwordChars.length);
-                            return new PasswordAuthentication(username, passwordCopy);
-                        }
-                        return null;
+                        return new PasswordAuthentication(username, passwordChars);
                     }
                 };
-
-                // Log that authentication is set up but don't log the username
-                log.info("Proxy authentication set up");
-
-                // Clear the password from memory
-                Arrays.fill(passwordChars, '\0');
-
-                return authenticator;
-            } else {
-                // Clear the password from memory even if not used
-                if (passwordChars != null) {
-                    Arrays.fill(passwordChars, '\0');
-                }
+                return cachedAuthenticator;
             }
         }
-
         return null;
     }
 
-    /**
-     * Gets the "Proxy-Authorization" header value for use with HttpURLConnection. This method securely handles proxy
-     * credentials and ensures they are cleared from memory after use.
-     *
-     * @return The "Proxy-Authorization" header value, or null if proxy authentication is not needed
-     */
     public static String getProxyAuthorizationHeader() {
         if (!useSystemProxy() && useProxyAuth()) {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
-            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
-                // Create the authorization header value
+            if (username != null && !username.isEmpty() && passwordChars.length > 0) {
                 String auth = username + ":" + new String(passwordChars);
                 String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
                 String authHeader = "Basic " + encodedAuth;
 
-                // Clear the password from memory
                 Arrays.fill(passwordChars, '\0');
-
                 return authHeader;
             } else {
-                // Clear the password from memory even if not used
-                if (passwordChars != null) {
-                    Arrays.fill(passwordChars, '\0');
-                }
+                Arrays.fill(passwordChars, '\0');
             }
+        } else {
+            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}", useSystemProxy(), useProxyAuth());
         }
 
         return null;
     }
 
-    /**
-     * Checks if a host should bypass the proxy. This method performs precise matching to avoid false positives: 1. Exact match:
-     * host exactly matches a bypass entry 2. Domain suffix match: host ends with a bypass entry preceded by a dot 3. Wildcard
-     * match: supports simple wildcard patterns like "*.example.com"
-     */
     public static boolean shouldBypassProxy(String host) {
         if (host == null || host.isEmpty()) {
             return false;
@@ -316,19 +443,16 @@ public class ProxySettings {
                 continue;
             }
 
-            // Case 1: Exact match
             if (host.equalsIgnoreCase(bypass)) {
                 return true;
             }
 
-            // Case 2: Domain suffix match (e.g., ".example.com" matches "sub.example.com")
             if (bypass.startsWith(".") && host.toLowerCase().endsWith(bypass.toLowerCase())) {
                 return true;
             }
 
-            // Case 3: Wildcard match (e.g., "*.example.com" matches "sub.example.com")
             if (bypass.startsWith("*.")) {
-                String suffix = bypass.substring(1); // Remove the *
+                String suffix = bypass.substring(1);
                 if (host.toLowerCase().endsWith(suffix.toLowerCase())) {
                     return true;
                 }
@@ -338,18 +462,124 @@ public class ProxySettings {
         return false;
     }
 
+    /**
+     * Enables detailed proxy debugging by setting system properties. This should be called before any proxy operations to get
+     * detailed logs.
+     */
+    public static void enableProxyDebugLogs() {
+        // Enable Java's HTTP client debug logging
+        System.setProperty("jdk.httpclient.HttpClient.log", "all");
+        System.setProperty("jdk.internal.httpclient.debug", "true");
+    }
+
+    public static void setupSystemWideProxy() {
+        validateProxySettings();
+
+        if (!useSystemProxy()) {
+            String proxyHost = getProxyServer();
+            int proxyPort = getProxyPort();
+
+            if (proxyHost != null && !proxyHost.isEmpty()) {
+                String nonProxyHosts = String.join("|", getProxyBypass());
+                log.debug("Non-proxy hosts: {}", nonProxyHosts);
+
+                // Set up authenticator
+                if (Authenticator.getDefault() == null) {
+                    Authenticator.setDefault(createProxyAuthenticator());
+                }
+                // Test connection without throwing exceptions
+                boolean isProxyWorking = testProxyConnection();
+                if (!isProxyWorking) {
+                    log.error("Proxy connection test failed. Please check your proxy settings.");
+                    throw new RuntimeException("Proxy connection test failed. Please check your proxy settings.");
+                }
+
+                log.info("Proxy configured: {}:{}", proxyHost, proxyPort);
+            }
+        } else {
+            // Clear proxy settings
+            clearProxySettings();
+            log.info("Using system proxy settings");
+        }
+
+        log.info("Proxy configuration completed");
+    }
+
+    private static void clearProxySettings() {
+        cachedAuthenticator = null;
+        cachedProxy = null;
+        Authenticator.setDefault(null);
+    }
+
+    public static TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+        }
+
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+        }
+    }};
+
+    private static boolean testProxyConnection() {
+        try {
+            Proxy proxy = createProxy();
+
+            log.info("Testing proxy connection to: {}", proxy.address());
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+
+            HttpClient client = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of((InetSocketAddress) proxy.address()))
+                    .sslContext(sslContext)
+                    .authenticator(Authenticator.getDefault())
+                    .build();
+
+            // Create test request
+            URI testUri = URI.create("https://www.google.com/");
+            log.debug("Test connection URI: {}", testUri);
+
+            // Create request builder
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(testUri).GET();
+
+            HttpRequest request = requestBuilder.build();
+
+            // Send request and verify response
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            log.info("Test connection response: HTTP {}", response.statusCode());
+
+            log.debug("Response headers: {}", response.headers().map());
+            if (response.statusCode() == 407) {
+                log.error("Proxy authentication failed during test - check username and password");
+                return false;
+            } else {
+                return true; // Consider any non-407 response as successful
+            }
+
+        } catch (InterruptedException e) {
+            log.warn("Proxy connection test interrupted: {}", e.getMessage());
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+            return false;
+        } catch (Exception e) {
+            log.warn("Proxy connection test failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
     private static class PasswordEncryption {
         private static final String ALGORITHM = "AES/GCM/NoPadding";
         private static final String KEYSTORE_TYPE = "PKCS12";
         private static final String KEY_ALIAS = "swaggerific-proxy-key";
         private static final String KEYSTORE_FILENAME = "swaggerific-keystore.p12";
+        private static final String KEYSTORE_PASSWORD_FILE = ".keystore-password";
         private static final int GCM_TAG_LENGTH = 128;
         private static final int GCM_IV_LENGTH = 12;
+        private static final int KEYSTORE_PASSWORD_LENGTH = 32;
+        private static volatile String keystorePassword = null;
 
-        /**
-         * Encrypts a string using AES-GCM with a secure key from the keystore
-         */
-        static String encrypt(String value) throws NoSuchAlgorithmException {
+        static String encrypt(String value) {
             if (value == null || value.isEmpty()) {
                 return "";
             }
@@ -364,7 +594,6 @@ public class ProxySettings {
 
                 byte[] encryptedData = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
 
-                // Combine IV and encrypted data
                 ByteBuffer combined = ByteBuffer.allocate(iv.length + encryptedData.length);
                 combined.put(iv);
                 combined.put(encryptedData);
@@ -376,9 +605,6 @@ public class ProxySettings {
             }
         }
 
-        /**
-         * Decrypts a string using AES-GCM with a secure key from the keystore
-         */
         static String decrypt(String encrypted) {
             if (encrypted == null || encrypted.isEmpty()) {
                 return "";
@@ -390,7 +616,6 @@ public class ProxySettings {
                     throw new IllegalArgumentException("Invalid encrypted data");
                 }
 
-                // Extract IV and encrypted data
                 ByteBuffer buffer = ByteBuffer.wrap(combined);
                 byte[] iv = new byte[GCM_IV_LENGTH];
                 buffer.get(iv);
@@ -410,22 +635,16 @@ public class ProxySettings {
             }
         }
 
-        /**
-         * Gets or creates a secret key from the keystore
-         */
         private static SecretKey getOrCreateSecretKey() throws Exception {
             KeyStore keyStore = loadOrCreateKeyStore();
 
             if (!keyStore.containsAlias(KEY_ALIAS)) {
-                // Generate new key with proper strength
                 KeyGenerator keyGen = KeyGenerator.getInstance("AES");
                 keyGen.init(256, SecureRandom.getInstanceStrong());
                 SecretKey key = keyGen.generateKey();
 
-                // Store in keystore
                 KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
-                keyStore.setEntry(KEY_ALIAS, entry,
-                        new KeyStore.PasswordProtection(getKeystorePassword()));
+                keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(getKeystorePassword()));
 
                 saveKeyStore(keyStore);
                 return key;
@@ -434,31 +653,58 @@ public class ProxySettings {
             return (SecretKey) keyStore.getKey(KEY_ALIAS, getKeystorePassword());
         }
 
-        /**
-         * Generates a random IV for each encryption
-         */
         private static byte[] generateIv() throws NoSuchAlgorithmException {
             byte[] iv = new byte[GCM_IV_LENGTH];
             SecureRandom.getInstanceStrong().nextBytes(iv);
             return iv;
         }
 
-        /**
-         * Gets the keystore password from system properties or environment
-         */
-        private static char[] getKeystorePassword() throws NoSuchAlgorithmException {
-            String password = System.getProperty("swaggerific.keystore.password");
-            if (password == null) {
-                password = System.getenv("SWAGGERIFIC_KEYSTORE_PASSWORD");
+        private static char[] getKeystorePassword() {
+            if (keystorePassword != null) {
+                return keystorePassword.toCharArray();
             }
-            if (password == null) {
-                // Generate a random password if none exists
-                byte[] randomBytes = new byte[32];
-                SecureRandom.getInstanceStrong().nextBytes(randomBytes);
-                password = Base64.getEncoder().encodeToString(randomBytes);
-                System.setProperty("swaggerific.keystore.password", password);
+
+            synchronized (PasswordEncryption.class) {
+                if (keystorePassword != null) {
+                    return keystorePassword.toCharArray();
+                }
+
+                Path passwordFile = getKeystorePath().getParent().resolve(KEYSTORE_PASSWORD_FILE);
+
+                // Try to load existing password
+                if (Files.exists(passwordFile)) {
+                    try {
+                        keystorePassword = Files.readString(passwordFile, StandardCharsets.UTF_8).trim();
+                        return keystorePassword.toCharArray();
+                    } catch (IOException e) {
+                        log.warn("Failed to read keystore password file, generating new password", e);
+                    }
+                }
+
+                // Generate new random password
+                try {
+                    byte[] randomBytes = new byte[KEYSTORE_PASSWORD_LENGTH];
+                    SecureRandom.getInstanceStrong().nextBytes(randomBytes);
+                    keystorePassword = Base64.getEncoder().encodeToString(randomBytes);
+
+                    // Ensure parent directory exists
+                    Files.createDirectories(passwordFile.getParent());
+
+                    // Save password with restricted permissions
+                    Files.writeString(passwordFile, keystorePassword, StandardCharsets.UTF_8);
+                    try {
+                        Files.setPosixFilePermissions(passwordFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
+                    } catch (UnsupportedOperationException e) {
+                        // Windows systems don't support POSIX permissions
+                        log.debug("POSIX file permissions not supported on this system");
+                    }
+
+                    return keystorePassword.toCharArray();
+                } catch (Exception e) {
+                    log.error("Failed to generate and save keystore password", e);
+                    throw new RuntimeException("Could not generate keystore password", e);
+                }
             }
-            return password.toCharArray();
         }
 
         private static KeyStore loadOrCreateKeyStore() throws Exception {
@@ -468,6 +714,10 @@ public class ProxySettings {
             if (Files.exists(keystorePath)) {
                 try (InputStream is = Files.newInputStream(keystorePath)) {
                     keyStore.load(is, getKeystorePassword());
+                } catch (java.io.IOException e) {
+                    log.warn("Keystore integrity check failed, deleting and recreating keystore: {}", e.getMessage());
+                    Files.delete(keystorePath);
+                    keyStore.load(null, getKeystorePassword());
                 }
             } else {
                 keyStore.load(null, getKeystorePassword());
@@ -485,9 +735,7 @@ public class ProxySettings {
         }
 
         private static Path getKeystorePath() {
-            return Paths.get(System.getProperty("user.home"))
-                    .resolve(".swaggerific")
-                    .resolve(KEYSTORE_FILENAME);
+            return Paths.get(System.getProperty("user.home")).resolve(".swaggerific").resolve(KEYSTORE_FILENAME);
         }
     }
 }

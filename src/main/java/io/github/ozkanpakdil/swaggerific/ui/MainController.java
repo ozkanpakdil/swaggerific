@@ -9,6 +9,7 @@ import io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings;
 import io.github.ozkanpakdil.swaggerific.data.SwaggerModal;
 import io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
+import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.TextAreaAppender;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeFilter;
@@ -86,8 +87,9 @@ public class MainController implements Initializable {
     private static final Logger log = (Logger) LoggerFactory.getLogger(MainController.class);
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    final String SESSION = System.getProperty("user.home") + "/.swaggerific/session.bin";
-    final String AUTH_SETTINGS = System.getProperty("user.home") + "/.swaggerific/auth_settings.bin";
+    public static final String APP_SETTINGS_HOME = System.getProperty("user.home") + "/.swaggerific";
+    final String SESSION = APP_SETTINGS_HOME + "/session.bin";
+    final String AUTH_SETTINGS = APP_SETTINGS_HOME + "/auth_settings.bin";
 
     public TabPane tabRequests;
     public TextField txtFilterTree;
@@ -164,7 +166,6 @@ public class MainController implements Initializable {
             return cell;
         });
         Platform.runLater(() -> {
-            // UI aligning
             treeSplit.setDividerPosition(0, 0.13);
             flipDebugConsole();
         });
@@ -384,15 +385,75 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Enables detailed proxy debugging by setting system properties and configuring loggers.
+     * This should be called before any proxy operations to get detailed logs.
+     */
+    public void enableProxyDebugging() {
+        // Enable detailed proxy debugging in ProxySettings
+        ProxySettings.enableProxyDebugLogs();
+
+        // Set our own logger to DEBUG level
+        log.setLevel(ch.qos.logback.classic.Level.DEBUG);
+
+        log.info("Proxy debugging enabled - detailed logs will be shown in the console");
+
+        // Log current proxy settings
+        logProxySettings();
+    }
+
+    /**
+     * Logs the current proxy settings to help diagnose proxy authentication issues.
+     * This method is safe to call as it doesn't log sensitive information like passwords.
+     */
+    public void logProxySettings() {
+        log.info("Current proxy settings:");
+        log.info("Using system proxy: {}", ProxySettings.useSystemProxy());
+
+        if (!ProxySettings.useSystemProxy()) {
+            log.info("Proxy type: {}", ProxySettings.getProxyType());
+            log.info("Proxy server: {}:{}", ProxySettings.getProxyServer(), ProxySettings.getProxyPort());
+            log.info("Proxy authentication enabled: {}", ProxySettings.useProxyAuth());
+
+            if (ProxySettings.useProxyAuth()) {
+                log.info("Proxy username: {}", ProxySettings.getProxyAuthUsername());
+            }
+
+            log.info("Proxy bypass hosts: {}", ProxySettings.getProxyBypass());
+            log.info("SSL validation disabled: {}", ProxySettings.disableSslValidation());
+        }
+    }
+
     private void openSwaggerUrl(String urlSwagger) throws Exception {
         treeFilter = new TreeFilter();
         txtFilterTree.setText("");
         treeItemRoot.getChildren().clear();
-        URL urlApi = new URI(urlSwagger).toURL();
+
+        log.info("Opening Swagger URL: {}", urlSwagger);
+
+        if (log.isDebugEnabled())
+            enableProxyDebugging();
+
+        ProxySettings.setupSystemWideProxy();
+
+        URL urlApi = new URI(urlSwagger)
+                .toURL();
         treePaths.setRoot(treeItemRoot);
+
         try {
-            jsonRoot = Json.mapper().readTree(urlApi);
-            jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+            if (urlApi.toString().trim().isEmpty()) {
+                throw new IllegalArgumentException("Invalid or empty URL");
+            }
+
+            HttpResponse response = httpUtility.sendRequest(urlApi.toString(), PathItem.HttpMethod.GET);
+
+            String jsonContent = response.body();
+            if (jsonContent == null || jsonContent.trim().isEmpty()) {
+                throw new RuntimeException("Received empty response from server");
+            }
+
+            jsonRoot = Json.mapper().readTree(jsonContent);
+            jsonModal = Json.mapper().readValue(jsonContent, SwaggerModal.class);
 
             if (StringUtils.isAllBlank(jsonModal.getSwagger(), jsonModal.getOpenapi())) {
                 throw new RuntimeException("Json is not recognized");
@@ -445,14 +506,22 @@ public class MainController implements Initializable {
                     });
                 });
             }
+        } catch (java.io.IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("407")) {
+                log.error("Proxy authentication failed: {}", e.getMessage());
+                throw new RuntimeException("Proxy authentication failed. Please check your proxy username and password.", e);
+            } else {
+                log.error("I/O error while loading Swagger URL: {}", e.getMessage());
+                throw new RuntimeException("I/O error: " + e.getMessage(), e);
+            }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Failed to load Swagger URL: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to load Swagger URL: " + e.getMessage(), e);
         }
-        treePaths.setShowRoot(false);
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-            String parentVal) {
+                                             String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
                     .uri(urlTarget + "/" + parentVal.substring(1))

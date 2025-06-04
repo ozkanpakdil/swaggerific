@@ -1,7 +1,6 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.swagger.v3.core.util.Json;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,12 +44,6 @@ public class Update {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
-
-            // Add proxy authentication header if needed
-            String proxyAuthHeader = ProxySettings.getProxyAuthorizationHeader();
-            if (proxyAuthHeader != null) {
-                connection.setRequestProperty("Proxy-Authorization", proxyAuthHeader);
-            }
 
             int responseCode = connection.getResponseCode();
             if (responseCode == 200) {

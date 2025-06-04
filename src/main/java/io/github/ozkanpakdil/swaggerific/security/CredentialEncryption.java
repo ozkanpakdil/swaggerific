@@ -22,8 +22,8 @@ public class CredentialEncryption {
     static {
         try {
             String systemSpecific = System.getProperty("user.name") +
-                                  System.getProperty("os.name") +
-                                  System.getProperty("user.home");
+                    System.getProperty("os.name") +
+                    System.getProperty("user.home");
 
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             byte[] SALT;

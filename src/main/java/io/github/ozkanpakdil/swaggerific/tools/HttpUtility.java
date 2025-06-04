@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.PathItem;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,9 +104,9 @@ public class HttpUtility {
     /**
      * Builds a URI from a base URI and request parameters.
      *
-     * @param uri the base URI
+     * @param uri         the base URI
      * @param queryParams map of query parameter names to values
-     * @param pathParams map of path parameter names to values
+     * @param pathParams  map of path parameter names to values
      * @return the complete URI
      */
     public URI buildUri(String uri, Map<String, String> queryParams, Map<String, String> pathParams) {
@@ -148,17 +149,17 @@ public class HttpUtility {
     /**
      * Sends an HTTP request and returns the response.
      *
-     * @param targetUri the target URI
-     * @param httpMethod the HTTP method
-     * @param headers the HTTP headers
-     * @param body the request body
+     * @param targetUri   the target URI
+     * @param httpMethod  the HTTP method
+     * @param headers     the HTTP headers
+     * @param body        the request body
      * @param queryParams the query parameters
-     * @param pathParams the path parameters
+     * @param pathParams  the path parameters
      * @return the HTTP response
      */
-    public HttpResponse sendRequest(String targetUri, PathItem.HttpMethod httpMethod, 
-                                   Map<String, String> headers, String body,
-                                   Map<String, String> queryParams, Map<String, String> pathParams) {
+    public HttpResponse sendRequest(String targetUri, PathItem.HttpMethod httpMethod,
+                                    Map<String, String> headers, String body,
+                                    Map<String, String> queryParams, Map<String, String> pathParams) {
         try {
             URI uri = buildUri(targetUri, queryParams, pathParams);
 
@@ -181,4 +182,7 @@ public class HttpUtility {
         }
     }
 
+    public HttpResponse sendRequest(String string, PathItem.HttpMethod httpMethod) {
+        return sendRequest(string, httpMethod, null, null, Collections.emptyMap(), Collections.emptyMap());
+    }
 }
