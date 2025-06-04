@@ -5,14 +5,18 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.net.*;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -22,7 +26,9 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Base64;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 public class ProxySettingsIntegrationTest {
@@ -31,12 +37,19 @@ public class ProxySettingsIntegrationTest {
     private static final String TEST_URL = "https://petstore.swagger.io/v2/swagger.json";
     private static final Logger log = LoggerFactory.getLogger(ProxySettingsIntegrationTest.class);
 
-    @Container
+    /*@Container
     public static GenericContainer<?> squidContainer = new GenericContainer<>(
             new ImageFromDockerfile()
                     .withFileFromClasspath("Dockerfile", "proxy/Dockerfile")
                     .withFileFromClasspath("entrypoint.sh", "proxy/entrypoint.sh")
                     .withFileFromClasspath("squid.conf", "proxy/squid.conf"))
+            .withExposedPorts(3128)
+            .withEnv("PROXY_USERNAME", PROXY_USERNAME)
+            .withEnv("PROXY_PASSWORD", PROXY_PASSWORD);*/
+
+    @Container
+    public static GenericContainer<?> squidContainer = new GenericContainer<>(
+            DockerImageName.parse("ozkanpakdil/squid-auth:1.0"))
             .withExposedPorts(3128)
             .withEnv("PROXY_USERNAME", PROXY_USERNAME)
             .withEnv("PROXY_PASSWORD", PROXY_PASSWORD);
@@ -50,7 +63,7 @@ public class ProxySettingsIntegrationTest {
 
     private HttpClient createProxyClient() throws Exception {
         // Create a trust manager that trusts all certificates
-        TrustManager[] trustAllCerts = new TrustManager[]{
+        TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -265,14 +278,7 @@ public class ProxySettingsIntegrationTest {
         Authenticator authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                if (getRequestorType() == RequestorType.PROXY) {
-                    log.debug("Proxy authentication request - Host: {}, Scheme: {}, Protocol: {}, Type: {}",
-                            getRequestingHost(), getRequestingScheme(), getRequestingProtocol(), getRequestorType());
-                    return new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
-                }
-                log.debug("Not a proxy authentication request - Host: {}, Type: {}",
-                        getRequestingHost(), getRequestorType());
-                return null;
+                return new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
             }
         };
         Authenticator.setDefault(authenticator);
@@ -283,7 +289,7 @@ public class ProxySettingsIntegrationTest {
         var proxySelector = ProxySelector.of(proxyAddress);
 
         // Create a trust manager that trusts all certificates for HTTPS
-        TrustManager[] trustAllCerts = new TrustManager[]{
+        TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -310,7 +316,7 @@ public class ProxySettingsIntegrationTest {
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(TEST_URL))
+                .uri(URI.create("https://www.google.com"))
                 .GET()
                 .build();
 

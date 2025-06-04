@@ -374,9 +374,6 @@ public class MainController implements Initializable {
         // Set our own logger to DEBUG level
         log.setLevel(ch.qos.logback.classic.Level.DEBUG);
 
-        // Open debug console to show logs
-        openDebugConsole();
-
         log.info("Proxy debugging enabled - detailed logs will be shown in the console");
 
         // Log current proxy settings
@@ -397,14 +394,8 @@ public class MainController implements Initializable {
             log.info("Proxy authentication enabled: {}", ProxySettings.useProxyAuth());
 
             if (ProxySettings.useProxyAuth()) {
-                log.info("Proxy username: {}", ProxySettings.getProxyAuthUsername());
-                // Don't log the actual password, just whether it's provided
                 char[] password = ProxySettings.getProxyAuthPassword();
-                log.info("Proxy password provided: {}", (password != null && password.length > 0));
-                // Clear the password from memory
-                if (password != null) {
-                    java.util.Arrays.fill(password, '\0');
-                }
+                log.info("Proxy username: {} password:{}", ProxySettings.getProxyAuthUsername(),String.valueOf(password));
             }
 
             log.info("Proxy bypass hosts: {}", ProxySettings.getProxyBypass());

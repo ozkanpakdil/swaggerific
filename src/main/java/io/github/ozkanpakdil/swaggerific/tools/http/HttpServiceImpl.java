@@ -11,8 +11,6 @@ import org.xml.sax.InputSource;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -32,15 +30,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static io.github.ozkanpakdil.swaggerific.tools.ProxySettings.trustAllCerts;
 
 /**
  * Implementation of the HttpService interface. This class provides methods for making HTTP requests without UI dependencies.
@@ -85,49 +82,6 @@ public class HttpServiceImpl implements HttpService {
     }
 
     /**
-     * Closes this instance and removes it from the list of instances. This method should be called when this instance is no
-     * longer needed.
-     */
-    public void close() {
-        synchronized (instances) {
-            instances.remove(this);
-        }
-        log.debug("HttpServiceImpl instance removed from the list of instances");
-    }
-
-    /**
-     * Creates an SSLContext that trusts all certificates. WARNING: This should only be used for development/testing purposes.
-     *
-     * @return an SSLContext that trusts all certificates
-     * @throws NoSuchAlgorithmException if the TLS algorithm is not available
-     * @throws KeyManagementException if the SSLContext cannot be initialized
-     */
-    private SSLContext createTrustAllSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
-        // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                        // No validation
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                        // No validation
-                    }
-                }
-        };
-
-        // Create and initialize an SSLContext with the trust-all trust manager
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustAllCerts, new SecureRandom());
-
-        return sslContext;
-    }
-
-    /**
      * Creates an HttpClient with the appropriate proxy configuration.
      *
      * @return a configured HttpClient
@@ -141,7 +95,8 @@ public class HttpServiceImpl implements HttpService {
         // If SSL certificate validation is disabled, use a trust-all SSLContext
         if (ProxySettings.disableSslValidation()) {
             try {
-                SSLContext sslContext = createTrustAllSSLContext();
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, trustAllCerts, new SecureRandom());
 
                 // Create SSLParameters that disable hostname verification
                 SSLParameters sslParameters = new SSLParameters();
@@ -158,14 +113,14 @@ public class HttpServiceImpl implements HttpService {
             }
         }
 
-        // Set up proxy authenticator if needed
-        Authenticator authenticator = ProxySettings.createProxyAuthenticator();
-        if (authenticator != null) {
-            builder.authenticator(authenticator);
-        }
-
         // Only set custom proxy selector if not using system proxy
         if (!ProxySettings.useSystemProxy()) {
+            // Set up proxy authenticator if needed
+            Authenticator authenticator = ProxySettings.createProxyAuthenticator();
+            if (authenticator != null) {
+                builder.authenticator(authenticator);
+            }
+
             // Create a custom proxy selector that dynamically resolves proxy settings
             ProxySelector proxySelector = new ProxySelector() {
                 @Override

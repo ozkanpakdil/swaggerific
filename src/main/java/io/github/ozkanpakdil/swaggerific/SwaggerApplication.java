@@ -4,6 +4,7 @@ import atlantafx.base.theme.PrimerLight;
 import io.github.ozkanpakdil.swaggerific.animation.Preloader;
 import io.github.ozkanpakdil.swaggerific.model.ShortcutModel;
 import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
+import io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl;
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -103,21 +104,6 @@ public class SwaggerApplication extends Application {
             int proxyPort = ProxySettings.getProxyPort();
 
             if (proxyHost != null && !proxyHost.isEmpty()) {
-                // Set HTTP proxy
-                System.setProperty("http.proxyHost", proxyHost);
-                System.setProperty("http.proxyPort", String.valueOf(proxyPort));
-                System.setProperty("https.proxyHost", proxyHost);
-                System.setProperty("https.proxyPort", String.valueOf(proxyPort));
-                System.setProperty("ftp.proxyHost", proxyHost);
-                System.setProperty("ftp.proxyPort", String.valueOf(proxyPort));
-                System.setProperty("socksProxyHost", proxyHost);
-                System.setProperty("socksProxyPort", String.valueOf(proxyPort));
-
-                String nonProxyHosts = String.join("|", ProxySettings.getProxyBypass());
-                System.setProperty("http.nonProxyHosts", nonProxyHosts);
-                System.setProperty("https.nonProxyHosts", nonProxyHosts);
-                System.setProperty("ftp.nonProxyHosts", nonProxyHosts);
-
                 log.info("Custom proxy configured: {}:{}", proxyHost, proxyPort);
 
                 // Install JVM-wide ProxySelector
@@ -146,24 +132,13 @@ public class SwaggerApplication extends Application {
                 });
             } else {
                 // Clear all proxy settings
-                System.clearProperty("http.proxyHost");
-                System.clearProperty("http.proxyPort");
-                System.clearProperty("https.proxyHost");
-                System.clearProperty("https.proxyPort");
-                System.clearProperty("ftp.proxyHost");
-                System.clearProperty("ftp.proxyPort");
-                System.clearProperty("socksProxyHost");
-                System.clearProperty("socksProxyPort");
-                System.clearProperty("http.nonProxyHosts");
                 ProxySelector.setDefault(null);
                 log.info("No proxy configured");
             }
         }
 
-        // Proxy authentication is now handled on a per-connection basis
-
         // Recreate all HttpClient instances to apply new proxy settings
-        io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl.recreateAllHttpClients();
+        HttpServiceImpl.recreateAllHttpClients();
 
         log.info("Proxy settings reinitialized successfully");
     }
