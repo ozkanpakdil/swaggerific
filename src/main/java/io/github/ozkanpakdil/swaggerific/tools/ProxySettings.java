@@ -558,6 +558,10 @@ public class ProxySettings {
                 return true; // Consider any non-407 response as successful
             }
 
+        } catch (InterruptedException e) {
+            log.warn("Proxy connection test interrupted: {}", e.getMessage());
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+            return false;
         } catch (Exception e) {
             log.warn("Proxy connection test failed: {}", e.getMessage());
             return false;
