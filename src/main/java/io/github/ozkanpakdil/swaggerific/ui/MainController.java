@@ -9,6 +9,7 @@ import io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings;
 import io.github.ozkanpakdil.swaggerific.data.SwaggerModal;
 import io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
+import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.TextAreaAppender;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeFilter;
@@ -69,11 +70,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +89,7 @@ public class MainController implements Initializable {
     private static final Logger log = (Logger) LoggerFactory.getLogger(MainController.class);
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    final String APP_SETTINGS_HOME = System.getProperty("user.home")+ "/.swaggerific";
+    public static final String APP_SETTINGS_HOME = System.getProperty("user.home")+ "/.swaggerific";
     final String SESSION = APP_SETTINGS_HOME + "/session.bin";
     final String AUTH_SETTINGS = APP_SETTINGS_HOME + "/auth_settings.bin";
 
@@ -165,7 +168,6 @@ public class MainController implements Initializable {
             return cell;
         });
         Platform.runLater(() -> {
-            // UI aligning
             treeSplit.setDividerPosition(0, 0.13);
             flipDebugConsole();
         });
@@ -389,11 +391,57 @@ public class MainController implements Initializable {
         treeFilter = new TreeFilter();
         txtFilterTree.setText("");
         treeItemRoot.getChildren().clear();
-        URL urlApi = new URI(urlSwagger).toURL();
+
+        // Configure proxy before creating URL connection
+        ProxySettings.setupSystemWideProxy();
+
+        // Create URL with proxy settings applied
+        java.net.URL urlApi = new URI(urlSwagger).toURL();
         treePaths.setRoot(treeItemRoot);
+
         try {
-            jsonRoot = Json.mapper().readTree(urlApi);
-            jsonModal = Json.mapper().readValue(urlApi, SwaggerModal.class);
+            if (urlApi == null || urlApi.toString().trim().isEmpty()) {
+                throw new IllegalArgumentException("Invalid or empty URL");
+            }
+
+            HttpClient.Builder clientBuilder = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(Duration.ofSeconds(10));
+
+            // Only apply proxy settings if proxy is configured
+            if (ProxySettings.createProxy() != null && ProxySettings.createProxy().address() != null) {
+                clientBuilder.proxy(ProxySelector.of((InetSocketAddress) ProxySettings.createProxy().address()))
+                           .authenticator(ProxySettings.createProxyAuthenticator());
+            }
+
+            HttpClient client = clientBuilder.build();
+
+            // Create request builder
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                    .uri(urlApi.toURI())
+                    .GET();
+
+            // Only add proxy auth header if needed
+            if (ProxySettings.getProxyAuthorizationHeader() != null) {
+                requestBuilder.header("Proxy-Authorization", ProxySettings.getProxyAuthorizationHeader());
+            }
+
+            HttpRequest request = requestBuilder.build();
+
+            // Send request and get response
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("HTTP request failed with status code: " + response.statusCode());
+            }
+
+            String jsonContent = response.body();
+            if (jsonContent == null || jsonContent.trim().isEmpty()) {
+                throw new RuntimeException("Received empty response from server");
+            }
+
+            jsonRoot = Json.mapper().readTree(jsonContent);
+            jsonModal = Json.mapper().readValue(jsonContent, SwaggerModal.class);
 
             if (StringUtils.isAllBlank(jsonModal.getSwagger(), jsonModal.getOpenapi())) {
                 throw new RuntimeException("Json is not recognized");
@@ -447,9 +495,9 @@ public class MainController implements Initializable {
                 });
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Failed to load Swagger URL: {}", e.getCause());
+            throw new RuntimeException("Failed to load Swagger URL: " + e.getMessage(), e);
         }
-        treePaths.setShowRoot(false);
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
