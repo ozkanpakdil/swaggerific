@@ -394,7 +394,7 @@ public class ProxySettings {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
-            log.debug("Creating proxy authenticator - Username: {}, Password: {}", username, String.valueOf(passwordChars));
+            log.debug("Creating proxy authenticator - Username: {}", username);
 
             if (username != null && !username.isEmpty() && passwordChars.length > 0) {
                 cachedAuthenticator = new Authenticator() {
