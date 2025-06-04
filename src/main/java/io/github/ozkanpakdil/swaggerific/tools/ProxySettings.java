@@ -50,6 +50,7 @@ public class ProxySettings {
     private static final Logger log = LoggerFactory.getLogger(ProxySettings.class);
     private static final Preferences userPrefs = Preferences.userNodeForPackage(SwaggerApplication.class);
     private static final String PROXY_SETTINGS_FILE = APP_SETTINGS_HOME + "/proxy_settings.bin";
+    private static volatile Proxy cachedProxy = null;
 
     // Preference keys
     private static final String USE_SYSTEM_PROXY = "useSystemProxy";
@@ -71,6 +72,7 @@ public class ProxySettings {
     private static final String DEFAULT_PROXY_AUTH_USERNAME = "";
     private static final String DEFAULT_PROXY_BYPASS = "localhost,127.0.0.1";
     private static final boolean DEFAULT_DISABLE_SSL_VALIDATION = false;
+    private static Authenticator cachedAuthenticator = null;
 
     private static boolean isProduction() {
         // Check if running in IntelliJ IDEA
@@ -297,9 +299,7 @@ public class ProxySettings {
         }
     }
 
-    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort,
-            boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass,
-            boolean disableSslValidation) {
+    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort, boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
         try {
             // Validate inputs before saving
             if (!useSystemProxy && (proxyServer == null || proxyServer.trim().isEmpty())) {
@@ -356,6 +356,9 @@ public class ProxySettings {
         if (useSystemProxy()) {
             return null;
         }
+        if (cachedProxy != null) {
+            return cachedProxy;
+        }
 
         String server = getProxyServer();
         int port = getProxyPort();
@@ -379,24 +382,28 @@ public class ProxySettings {
             log.warn("Unrecognized proxy type: {}. Using HTTP instead.", proxyTypeStr);
             type = Proxy.Type.HTTP;
         }
-
-        return new Proxy(type, new InetSocketAddress(server, port));
+        cachedProxy = new Proxy(type, new InetSocketAddress(server, port));
+        return cachedProxy;
     }
 
     public static Authenticator createProxyAuthenticator() {
-        if (!useSystemProxy() && useProxyAuth()) {
+        if (cachedAuthenticator != null) {
+            return cachedAuthenticator;
+        }
+        if (!useSystemProxy() && useProxyAuth() && Authenticator.getDefault() == null) {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
             log.debug("Creating proxy authenticator - Username: {}, Password: {}", username, String.valueOf(passwordChars));
 
             if (username != null && !username.isEmpty() && passwordChars.length > 0) {
-                return new Authenticator() {
+                cachedAuthenticator = new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(username, passwordChars);
                     }
                 };
+                return cachedAuthenticator;
             }
         }
         return null;
@@ -418,8 +425,7 @@ public class ProxySettings {
                 Arrays.fill(passwordChars, '\0');
             }
         } else {
-            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}",
-                    useSystemProxy(), useProxyAuth());
+            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}", useSystemProxy(), useProxyAuth());
         }
 
         return null;
@@ -470,8 +476,6 @@ public class ProxySettings {
         validateProxySettings();
 
         if (!useSystemProxy()) {
-            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-            System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
             String proxyHost = getProxyServer();
             int proxyPort = getProxyPort();
 
@@ -480,13 +484,14 @@ public class ProxySettings {
                 log.debug("Non-proxy hosts: {}", nonProxyHosts);
 
                 // Set up authenticator
-                Authenticator.setDefault(createProxyAuthenticator());
-
+                if (Authenticator.getDefault() == null) {
+                    Authenticator.setDefault(createProxyAuthenticator());
+                }
                 // Test connection without throwing exceptions
                 boolean isProxyWorking = testProxyConnection();
                 if (!isProxyWorking) {
                     log.error("Proxy connection test failed. Please check your proxy settings.");
-                    throw new RuntimeException("Proxy connection test failed");
+                    throw new RuntimeException("Proxy connection test failed. Please check your proxy settings.");
                 }
 
                 log.info("Proxy configured: {}:{}", proxyHost, proxyPort);
@@ -501,22 +506,22 @@ public class ProxySettings {
     }
 
     private static void clearProxySettings() {
+        cachedAuthenticator = null;
+        cachedProxy = null;
         Authenticator.setDefault(null);
     }
 
-    public static TrustManager[] trustAllCerts = new TrustManager[] {
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
+    public static TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
 
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                }
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+        }
 
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                }
-            }
-    };
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+        }
+    }};
 
     private static boolean testProxyConnection() {
         try {
@@ -537,16 +542,7 @@ public class ProxySettings {
             log.debug("Test connection URI: {}", testUri);
 
             // Create request builder
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(testUri)
-                    .GET();
-
-            // Add proxy auth header if needed
-            String proxyAuthHeader = getProxyAuthorizationHeader();
-            if (proxyAuthHeader != null) {
-                requestBuilder.header("Proxy-Authorization", proxyAuthHeader);
-                log.info("Added Proxy-Authorization header to test request");
-            }
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(testUri).GET();
 
             HttpRequest request = requestBuilder.build();
 
@@ -693,8 +689,7 @@ public class ProxySettings {
                     // Save password with restricted permissions
                     Files.writeString(passwordFile, keystorePassword, StandardCharsets.UTF_8);
                     try {
-                        Files.setPosixFilePermissions(passwordFile,
-                                java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
+                        Files.setPosixFilePermissions(passwordFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
                     } catch (UnsupportedOperationException e) {
                         // Windows systems don't support POSIX permissions
                         log.debug("POSIX file permissions not supported on this system");

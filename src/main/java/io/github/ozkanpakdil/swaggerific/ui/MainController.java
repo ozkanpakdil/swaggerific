@@ -50,13 +50,11 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
-import java.net.*;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.*;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -395,7 +393,7 @@ public class MainController implements Initializable {
 
             if (ProxySettings.useProxyAuth()) {
                 char[] password = ProxySettings.getProxyAuthPassword();
-                log.info("Proxy username: {} password:{}", ProxySettings.getProxyAuthUsername(),String.valueOf(password));
+                log.info("Proxy username: {} password:{}", ProxySettings.getProxyAuthUsername(), String.valueOf(password));
             }
 
             log.info("Proxy bypass hosts: {}", ProxySettings.getProxyBypass());
@@ -410,11 +408,13 @@ public class MainController implements Initializable {
 
         log.info("Opening Swagger URL: {}", urlSwagger);
 
-        enableProxyDebugging();
+        if (log.isDebugEnabled())
+            enableProxyDebugging();
 
         ProxySettings.setupSystemWideProxy();
 
-        java.net.URL urlApi = new URI(urlSwagger).toURL();
+        URL urlApi = new URI(urlSwagger)
+                .toURL();
         treePaths.setRoot(treeItemRoot);
 
         try {
@@ -422,59 +422,7 @@ public class MainController implements Initializable {
                 throw new IllegalArgumentException("Invalid or empty URL");
             }
 
-            HttpClient.Builder clientBuilder = HttpClient.newBuilder()
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .connectTimeout(Duration.ofSeconds(10));
-
-            // Only apply proxy settings if proxy is configured
-            Proxy proxy = ProxySettings.createProxy();
-            if (proxy != null && proxy.address() != null) {
-                clientBuilder.proxy(ProxySelector.of((InetSocketAddress) proxy.address()));
-
-                // Set authenticator if proxy authentication is enabled
-                Authenticator authenticator = ProxySettings.createProxyAuthenticator();
-                if (authenticator != null) {
-                    clientBuilder.authenticator(authenticator);
-                    log.info("Proxy authenticator set up for HTTP client");
-                }
-            }
-
-            HttpClient client = clientBuilder.build();
-
-            // Create request builder
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(urlApi.toURI())
-                    .GET();
-
-            // Only add proxy auth header if needed
-            String proxyAuthHeader = ProxySettings.getProxyAuthorizationHeader();
-            if (proxyAuthHeader != null) {
-                requestBuilder.header("Proxy-Authorization", proxyAuthHeader);
-                log.info("Added Proxy-Authorization header to request");
-            }
-
-            HttpRequest request = requestBuilder.build();
-
-            // Send request and get response
-            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 407) {
-                // Log detailed information about the proxy authentication failure
-                log.error("Proxy authentication failed with status code 407");
-                log.debug("Response headers: {}", response.headers().map());
-
-                // Check if the proxy returned a WWW-Authenticate header
-                response.headers().firstValue("Proxy-Authenticate").ifPresent(auth ->
-                        log.debug("Proxy-Authenticate header: {}", auth));
-
-                throw new RuntimeException("Proxy authentication failed. Please check your proxy username and password.");
-            } else if (response.statusCode() != 200) {
-                log.error("HTTP request failed with status code: {}", response.statusCode());
-                if (log.isDebugEnabled()) {
-                    log.debug("Response headers: {}", response.headers().map());
-                }
-                throw new RuntimeException("HTTP request failed with status code: " + response.statusCode());
-            }
+            HttpResponse response = httpUtility.sendRequest(urlApi.toString(), PathItem.HttpMethod.GET);
 
             String jsonContent = response.body();
             if (jsonContent == null || jsonContent.trim().isEmpty()) {
@@ -535,9 +483,6 @@ public class MainController implements Initializable {
                     });
                 });
             }
-        } catch (java.net.http.HttpTimeoutException e) {
-            log.error("Connection timed out while loading Swagger URL: {}", e.getMessage());
-            throw new RuntimeException("Connection timed out. Please check your network connection and try again.", e);
         } catch (java.io.IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("407")) {
                 log.error("Proxy authentication failed: {}", e.getMessage());

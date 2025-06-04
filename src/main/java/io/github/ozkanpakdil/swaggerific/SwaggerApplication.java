@@ -27,12 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.FONT_SIZE;
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.SELECTED_FONT;
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_HEIGHT;
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_WIDTH;
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_X;
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_Y;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.*;
 
 public class SwaggerApplication extends Application {
     static SwaggerApplication instance;
@@ -396,7 +391,7 @@ public class SwaggerApplication extends Application {
     /**
      * Finds a suitable character index in the text for a mnemonic based on the key code name.
      *
-     * @param text The text to search in
+     * @param text        The text to search in
      * @param keyCodeName The key code name to search for
      * @return The index of a suitable character, or -1 if none is found
      */
@@ -481,6 +476,10 @@ public class SwaggerApplication extends Application {
     }
 
     public static void main(String[] args) {
+        // Set system properties to enable HTTP tunneling and proxying
+        System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+        System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+
         System.setProperty("javafx.preloader", Preloader.class.getName());
         if (log.isDebugEnabled())
             System.setProperty("jdk.httpclient.HttpClient.log", "all");

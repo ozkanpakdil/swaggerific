@@ -117,8 +117,9 @@ public class HttpServiceImpl implements HttpService {
         if (!ProxySettings.useSystemProxy()) {
             // Set up proxy authenticator if needed
             Authenticator authenticator = ProxySettings.createProxyAuthenticator();
-            if (authenticator != null) {
+            if (authenticator != null && Authenticator.getDefault() == null) {
                 builder.authenticator(authenticator);
+                Authenticator.setDefault(authenticator);
             }
 
             // Create a custom proxy selector that dynamically resolves proxy settings
@@ -175,13 +176,6 @@ public class HttpServiceImpl implements HttpService {
             if (headerArray.length > 0) {
                 requestBuilder.headers(headerArray);
                 log.info("Added {} headers to the request", headerArray.length / 2);
-            }
-
-            // Add Proxy-Authorization header if proxy authentication is enabled
-            String proxyAuthHeader = ProxySettings.getProxyAuthorizationHeader();
-            if (proxyAuthHeader != null) {
-                requestBuilder.header("Proxy-Authorization", proxyAuthHeader);
-                log.info("Added Proxy-Authorization header");
             }
 
             java.net.http.HttpRequest httpRequest = requestBuilder.build();
@@ -251,8 +245,8 @@ public class HttpServiceImpl implements HttpService {
     /**
      * Pretty prints XML string.
      *
-     * @param xmlString the XML string to format
-     * @param indent the indentation level
+     * @param xmlString         the XML string to format
+     * @param indent            the indentation level
      * @param ignoreDeclaration whether to ignore XML declaration
      * @return the formatted XML string
      * @throws XmlFormattingException if an error occurs during formatting

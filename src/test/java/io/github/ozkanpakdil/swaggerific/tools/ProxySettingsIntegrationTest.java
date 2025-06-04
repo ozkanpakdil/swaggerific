@@ -12,23 +12,15 @@ import org.testcontainers.utility.DockerImageName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.ProxySelector;
-import java.net.URI;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.util.Base64;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 public class ProxySettingsIntegrationTest {
@@ -63,7 +55,7 @@ public class ProxySettingsIntegrationTest {
 
     private HttpClient createProxyClient() throws Exception {
         // Create a trust manager that trusts all certificates
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -141,7 +133,6 @@ public class ProxySettingsIntegrationTest {
         // Make request with explicit proxy auth header
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://httpbin.org/status/200"))
-                .header("Proxy-Authorization", proxyAuth)
                 .GET()
                 .build();
 
@@ -167,13 +158,9 @@ public class ProxySettingsIntegrationTest {
         // Create HTTP client with proxy settings
         HttpClient client = createProxyClient();
 
-        // Get proxy authorization header
-        String proxyAuth = ProxySettings.getProxyAuthorizationHeader();
-
         // Make a request with wrong Proxy-Authorization header
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(TEST_URL))
-                .header("Proxy-Authorization", proxyAuth)
                 .GET()
                 .build();
 
@@ -243,14 +230,8 @@ public class ProxySettingsIntegrationTest {
                 .authenticator(java.net.Authenticator.getDefault())
                 .build();
 
-        // Create request with Proxy-Authorization header
-        String auth = PROXY_USERNAME + ":" + PROXY_PASSWORD;
-        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-        String authHeader = "Basic " + encodedAuth;
-
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://httpbin.org/status/200"))
-                .header("Proxy-Authorization", authHeader)
                 .GET()
                 .build();
 
@@ -281,7 +262,6 @@ public class ProxySettingsIntegrationTest {
                 return new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
             }
         };
-        Authenticator.setDefault(authenticator);
 
         // Create HTTP client with proxy settings
         var proxy = ProxySettings.createProxy();
@@ -289,7 +269,7 @@ public class ProxySettingsIntegrationTest {
         var proxySelector = ProxySelector.of(proxyAddress);
 
         // Create a trust manager that trusts all certificates for HTTPS
-        TrustManager[] trustAllCerts = new TrustManager[] {
+        TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -320,7 +300,7 @@ public class ProxySettingsIntegrationTest {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
         log.info(String.valueOf(response.headers()));
         assertEquals(200, response.statusCode(), "Should get 200 OK response");
     }
