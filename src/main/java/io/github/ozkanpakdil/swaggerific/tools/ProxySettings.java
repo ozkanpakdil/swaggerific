@@ -8,18 +8,8 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.URI;
+import java.io.*;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -284,21 +274,17 @@ public class ProxySettings {
                         throw new IllegalStateException("Proxy username cannot be empty when authentication is enabled");
                     }
 
-                    if (password == null || password.length == 0) {
+                    if (password.length == 0) {
                         throw new IllegalStateException("Proxy password cannot be empty when authentication is enabled");
                     }
                 } finally {
-                    if (password != null) {
-                        Arrays.fill(password, '\0');
-                    }
+                    Arrays.fill(password, '\0');
                 }
             }
         }
     }
 
-    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer,
-            int proxyPort, boolean proxyAuth, String proxyAuthUsername,
-            String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
+    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort, boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
         try {
             // Validate inputs before saving
             if (!useSystemProxy && (proxyServer == null || proxyServer.trim().isEmpty())) {
@@ -338,7 +324,7 @@ public class ProxySettings {
             storage.save();
 
             log.info("Proxy settings saved. Using system proxy: {}", useSystemProxy);
-            if (!useSystemProxy && proxyServer != null && !proxyServer.isEmpty()) {
+            if (!useSystemProxy && !proxyServer.isEmpty()) {
                 log.info("Custom proxy configured: {}:{}", proxyServer, proxyPort);
                 if (proxyAuth) {
                     log.info("Proxy authentication enabled for user: {}", proxyAuthUsername);
@@ -384,8 +370,7 @@ public class ProxySettings {
 
     @Deprecated
     public static void setupProxyAuthentication() {
-        log.warn("setupProxyAuthentication() is deprecated and does nothing. " +
-                "Use createProxyAuthenticator() for HttpClient or getProxyAuthorizationHeader() for HttpURLConnection instead.");
+        log.warn("setupProxyAuthentication() is deprecated and does nothing. " + "Use createProxyAuthenticator() for HttpClient or getProxyAuthorizationHeader() for HttpURLConnection instead.");
     }
 
     public static Authenticator createProxyAuthenticator() {
@@ -393,26 +378,21 @@ public class ProxySettings {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
-            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
+            log.debug("Creating proxy authenticator - Username: {}, Password: {}", username, String.valueOf(passwordChars));
+
+            if (username != null && !username.isEmpty() && passwordChars.length > 0) {
                 Authenticator authenticator = new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        if (getRequestingHost().equalsIgnoreCase(getProxyServer())) {
-                            char[] passwordCopy = Arrays.copyOf(passwordChars, passwordChars.length);
-                            return new PasswordAuthentication(username, passwordCopy);
-                        }
-                        return null;
+                        return new PasswordAuthentication(username, passwordChars);
                     }
                 };
 
                 log.info("Proxy authentication set up");
-                Arrays.fill(passwordChars, '\0');
                 return authenticator;
-            } else {
-                if (passwordChars != null) {
-                    Arrays.fill(passwordChars, '\0');
-                }
             }
+        } else {
+            log.debug("Proxy authenticator not created - Using system proxy: {}, Proxy auth enabled: {}", useSystemProxy(), useProxyAuth());
         }
 
         return null;
@@ -423,7 +403,7 @@ public class ProxySettings {
             final String username = getProxyAuthUsername();
             final char[] passwordChars = getProxyAuthPassword();
 
-            if (username != null && !username.isEmpty() && passwordChars != null && passwordChars.length > 0) {
+            if (username != null && !username.isEmpty() && passwordChars.length > 0) {
                 String auth = username + ":" + new String(passwordChars);
                 String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
                 String authHeader = "Basic " + encodedAuth;
@@ -431,10 +411,10 @@ public class ProxySettings {
                 Arrays.fill(passwordChars, '\0');
                 return authHeader;
             } else {
-                if (passwordChars != null) {
-                    Arrays.fill(passwordChars, '\0');
-                }
+                Arrays.fill(passwordChars, '\0');
             }
+        } else {
+            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}", useSystemProxy(), useProxyAuth());
         }
 
         return null;
@@ -471,11 +451,36 @@ public class ProxySettings {
         return false;
     }
 
+    /**
+     * Enables detailed proxy debugging by setting system properties.
+     * This should be called before any proxy operations to get detailed logs.
+     */
+    public static void enableProxyDebugLogs() {
+        // Enable Java's HTTP client debug logging
+        System.setProperty("jdk.httpclient.HttpClient.log", "all");
+        System.setProperty("jdk.internal.httpclient.debug", "true");
+
+        // Set Logback logger level to DEBUG for proxy-related classes
+        try {
+            ch.qos.logback.classic.Logger proxyLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ProxySettings.class);
+            proxyLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+
+            ch.qos.logback.classic.Logger httpLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("io.github.ozkanpakdil.swaggerific.tools.http");
+            httpLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
+
+            log.info("Enabled detailed proxy debug logging");
+        } catch (Exception e) {
+            log.warn("Failed to set logger levels for proxy debugging: {}", e.getMessage());
+        }
+    }
+
     public static void setupSystemWideProxy() {
         try {
             validateProxySettings();
 
             if (!useSystemProxy()) {
+                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+                System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
                 String proxyHost = getProxyServer();
                 int proxyPort = getProxyPort();
 
@@ -500,6 +505,7 @@ public class ProxySettings {
 
                     String nonProxyHosts = String.join("|", getProxyBypass());
                     System.setProperty("http.nonProxyHosts", nonProxyHosts);
+                    log.debug("Non-proxy hosts: {}", nonProxyHosts);
 
                     // Set up authenticator
                     Authenticator.setDefault(createProxyAuthenticator());
@@ -507,7 +513,8 @@ public class ProxySettings {
                     // Test connection without throwing exceptions
                     boolean isProxyWorking = testProxyConnection();
                     if (!isProxyWorking) {
-                        log.warn("Proxy connection test failed but continuing with current settings");
+                        log.error("Proxy connection test failed but continuing with current settings");
+                        throw new RuntimeException("Proxy connection test failed");
                     }
 
                     log.info("Proxy configured: {}:{}", proxyHost, proxyPort);
@@ -522,6 +529,9 @@ public class ProxySettings {
         } catch (Exception e) {
             // Log error but don't throw exception to prevent app from failing
             log.error("Failed to setup proxy: {}. Continuing without proxy.", e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("Proxy setup exception details:", e);
+            }
             clearProxySettings();
         }
     }
@@ -544,42 +554,69 @@ public class ProxySettings {
             // Create proxy configuration
             Proxy proxy = createProxy();
             if (proxy == null) {
+                log.debug("No proxy configured for test connection");
                 return true; // If no proxy is configured, return success
             }
 
+            log.info("Testing proxy connection to: {}", proxy.address());
+
             // Get auth credentials
             String authHeader = getProxyAuthorizationHeader();
+            boolean hasAuthHeader = authHeader != null && !authHeader.isEmpty();
+            log.debug("Proxy authorization header available: {}", hasAuthHeader);
 
             // Build HttpClient with proxy settings
-            HttpClient client = HttpClient.newBuilder()
-                    .proxy(ProxySelector.of((InetSocketAddress) proxy.address()))
-                    .authenticator(createProxyAuthenticator())
-                    .connectTimeout(Duration.ofSeconds(5))
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .build();
+            Authenticator authenticator = createProxyAuthenticator();
+            HttpClient.Builder clientBuilder = HttpClient.newBuilder().proxy(ProxySelector.of((InetSocketAddress) proxy.address())).connectTimeout(Duration.ofSeconds(5)).version(HttpClient.Version.HTTP_2);
 
-            // Create test request
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
-                    .uri(URI.create("http://httpbin.org/status/200"))
-                    .timeout(Duration.ofSeconds(5))
-                    .GET();
-
-            // Add proxy authentication if available
-            if (authHeader != null) {
-                requestBuilder.header("Proxy-Authorization", authHeader);
+            if (authenticator != null) {
+                clientBuilder.authenticator(authenticator);
+                log.debug("Using proxy authenticator for test connection");
             }
 
+            HttpClient client = clientBuilder.build();
+
+            // Create test request
+            URI testUri = URI.create("http://httpbin.org/status/200");
+            log.debug("Test connection URI: {}", testUri);
+
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(testUri).timeout(Duration.ofSeconds(5)).GET();
+
+            // Add proxy authentication if available
+            if (hasAuthHeader) {
+                requestBuilder.header("Proxy-Authorization", authHeader);
+                log.debug("Added Proxy-Authorization header to test request");
+            }
+
+            // Enable Java's HTTP client debug logging if needed
+            System.setProperty("jdk.httpclient.HttpClient.log", "all");
+            System.setProperty("jdk.internal.httpclient.debug", "true");
+            log.info("Enabled detailed HTTP client debug logging");
+
+            log.info("Sending test request through proxy: {}", proxy.address());
+            HttpRequest request = requestBuilder.build();
+
             // Send request and verify response
-            HttpResponse<Void> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.discarding());
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            log.info("Test connection response: HTTP {}", response.statusCode());
 
             if (response.statusCode() == 407) {
-                log.error("Proxy authentication failed - check username and password");
+                log.error("Proxy authentication failed during test - check username and password");
+                log.debug("Response headers: {}", response.headers().map());
+                return false;
+            } else if (response.statusCode() != 200) {
+                log.warn("Test connection returned unexpected status code: {}", response.statusCode());
+                log.debug("Response headers: {}", response.headers().map());
                 return false;
             }
 
-            return response.statusCode() == 200;
+            log.info("Proxy connection test successful");
+            return true;
         } catch (Exception e) {
             log.warn("Proxy connection test failed: {}", e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("Proxy connection test exception details:", e);
+            }
             return false;
         }
     }
@@ -595,7 +632,7 @@ public class ProxySettings {
         private static final int KEYSTORE_PASSWORD_LENGTH = 32;
         private static volatile String keystorePassword = null;
 
-        static String encrypt(String value) throws NoSuchAlgorithmException {
+        static String encrypt(String value) {
             if (value == null || value.isEmpty()) {
                 return "";
             }
@@ -660,8 +697,7 @@ public class ProxySettings {
                 SecretKey key = keyGen.generateKey();
 
                 KeyStore.SecretKeyEntry entry = new KeyStore.SecretKeyEntry(key);
-                keyStore.setEntry(KEY_ALIAS, entry,
-                        new KeyStore.PasswordProtection(getKeystorePassword()));
+                keyStore.setEntry(KEY_ALIAS, entry, new KeyStore.PasswordProtection(getKeystorePassword()));
 
                 saveKeyStore(keyStore);
                 return key;
@@ -710,8 +746,7 @@ public class ProxySettings {
                     // Save password with restricted permissions
                     Files.writeString(passwordFile, keystorePassword, StandardCharsets.UTF_8);
                     try {
-                        Files.setPosixFilePermissions(passwordFile,
-                                java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
+                        Files.setPosixFilePermissions(passwordFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
                     } catch (UnsupportedOperationException e) {
                         // Windows systems don't support POSIX permissions
                         log.debug("POSIX file permissions not supported on this system");
@@ -753,9 +788,7 @@ public class ProxySettings {
         }
 
         private static Path getKeystorePath() {
-            return Paths.get(System.getProperty("user.home"))
-                    .resolve(".swaggerific")
-                    .resolve(KEYSTORE_FILENAME);
+            return Paths.get(System.getProperty("user.home")).resolve(".swaggerific").resolve(KEYSTORE_FILENAME);
         }
     }
 }

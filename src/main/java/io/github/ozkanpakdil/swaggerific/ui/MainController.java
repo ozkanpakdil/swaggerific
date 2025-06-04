@@ -29,30 +29,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
@@ -64,12 +49,7 @@ import org.fxmisc.richtext.CodeArea;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -77,19 +57,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.stream.StreamSupport;
 
 public class MainController implements Initializable {
     private static final Logger log = (Logger) LoggerFactory.getLogger(MainController.class);
 
     //TODO this can go to Preferences.userNodeForPackage in the future
-    public static final String APP_SETTINGS_HOME = System.getProperty("user.home")+ "/.swaggerific";
+    public static final String APP_SETTINGS_HOME = System.getProperty("user.home") + "/.swaggerific";
     final String SESSION = APP_SETTINGS_HOME + "/session.bin";
     final String AUTH_SETTINGS = APP_SETTINGS_HOME + "/auth_settings.bin";
 
@@ -387,20 +363,71 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Enables detailed proxy debugging by setting system properties and configuring loggers.
+     * This should be called before any proxy operations to get detailed logs.
+     */
+    public void enableProxyDebugging() {
+        // Enable detailed proxy debugging in ProxySettings
+        ProxySettings.enableProxyDebugLogs();
+
+        // Set our own logger to DEBUG level
+        log.setLevel(ch.qos.logback.classic.Level.DEBUG);
+
+        // Open debug console to show logs
+        openDebugConsole();
+
+        log.info("Proxy debugging enabled - detailed logs will be shown in the console");
+
+        // Log current proxy settings
+        logProxySettings();
+    }
+
+    /**
+     * Logs the current proxy settings to help diagnose proxy authentication issues.
+     * This method is safe to call as it doesn't log sensitive information like passwords.
+     */
+    public void logProxySettings() {
+        log.info("Current proxy settings:");
+        log.info("Using system proxy: {}", ProxySettings.useSystemProxy());
+
+        if (!ProxySettings.useSystemProxy()) {
+            log.info("Proxy type: {}", ProxySettings.getProxyType());
+            log.info("Proxy server: {}:{}", ProxySettings.getProxyServer(), ProxySettings.getProxyPort());
+            log.info("Proxy authentication enabled: {}", ProxySettings.useProxyAuth());
+
+            if (ProxySettings.useProxyAuth()) {
+                log.info("Proxy username: {}", ProxySettings.getProxyAuthUsername());
+                // Don't log the actual password, just whether it's provided
+                char[] password = ProxySettings.getProxyAuthPassword();
+                log.info("Proxy password provided: {}", (password != null && password.length > 0));
+                // Clear the password from memory
+                if (password != null) {
+                    java.util.Arrays.fill(password, '\0');
+                }
+            }
+
+            log.info("Proxy bypass hosts: {}", ProxySettings.getProxyBypass());
+            log.info("SSL validation disabled: {}", ProxySettings.disableSslValidation());
+        }
+    }
+
     private void openSwaggerUrl(String urlSwagger) throws Exception {
         treeFilter = new TreeFilter();
         txtFilterTree.setText("");
         treeItemRoot.getChildren().clear();
 
-        // Configure proxy before creating URL connection
+        log.info("Opening Swagger URL: {}", urlSwagger);
+
+        enableProxyDebugging();
+
         ProxySettings.setupSystemWideProxy();
 
-        // Create URL with proxy settings applied
         java.net.URL urlApi = new URI(urlSwagger).toURL();
         treePaths.setRoot(treeItemRoot);
 
         try {
-            if (urlApi == null || urlApi.toString().trim().isEmpty()) {
+            if (urlApi.toString().trim().isEmpty()) {
                 throw new IllegalArgumentException("Invalid or empty URL");
             }
 
@@ -409,9 +436,16 @@ public class MainController implements Initializable {
                     .connectTimeout(Duration.ofSeconds(10));
 
             // Only apply proxy settings if proxy is configured
-            if (ProxySettings.createProxy() != null && ProxySettings.createProxy().address() != null) {
-                clientBuilder.proxy(ProxySelector.of((InetSocketAddress) ProxySettings.createProxy().address()))
-                           .authenticator(ProxySettings.createProxyAuthenticator());
+            Proxy proxy = ProxySettings.createProxy();
+            if (proxy != null && proxy.address() != null) {
+                clientBuilder.proxy(ProxySelector.of((InetSocketAddress) proxy.address()));
+
+                // Set authenticator if proxy authentication is enabled
+                Authenticator authenticator = ProxySettings.createProxyAuthenticator();
+                if (authenticator != null) {
+                    clientBuilder.authenticator(authenticator);
+                    log.info("Proxy authenticator set up for HTTP client");
+                }
             }
 
             HttpClient client = clientBuilder.build();
@@ -422,8 +456,10 @@ public class MainController implements Initializable {
                     .GET();
 
             // Only add proxy auth header if needed
-            if (ProxySettings.getProxyAuthorizationHeader() != null) {
-                requestBuilder.header("Proxy-Authorization", ProxySettings.getProxyAuthorizationHeader());
+            String proxyAuthHeader = ProxySettings.getProxyAuthorizationHeader();
+            if (proxyAuthHeader != null) {
+                requestBuilder.header("Proxy-Authorization", proxyAuthHeader);
+                log.info("Added Proxy-Authorization header to request");
             }
 
             HttpRequest request = requestBuilder.build();
@@ -431,7 +467,21 @@ public class MainController implements Initializable {
             // Send request and get response
             java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() != 200) {
+            if (response.statusCode() == 407) {
+                // Log detailed information about the proxy authentication failure
+                log.error("Proxy authentication failed with status code 407");
+                log.debug("Response headers: {}", response.headers().map());
+
+                // Check if the proxy returned a WWW-Authenticate header
+                response.headers().firstValue("Proxy-Authenticate").ifPresent(auth ->
+                        log.debug("Proxy-Authenticate header: {}", auth));
+
+                throw new RuntimeException("Proxy authentication failed. Please check your proxy username and password.");
+            } else if (response.statusCode() != 200) {
+                log.error("HTTP request failed with status code: {}", response.statusCode());
+                if (log.isDebugEnabled()) {
+                    log.debug("Response headers: {}", response.headers().map());
+                }
                 throw new RuntimeException("HTTP request failed with status code: " + response.statusCode());
             }
 
@@ -494,14 +544,25 @@ public class MainController implements Initializable {
                     });
                 });
             }
+        } catch (java.net.http.HttpTimeoutException e) {
+            log.error("Connection timed out while loading Swagger URL: {}", e.getMessage());
+            throw new RuntimeException("Connection timed out. Please check your network connection and try again.", e);
+        } catch (java.io.IOException e) {
+            if (e.getMessage() != null && e.getMessage().contains("407")) {
+                log.error("Proxy authentication failed: {}", e.getMessage());
+                throw new RuntimeException("Proxy authentication failed. Please check your proxy username and password.", e);
+            } else {
+                log.error("I/O error while loading Swagger URL: {}", e.getMessage());
+                throw new RuntimeException("I/O error: " + e.getMessage(), e);
+            }
         } catch (Exception e) {
-            log.error("Failed to load Swagger URL: {}", e.getCause());
+            log.error("Failed to load Swagger URL: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to load Swagger URL: " + e.getMessage(), e);
         }
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-            String parentVal) {
+                                             String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
                     .uri(urlTarget + "/" + parentVal.substring(1))

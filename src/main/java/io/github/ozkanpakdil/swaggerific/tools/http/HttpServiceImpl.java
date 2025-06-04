@@ -222,6 +222,13 @@ public class HttpServiceImpl implements HttpService {
                 log.info("Added {} headers to the request", headerArray.length / 2);
             }
 
+            // Add Proxy-Authorization header if proxy authentication is enabled
+            String proxyAuthHeader = ProxySettings.getProxyAuthorizationHeader();
+            if (proxyAuthHeader != null) {
+                requestBuilder.header("Proxy-Authorization", proxyAuthHeader);
+                log.info("Added Proxy-Authorization header");
+            }
+
             java.net.http.HttpRequest httpRequest = requestBuilder.build();
             log.info("{} headers:{} , uri:{}", httpRequest.method(), mapper.writeValueAsString(headerArray), request.uri());
             java.net.http.HttpResponse<String> httpResponse = client.send(httpRequest, BodyHandlers.ofString());
