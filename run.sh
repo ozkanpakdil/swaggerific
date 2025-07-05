@@ -131,6 +131,8 @@ java --module-path "$MODULE_PATH" \
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED \
      --enable-native-access=javafx.graphics \
+     --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED \
+     --add-opens=java.base/java.nio=ALL-UNNAMED \
      -jar "$JAR_FILE"
 
 exit 0
