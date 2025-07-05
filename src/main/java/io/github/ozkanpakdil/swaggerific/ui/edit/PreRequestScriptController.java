@@ -162,114 +162,141 @@ public class PreRequestScriptController implements Initializable {
                 // Create bindings for the script
                 SimpleBindings bindings = new SimpleBindings();
 
-                // Create the pm object with variables and request functions
-                Map<String, Object> pm = new HashMap<>();
+                // Create JavaScript objects for variables and headers
+                // Convert Java variables to JavaScript object
+                StringBuilder jsVariables = new StringBuilder("{");
+                boolean first = true;
+                for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                    if (!first) jsVariables.append(",");
+                    jsVariables.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
+                    first = false;
+                }
+                jsVariables.append("}");
 
-                // Variables object - create JavaScript-friendly functions
-                Map<String, Object> pmVariables = new HashMap<>();
-                pmVariables.put("get", (java.util.function.Function<String, Object>) key -> {
-                    Object value = variables.get(key);
-                    log.debug("Getting variable: {} = {}", key, value);
-                    return value;
-                });
-                pmVariables.put("set", (java.util.function.BiConsumer<String, Object>) (key, value) -> {
-                    log.debug("Setting variable: {} = {}", key, value);
-                    variables.put(key, value);
-                });
-                pm.put("variables", pmVariables);
-
-                // Console object for logging
-                Map<String, Object> console = new HashMap<>();
-                console.put("log", (java.util.function.Consumer<Object>) message -> 
-                    log.info("Script console.log: {}", message));
-                console.put("error", (java.util.function.Consumer<Object>) message -> 
-                    log.error("Script console.error: {}", message));
-                console.put("warn", (java.util.function.Consumer<Object>) message -> 
-                    log.warn("Script console.warn: {}", message));
-
-                // Put console directly in bindings (global scope)
-                bindings.put("console", console);
-
-                // sendRequest function - handle JavaScript callbacks without casting to BiConsumer
-                pm.put("sendRequest", (java.util.function.BiConsumer<String, Object>) 
-                    (url, callback) -> {
-                        try {
-                            HttpResponse response = httpUtility.sendRequest(url, PathItem.HttpMethod.GET);
-
-                            // Create response object for the callback
-                            Map<String, Object> responseObj = new HashMap<>();
-                            responseObj.put("status", response.statusCode());
-                            responseObj.put("body", response.body());
-                            responseObj.put("headers", response.headers());
-
-                            // Add json method to response object
-                            responseObj.put("json", (java.util.function.Supplier<Object>) () -> {
-                                try {
-                                    return Json.mapper().readValue(response.body(), Map.class);
-                                } catch (Exception e) {
-                                    log.error("Error parsing JSON response: {}", e.getMessage());
-                                    return Map.of("error", "Failed to parse JSON: " + e.getMessage());
-                                }
-                            });
-
-                            // Call the callback with null error and response
-                            // Use reflection to invoke the callback function without casting
-                            try {
-                                if (callback instanceof javax.script.Invocable) {
-                                    ((javax.script.Invocable) callback).invokeMethod(null, "call", null, responseObj);
-                                } else {
-                                    // For ScriptObjectMirror or other JavaScript function objects
-                                    java.lang.reflect.Method callMethod = callback.getClass().getMethod("call", Object.class, Object[].class);
-                                    callMethod.invoke(callback, null, new Object[]{null, responseObj});
-                                }
-                            } catch (Exception e) {
-                                log.error("Error invoking JavaScript callback: {}", e.getMessage());
-                            }
-                        } catch (Exception e) {
-                            log.error("Error sending request from script: {}", e.getMessage());
-                            try {
-                                if (callback instanceof javax.script.Invocable) {
-                                    ((javax.script.Invocable) callback).invokeMethod(null, "call", e, null);
-                                } else {
-                                    // For ScriptObjectMirror or other JavaScript function objects
-                                    java.lang.reflect.Method callMethod = callback.getClass().getMethod("call", Object.class, Object[].class);
-                                    callMethod.invoke(callback, null, new Object[]{e, null});
-                                }
-                            } catch (Exception callbackError) {
-                                log.error("Error invoking JavaScript callback with error: {}", callbackError.getMessage());
-                            }
-                        }
-                    }
-                );
-
-                // Add headers object to allow script to modify request headers
-                Map<String, Object> request = new HashMap<>();
-                request.put("headers", headers);
-                pm.put("request", request);
-
-                // Put pm object in bindings
-                bindings.put("pm", pm);
-
-                // Also put pm properties directly in bindings for easier access
-                bindings.put("pmVariables", pmVariables);
-                bindings.put("pmRequest", request);
-                bindings.put("pmHeaders", headers);
-
-                // Add helper object for header manipulation since GraalVM doesn't allow direct Map modification
-                HeaderHelper headerHelper = new HeaderHelper(headers);
-                bindings.put("headerHelper", headerHelper);
+                // Convert Java headers to JavaScript object
+                StringBuilder jsHeaders = new StringBuilder("{");
+                first = true;
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    if (!first) jsHeaders.append(",");
+                    jsHeaders.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
+                    first = false;
+                }
+                jsHeaders.append("}");
 
                 // Debug: Add a simple test to see what's available
                 log.info("Bindings keys: {}", bindings.keySet());
-                log.info("PM object: {}", pm);
-                log.info("PM request object: {}", pm.get("request"));
                 log.info("Headers object: {}", headers);
+
+                // Create pm object structure in JavaScript using pure JavaScript objects
+                String pmSetupScript = 
+                    "var __jsVariables = " + jsVariables.toString() + ";" +
+                    "var __jsHeaders = " + jsHeaders.toString() + ";" +
+                    "var console = {" +
+                    "  log: function(message) { /* JavaScript console.log - message: */ }," +
+                    "  error: function(message) { /* JavaScript console.error - message: */ }," +
+                    "  warn: function(message) { /* JavaScript console.warn - message: */ }" +
+                    "};" +
+                    "var pm = {" +
+                    "  variables: {" +
+                    "    get: function(key) { return __jsVariables[key]; }," +
+                    "    set: function(key, value) { __jsVariables[key] = value; }" +
+                    "  }," +
+                    "  request: {" +
+                    "    headers: __jsHeaders" +
+                    "  }," +
+                    "  sendRequest: function(url, callback) { console.log('sendRequest called with URL: ' + url); }" +
+                    "};";
+
+                // Execute the pm setup script first
+                try {
+                    log.info("Executing pm setup script: {}", pmSetupScript);
+                    scriptEngine.eval(pmSetupScript, bindings);
+                    log.info("PM setup script executed successfully");
+
+                    // Test if pm object was created
+                    Object pmTest = scriptEngine.eval("typeof pm", bindings);
+                    log.info("PM object type: {}", pmTest);
+
+                    if ("object".equals(pmTest)) {
+                        Object pmVarTest = scriptEngine.eval("typeof pm.variables", bindings);
+                        log.info("PM variables type: {}", pmVarTest);
+                    }
+                } catch (Exception e) {
+                    log.error("Error executing pm setup script: {}", e.getMessage(), e);
+                    throw e;
+                }
 
                 // Execute the script
                 scriptEngine.eval(script, bindings);
 
+                // Sync JavaScript objects back to Java objects
+                try {
+                    // Get the JavaScript variables object and sync back to Java
+                    Object jsVarResult = scriptEngine.eval("__jsVariables", bindings);
+                    log.info("JavaScript variables result type: {}, value: {}", jsVarResult.getClass().getName(), jsVarResult);
+
+                    if (jsVarResult instanceof java.util.Map) {
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String, Object> jsVarMap = (java.util.Map<String, Object>) jsVarResult;
+                        variables.clear();
+                        variables.putAll(jsVarMap);
+                        log.info("Synced variables from JavaScript: {}", variables);
+                    } else {
+                        // Try to access as object properties using eval
+                        String jsVarKeys = (String) scriptEngine.eval("Object.keys(__jsVariables).join(',')", bindings);
+                        log.info("JavaScript variable keys: {}", jsVarKeys);
+
+                        if (jsVarKeys != null && !jsVarKeys.isEmpty()) {
+                            variables.clear();
+                            for (String key : jsVarKeys.split(",")) {
+                                if (!key.trim().isEmpty()) {
+                                    Object value = scriptEngine.eval("__jsVariables['" + key.trim() + "']", bindings);
+                                    variables.put(key.trim(), value);
+                                    log.info("Synced variable: {} = {}", key.trim(), value);
+                                }
+                            }
+                        }
+                    }
+
+                    // Get the JavaScript headers object and sync back to Java
+                    Object jsHeaderResult = scriptEngine.eval("__jsHeaders", bindings);
+                    log.info("JavaScript headers result type: {}, value: {}", jsHeaderResult.getClass().getName(), jsHeaderResult);
+
+                    if (jsHeaderResult instanceof java.util.Map) {
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String, Object> jsHeaderMap = (java.util.Map<String, Object>) jsHeaderResult;
+                        headers.clear();
+                        for (Map.Entry<String, Object> entry : jsHeaderMap.entrySet()) {
+                            if (entry.getValue() != null) {
+                                headers.put(entry.getKey(), entry.getValue().toString());
+                            }
+                        }
+                        log.info("Synced headers from JavaScript: {}", headers);
+                    } else {
+                        // Try to access as object properties using eval
+                        String jsHeaderKeys = (String) scriptEngine.eval("Object.keys(__jsHeaders).join(',')", bindings);
+                        log.info("JavaScript header keys: {}", jsHeaderKeys);
+
+                        if (jsHeaderKeys != null && !jsHeaderKeys.isEmpty()) {
+                            headers.clear();
+                            for (String key : jsHeaderKeys.split(",")) {
+                                if (!key.trim().isEmpty()) {
+                                    Object value = scriptEngine.eval("__jsHeaders['" + key.trim() + "']", bindings);
+                                    if (value != null) {
+                                        headers.put(key.trim(), value.toString());
+                                        log.info("Synced header: {} = {}", key.trim(), value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("Error syncing JavaScript objects back to Java: {}", e.getMessage(), e);
+                }
+
                 // Debug: Check headers after script execution
                 log.info("Headers after script execution: {}", headers);
+                log.info("Variables after script execution: {}", variables);
 
                 // Headers are already updated directly since pmHeaders is a reference to the same map
                 // No need to copy back as the script modifies the original headers map directly
