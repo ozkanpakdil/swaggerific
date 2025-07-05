@@ -106,6 +106,189 @@ public class PreRequestScriptControllerTest {
     }
 
     /**
+     * Test that console.log, console.error, and console.warn work correctly
+     */
+    @Test
+    void testConsoleLogging() throws Exception {
+        // Create a controller instance
+        TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
+
+        // Create headers map
+        Map<String, String> headers = new HashMap<>();
+
+        // Set a script that uses console logging
+        String script = 
+            "// Test console logging functions\n" +
+            "console.log('This is a log message');\n" +
+            "console.error('This is an error message');\n" +
+            "console.warn('This is a warning message');\n" +
+            "\n" +
+            "// Set a variable to verify script executed\n" +
+            "pm.variables.set('consoleTestExecuted', true);\n";
+
+        controller.setTestScript(script);
+
+        // Execute script
+        CompletableFuture<Void> future = controller.executeScript(headers);
+        future.get(); // Wait for completion
+
+        // Print debug info
+        System.out.println("[DEBUG_LOG] Console test completed");
+        System.out.println("[DEBUG_LOG] Variables: " + controller.getVariables());
+
+        // Verify script executed without throwing an exception
+        assertTrue(future.isDone());
+        assertFalse(future.isCompletedExceptionally());
+
+        // Verify the variable was set, confirming script executed successfully
+        assertEquals(true, controller.getVariables().get("consoleTestExecuted"));
+    }
+
+    /**
+     * Test to reproduce the exact issue from the logs
+     */
+    @Test
+    void testReproduceIssue() throws Exception {
+        // Create a controller instance
+        TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
+
+        // Create headers map
+        Map<String, String> headers = new HashMap<>();
+
+        // Use the exact script from the issue
+        String script = 
+            "var value = pm.variables.get(\"111111111variable_name\");\n" +
+            "console.log(\"1111111111111Variable value: \" + value);";
+
+        controller.setTestScript(script);
+
+        // Execute script
+        CompletableFuture<Void> future = controller.executeScript(headers);
+        future.get(); // Wait for completion
+
+        // Print debug info
+        System.out.println("[DEBUG_LOG] Variables after script: " + controller.getVariables());
+
+        // The issue is that the variable doesn't exist, so it should be undefined
+        // Let's also test setting the variable first
+        System.out.println("[DEBUG_LOG] Testing with variable set first...");
+
+        // Set the variable first
+        controller.getVariables().put("111111111variable_name", "test_value");
+
+        // Execute script again
+        future = controller.executeScript(headers);
+        future.get(); // Wait for completion
+
+        System.out.println("[DEBUG_LOG] Variables after setting variable: " + controller.getVariables());
+    }
+
+    /**
+     * Test to see if there's an issue with the variable name format
+     */
+    @Test
+    void testVariableNameWithNumbers() throws Exception {
+        // Create a controller instance
+        TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
+
+        // Create headers map
+        Map<String, String> headers = new HashMap<>();
+
+        // Test setting and getting a variable with numbers in the name
+        String script = 
+            "pm.variables.set(\"111111111variable_name\", \"test_value\");\n" +
+            "var value = pm.variables.get(\"111111111variable_name\");\n" +
+            "console.log(\"Variable value: \" + value);";
+
+        controller.setTestScript(script);
+
+        // Execute script
+        CompletableFuture<Void> future = controller.executeScript(headers);
+        future.get(); // Wait for completion
+
+        // Print debug info
+        System.out.println("[DEBUG_LOG] Variables after setting and getting: " + controller.getVariables());
+
+        // Check if the variable was set correctly
+        Object retrievedValue = controller.getVariables().get("111111111variable_name");
+        System.out.println("[DEBUG_LOG] Retrieved value from Java: " + retrievedValue);
+    }
+
+    /**
+     * Test enhanced logging for undefined variables
+     */
+    @Test
+    void testEnhancedLoggingForUndefinedVariables() throws Exception {
+        // Create a controller instance
+        TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
+
+        // Create headers map
+        Map<String, String> headers = new HashMap<>();
+
+        // Test accessing an undefined variable (this should generate a warning)
+        String script = 
+            "var value = pm.variables.get(\"nonexistent_variable\");\n" +
+            "console.log(\"Value: \" + value);";
+
+        controller.setTestScript(script);
+
+        // Execute script
+        CompletableFuture<Void> future = controller.executeScript(headers);
+        future.get(); // Wait for completion
+
+        System.out.println("[DEBUG_LOG] Test completed - check logs for warning about undefined variable");
+
+        // The test passes if no exception is thrown and the script executes successfully
+        assertTrue(future.isDone());
+        assertFalse(future.isCompletedExceptionally());
+    }
+
+    /**
+     * Test variable persistence between multiple script executions
+     */
+    @Test
+    void testVariablePersistenceBetweenExecutions() throws Exception {
+        // Create a controller instance
+        TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
+
+        // Create headers map
+        Map<String, String> headers = new HashMap<>();
+
+        // First execution: Set a variable
+        String script1 = 
+            "pm.variables.set(\"111111111variable_name\", \"persistent_value\");\n" +
+            "console.log(\"Set variable to: persistent_value\");";
+
+        controller.setTestScript(script1);
+
+        // Execute first script
+        CompletableFuture<Void> future1 = controller.executeScript(headers);
+        future1.get(); // Wait for completion
+
+        System.out.println("[DEBUG_LOG] Variables after first execution: " + controller.getVariables());
+
+        // Second execution: Try to get the variable (this simulates the user's scenario)
+        String script2 = 
+            "var value = pm.variables.get(\"111111111variable_name\");\n" +
+            "console.log(\"1111111111111Variable value: \" + value);";
+
+        controller.setTestScript(script2);
+
+        // Execute second script
+        CompletableFuture<Void> future2 = controller.executeScript(headers);
+        future2.get(); // Wait for completion
+
+        System.out.println("[DEBUG_LOG] Variables after second execution: " + controller.getVariables());
+
+        // Verify the variable persisted
+        Object retrievedValue = controller.getVariables().get("111111111variable_name");
+        System.out.println("[DEBUG_LOG] Final retrieved value from Java: " + retrievedValue);
+
+        // The variable should still exist after the second execution
+        assertEquals("persistent_value", retrievedValue);
+    }
+
+    /**
      * Test that sendRequest function works correctly with JavaScript callbacks
      */
     @Test

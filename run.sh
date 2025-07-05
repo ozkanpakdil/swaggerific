@@ -130,6 +130,7 @@ java --module-path "$MODULE_PATH" \
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED \
+     --enable-native-access=javafx.graphics \
      -jar "$JAR_FILE"
 
 exit 0

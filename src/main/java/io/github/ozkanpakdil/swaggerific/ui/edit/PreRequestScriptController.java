@@ -84,27 +84,6 @@ public class PreRequestScriptController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Set up code editor with JavaScript syntax highlighting
         setupCodeEditor();
-
-        // Initialize with sample code
-        codePreRequestScript.replaceText(
-                "// Example pre-request script\n" +
-                "// You can use the pm object to access variables and send requests\n\n" +
-                "// Set a variable\n" +
-                "// pm.variables.set(\"variable_key\", \"variable_value\");\n\n" +
-                "// Get a variable\n" +
-                "// var value = pm.variables.get(\"variable_key\");\n" +
-                "// console.log(\"Variable value: \" + value);\n\n" +
-                "// Send a request\n" +
-                "/*pm.sendRequest(\"https://postman-echo.com/get\", function (err, response) {\n" +
-                "    if (err) {\n" +
-                "        console.log(err);\n" +
-                "    } else {\n" +
-                "        console.log(response.json());\n" +
-                "        // Set a variable from the response\n" +
-                "        pm.variables.set(\"response_data\", response.json().url);\n" +
-                "    }\n" +
-                "});*/"
-        );
     }
 
     /**
@@ -191,15 +170,27 @@ public class PreRequestScriptController implements Initializable {
                 String pmSetupScript = 
                     "var __jsVariables = " + jsVariables.toString() + ";" +
                     "var __jsHeaders = " + jsHeaders.toString() + ";" +
+                    "var __consoleLogs = [];" +
                     "var console = {" +
-                    "  log: function(message) { /* JavaScript console.log - message: */ }," +
-                    "  error: function(message) { /* JavaScript console.error - message: */ }," +
-                    "  warn: function(message) { /* JavaScript console.warn - message: */ }" +
+                    "  log: function(message) { __consoleLogs.push('[CONSOLE.LOG] ' + message); }," +
+                    "  error: function(message) { __consoleLogs.push('[CONSOLE.ERROR] ' + message); }," +
+                    "  warn: function(message) { __consoleLogs.push('[CONSOLE.WARN] ' + message); }" +
                     "};" +
                     "var pm = {" +
                     "  variables: {" +
-                    "    get: function(key) { return __jsVariables[key]; }," +
-                    "    set: function(key, value) { __jsVariables[key] = value; }" +
+                    "    get: function(key) { " +
+                    "      var value = __jsVariables[key]; " +
+                    "      if (value === undefined) { " +
+                    "        console.warn('Variable \"' + key + '\" is undefined. Available variables: ' + Object.keys(__jsVariables).join(', ')); " +
+                    "      } else { " +
+                    "        console.log('Retrieved variable \"' + key + '\" = ' + value); " +
+                    "      } " +
+                    "      return value; " +
+                    "    }," +
+                    "    set: function(key, value) { " +
+                    "      console.log('Setting variable \"' + key + '\" = ' + value); " +
+                    "      __jsVariables[key] = value; " +
+                    "    }" +
                     "  }," +
                     "  request: {" +
                     "    headers: __jsHeaders" +
@@ -228,6 +219,48 @@ public class PreRequestScriptController implements Initializable {
 
                 // Execute the script
                 scriptEngine.eval(script, bindings);
+
+                // Read and log console messages
+                try {
+                    Object consoleLogsResult = scriptEngine.eval("__consoleLogs", bindings);
+                    if (consoleLogsResult instanceof java.util.List) {
+                        @SuppressWarnings("unchecked")
+                        java.util.List<Object> consoleLogs = (java.util.List<Object>) consoleLogsResult;
+                        for (Object logMessage : consoleLogs) {
+                            if (logMessage != null) {
+                                String message = logMessage.toString();
+                                if (message.startsWith("[CONSOLE.ERROR]")) {
+                                    log.error(message);
+                                } else if (message.startsWith("[CONSOLE.WARN]")) {
+                                    log.warn(message);
+                                } else {
+                                    log.info(message);
+                                }
+                            }
+                        }
+                    } else {
+                        // Try to access as array using eval
+                        Object arrayLength = scriptEngine.eval("__consoleLogs.length", bindings);
+                        if (arrayLength instanceof Number) {
+                            int length = ((Number) arrayLength).intValue();
+                            for (int i = 0; i < length; i++) {
+                                Object logMessage = scriptEngine.eval("__consoleLogs[" + i + "]", bindings);
+                                if (logMessage != null) {
+                                    String message = logMessage.toString();
+                                    if (message.startsWith("[CONSOLE.ERROR]")) {
+                                        log.error(message);
+                                    } else if (message.startsWith("[CONSOLE.WARN]")) {
+                                        log.warn(message);
+                                    } else {
+                                        log.info(message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("Error reading console logs: {}", e.getMessage());
+                }
 
                 // Sync JavaScript objects back to Java objects
                 try {
@@ -462,6 +495,30 @@ public class PreRequestScriptController implements Initializable {
 
         // Ensure syntax highlighting is applied to the new text
         refreshSyntaxHighlighting();
+    }
+}
+
+/**
+ * Helper class for console logging from JavaScript
+ */
+class ConsoleLogger {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ConsoleLogger.class);
+    private final org.slf4j.Logger parentLogger;
+
+    public ConsoleLogger(org.slf4j.Logger parentLogger) {
+        this.parentLogger = parentLogger;
+    }
+
+    public void logInfo(String message) {
+        parentLogger.info("[CONSOLE.LOG] {}", message);
+    }
+
+    public void logError(String message) {
+        parentLogger.error("[CONSOLE.ERROR] {}", message);
+    }
+
+    public void logWarn(String message) {
+        parentLogger.warn("[CONSOLE.WARN] {}", message);
     }
 }
 
