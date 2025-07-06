@@ -11,12 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+          java-version: '24'
+          distribution: 'graalvm-community'
+          github-token:
+            ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make scripts executable
         run: |
