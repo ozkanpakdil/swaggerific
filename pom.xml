@@ -264,6 +264,11 @@
 
         <!-- JavaScript engine for script execution -->
         <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
             <version>${graalvm.version}</version>
@@ -273,11 +278,35 @@
             <artifactId>js</artifactId>
             <version>${graalvm.version}</version>
             <type>pom</type>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.graalvm.truffle</groupId>
             <artifactId>truffle-api</artifactId>
             <version>${truffle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-dsl-processor</artifactId>
+            <version>${truffle.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-compiler</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-runtime</artifactId>
+            <version>${graalvm.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>jniutils</artifactId>
+            <version>${graalvm.version}</version>
         </dependency>
 
     </dependencies>
@@ -648,6 +677,67 @@
                                     <version>${javafx.version}</version>
                                     <classifier>mac-aarch64</classifier>
                                     <outputDirectory>${project.build.directory}/dist/lib/mac-aarch64</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <!-- Copy GraalVM modules to lib directory -->
+                    <execution>
+                        <id>copy-graalvm-modules</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.graalvm.polyglot</groupId>
+                                    <artifactId>polyglot</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.js</groupId>
+                                    <artifactId>js-scriptengine</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.js</groupId>
+                                    <artifactId>js</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <type>pom</type>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.truffle</groupId>
+                                    <artifactId>truffle-api</artifactId>
+                                    <version>${truffle.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.truffle</groupId>
+                                    <artifactId>truffle-dsl-processor</artifactId>
+                                    <version>${truffle.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.truffle</groupId>
+                                    <artifactId>truffle-compiler</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.truffle</groupId>
+                                    <artifactId>truffle-runtime</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.graalvm.sdk</groupId>
+                                    <artifactId>jniutils</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

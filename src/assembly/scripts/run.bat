@@ -29,6 +29,23 @@ call :AddModule "javafx-media"
 call :AddModule "javafx-web"
 call :AddModule "javafx-swing"
 
+REM Add GraalVM modules to module path
+set GRAALVM_VERSION=24.2.1
+set GRAALVM_MODULES=polyglot-%GRAALVM_VERSION%.jar js-scriptengine-%GRAALVM_VERSION%.jar truffle-api-%GRAALVM_VERSION%.jar truffle-compiler-%GRAALVM_VERSION%.jar truffle-runtime-%GRAALVM_VERSION%.jar
+
+for %%m in (%GRAALVM_MODULES%) do (
+    set MODULE_JAR=lib\%%m
+    if exist "!MODULE_JAR!" (
+        if "!MODULE_PATH!"=="" (
+            set MODULE_PATH=!MODULE_JAR!
+        ) else (
+            set MODULE_PATH=!MODULE_PATH!;!MODULE_JAR!
+        )
+    ) else (
+        echo Warning: GraalVM module not found: !MODULE_JAR!
+    )
+)
+
 REM Check if any modules were found
 if "%MODULE_PATH%"=="" (
     echo Error: No JavaFX modules found in lib\%JAVAFX_OS%
@@ -47,6 +64,10 @@ java --module-path "%MODULE_PATH%" ^
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED ^
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED ^
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED ^
+     --enable-native-access=ALL-UNNAMED ^
+     --add-opens=java.base/java.lang=ALL-UNNAMED ^
+     --add-opens=java.base/java.util=ALL-UNNAMED ^
+     -Dpolyglot.engine.WarnInterpreterOnly=false ^
      -jar "swaggerific-0.0.4.jar"
 pause
 exit /b

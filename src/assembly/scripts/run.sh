@@ -13,7 +13,7 @@ cd "$SCRIPT_DIR"
 # Check if Java is installed
 if ! command -v java &> /dev/null; then
     echo "Error: Java is not installed or not in PATH"
-    echo "Please install Java 17 or later"
+    echo "Please install Java 21 or later"
     exit 1
 fi
 
@@ -21,8 +21,8 @@ fi
 JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
 
-if [[ "$JAVA_MAJOR_VERSION" -lt 17 ]]; then
-    echo "Error: Java 17 or later is required (found version $JAVA_VERSION)"
+if [[ "$JAVA_MAJOR_VERSION" -lt 21 ]]; then
+    echo "Error: Java 21 or later is required (found version $JAVA_VERSION)"
     echo "Please install a newer version of Java"
     exit 1
 fi
@@ -81,6 +81,32 @@ for module in "${JAVAFX_MODULES[@]}"; do
     fi
 done
 
+# Add GraalVM modules to module path
+GRAALVM_VERSION="24.2.1"
+GRAALVM_MODULES=(
+    "graal-sdk-${GRAALVM_VERSION}.jar"
+    "js-${GRAALVM_VERSION}.jar"
+    "polyglot-${GRAALVM_VERSION}.jar"
+    "js-scriptengine-${GRAALVM_VERSION}.jar"
+    "truffle-api-${GRAALVM_VERSION}.jar"
+    "truffle-compiler-${GRAALVM_VERSION}.jar"
+    "truffle-runtime-${GRAALVM_VERSION}.jar"
+    "jniutils-${GRAALVM_VERSION}.jar"
+)
+
+for module in "${GRAALVM_MODULES[@]}"; do
+    module_jar="$SCRIPT_DIR/lib/$module"
+    if [ -f "$module_jar" ]; then
+        if [ -z "$MODULE_PATH" ]; then
+            MODULE_PATH="$module_jar"
+        else
+            MODULE_PATH="$MODULE_PATH:$module_jar"
+        fi
+    else
+        echo "Warning: GraalVM module not found: $module_jar"
+    fi
+done
+
 # If no modules were found, exit with error
 if [ -z "$MODULE_PATH" ]; then
     echo "Error: No JavaFX modules found in $SCRIPT_DIR/lib/$JAVAFX_OS"
@@ -98,6 +124,10 @@ java --module-path "$MODULE_PATH" \
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED \
+     --enable-native-access=ALL-UNNAMED \
+     --add-opens=java.base/java.lang=ALL-UNNAMED \
+     --add-opens=java.base/java.util=ALL-UNNAMED \
+     -Dpolyglot.engine.WarnInterpreterOnly=false \
      -jar "swaggerific-0.0.4.jar"
 
 exit 0
