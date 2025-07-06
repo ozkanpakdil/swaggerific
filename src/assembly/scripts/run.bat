@@ -2,7 +2,7 @@
 echo Starting Swaggerific...
 
 REM Set JavaFX version
-set JAVAFX_VERSION=22.0.2
+set JAVAFX_VERSION=${javafx.version}
 echo Using JavaFX version: %JAVAFX_VERSION%
 
 REM Set OS-specific suffix
@@ -30,21 +30,23 @@ call :AddModule "javafx-web"
 call :AddModule "javafx-swing"
 
 REM Add GraalVM modules to module path
-set GRAALVM_VERSION=24.2.1
-set GRAALVM_MODULES=polyglot-%GRAALVM_VERSION%.jar js-scriptengine-%GRAALVM_VERSION%.jar truffle-api-%GRAALVM_VERSION%.jar truffle-compiler-%GRAALVM_VERSION%.jar truffle-runtime-%GRAALVM_VERSION%.jar
+setlocal EnableDelayedExpansion
+set GRAALVM_VERSION=${graalvm.version}
+set GRAALVM_MODULES=polyglot-%GRAALVM_VERSION%.jar js-scriptengine-%GRAALVM_VERSION%.jar truffle-api-%GRAALVM_VERSION%.jar truffle-compiler-%GRAALVM_VERSION%.jar truffle-runtime-%GRAALVM_VERSION%.jar jniutils-%GRAALVM_VERSION%.jar
 
 for %%m in (%GRAALVM_MODULES%) do (
-    set MODULE_JAR=lib\%%m
+    set "MODULE_JAR=lib\%%m"
     if exist "!MODULE_JAR!" (
         if "!MODULE_PATH!"=="" (
-            set MODULE_PATH=!MODULE_JAR!
+            set "MODULE_PATH=!MODULE_JAR!"
         ) else (
-            set MODULE_PATH=!MODULE_PATH!;!MODULE_JAR!
+            set "MODULE_PATH=!MODULE_PATH!;!MODULE_JAR!"
         )
     ) else (
         echo Warning: GraalVM module not found: !MODULE_JAR!
     )
 )
+endlocal & set "MODULE_PATH=%MODULE_PATH%"
 
 REM Check if any modules were found
 if "%MODULE_PATH%"=="" (
@@ -64,11 +66,12 @@ java --module-path "%MODULE_PATH%" ^
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED ^
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED ^
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED ^
+     --add-exports=org.graalvm.truffle.runtime/com.oracle.truffle.runtime=ALL-UNNAMED ^
      --enable-native-access=ALL-UNNAMED ^
      --add-opens=java.base/java.lang=ALL-UNNAMED ^
      --add-opens=java.base/java.util=ALL-UNNAMED ^
      -Dpolyglot.engine.WarnInterpreterOnly=false ^
-     -jar "swaggerific-0.0.4.jar"
+     -jar "swaggerific-${project.version}.jar"
 pause
 exit /b
 

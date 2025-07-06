@@ -28,7 +28,7 @@ if [[ "$JAVA_MAJOR_VERSION" -lt 21 ]]; then
 fi
 
 # Use JavaFX modules from the lib directory
-JAVAFX_VERSION="22.0.2"
+JAVAFX_VERSION="${javafx.version}"
 echo "Using JavaFX version: $JAVAFX_VERSION"
 
 # Determine OS-specific JavaFX modules
@@ -82,7 +82,7 @@ for module in "${JAVAFX_MODULES[@]}"; do
 done
 
 # Add GraalVM modules to module path
-GRAALVM_VERSION="24.2.1"
+GRAALVM_VERSION="${graalvm.version}"
 GRAALVM_MODULES=(
     "graal-sdk-${GRAALVM_VERSION}.jar"
     "js-${GRAALVM_VERSION}.jar"
@@ -124,10 +124,11 @@ java --module-path "$MODULE_PATH" \
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED \
+     --add-exports=org.graalvm.truffle.runtime/com.oracle.truffle.runtime=ALL-UNNAMED \
      --enable-native-access=ALL-UNNAMED \
      --add-opens=java.base/java.lang=ALL-UNNAMED \
      --add-opens=java.base/java.util=ALL-UNNAMED \
      -Dpolyglot.engine.WarnInterpreterOnly=false \
-     -jar "swaggerific-0.0.4.jar"
+     -jar "swaggerific-${project.version}.jar"
 
 exit 0

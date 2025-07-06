@@ -7,7 +7,7 @@
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
     <baseDirectory>${project.artifactId}-${project.version}</baseDirectory>
-    
+
     <fileSets>
         <!-- Include the main JAR file -->
         <fileSet>
@@ -17,7 +17,7 @@
                 <include>${project.artifactId}-${project.version}.jar</include>
             </includes>
         </fileSet>
-        
+
         <!-- Include JavaFX modules for all platforms -->
         <fileSet>
             <directory>${project.build.directory}/dist/lib</directory>
@@ -26,7 +26,7 @@
                 <include>**/*.jar</include>
             </includes>
         </fileSet>
-        
+
         <!-- Include resources -->
         <fileSet>
             <directory>src/main/resources</directory>
@@ -35,7 +35,7 @@
                 <exclude>**/*.class</exclude>
             </excludes>
         </fileSet>
-        
+
         <!-- Include README -->
         <fileSet>
             <directory>.</directory>
@@ -44,7 +44,7 @@
                 <include>README.md</include>
             </includes>
         </fileSet>
-        
+
         <!-- Include run scripts -->
         <fileSet>
             <directory>src/assembly/scripts</directory>
@@ -54,6 +54,7 @@
                 <include>run.bat</include>
             </includes>
             <fileMode>0755</fileMode>
+            <filtered>true</filtered>
         </fileSet>
     </fileSets>
 </assembly>
