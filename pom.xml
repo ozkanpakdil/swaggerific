@@ -27,8 +27,8 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>24.1.1</graalvm.version>
-        <truffle.version>24.1.1</truffle.version>
+        <graalvm.version>24.2.1</graalvm.version>
+        <truffle.version>24.2.1</truffle.version>
     </properties>
 
     <dependencies>
