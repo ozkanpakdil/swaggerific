@@ -113,177 +113,220 @@ public class PreRequestScriptController implements Initializable {
     }
 
     /**
+     * Validates that the script engine is available
+     *
+     * @throws RuntimeException if script engine is not available
+     */
+    private void validateScriptEngine() {
+        if (scriptEngine == null) {
+            String errorMsg = "JavaScript engine is not available. Please ensure GraalVM JavaScript engine is properly configured.";
+            log.error(errorMsg);
+            throw new RuntimeException(errorMsg);
+        }
+    }
+
+    /**
+     * Creates script bindings with variables and headers
+     *
+     * @param headers The headers map to include in bindings
+     * @return The bindings object with initialized JavaScript environment
+     */
+    @SuppressWarnings("null") // scriptEngine is validated before this method is called
+    private SimpleBindings createScriptBindings(Map<String, String> headers) throws Exception {
+        SimpleBindings bindings = new SimpleBindings();
+
+        // Convert Java variables to JavaScript object
+        String jsVariables = Json.mapper().writeValueAsString(variables);
+
+        // Convert Java headers to JavaScript object
+        String jsHeaders = Json.mapper().writeValueAsString(headers);
+
+        // Debug info
+        log.info("Bindings keys: {}", bindings.keySet());
+        log.info("Headers object: {}", headers);
+
+        // Create pm object structure
+        String pmSetupScript = String.format("""
+                var __jsVariables = %s;
+                var __jsHeaders = %s;
+                var __consoleLogs = [];
+                var console = {
+                  log: function(message) { __consoleLogs.push('[CONSOLE.LOG] ' + message); },
+                  error: function(message) { __consoleLogs.push('[CONSOLE.ERROR] ' + message); },
+                  warn: function(message) { __consoleLogs.push('[CONSOLE.WARN] ' + message); }
+                };
+                var pm = {
+                  variables: {
+                    get: function(key) {
+                      var value = __jsVariables[key];
+                      if (value === undefined) {
+                        console.warn('Variable "' + key + '" is undefined. Available variables: ' + Object.keys(__jsVariables).join(', '));
+                      } else {
+                        console.log('Retrieved variable "' + key + '" = ' + value);
+                      }
+                      return value;
+                    },
+                    set: function(key, value) {
+                      console.log('Setting variable "' + key + '" = ' + value);
+                      __jsVariables[key] = value;
+                    }
+                  },
+                  request: {
+                    headers: __jsHeaders
+                  },
+                  sendRequest: function(url, callback) { console.log('sendRequest called with URL: ' + url); }
+                };
+                """, jsVariables, jsHeaders);
+
+        try {
+            log.debug("Executing pm setup script: {}", pmSetupScript);
+            scriptEngine.eval(pmSetupScript, bindings);
+            log.debug("PM setup script executed successfully");
+
+            verifyPmObject(bindings);
+        } catch (Exception e) {
+            log.error("Error executing pm setup script: {}", e.getMessage(), e);
+            throw e;
+        }
+
+        return bindings;
+    }
+
+    private void verifyPmObject(SimpleBindings bindings) throws ScriptException {
+        Object pmTest = scriptEngine.eval("typeof pm", bindings);
+        log.info("PM object type: {}", pmTest);
+
+        if ("object".equals(pmTest)) {
+            Object pmVarTest = scriptEngine.eval("typeof pm.variables", bindings);
+            log.info("PM variables type: {}", pmVarTest);
+        }
+    }
+
+    /**
+     * Executes the script with given bindings and processes console logs
+     */
+    @SuppressWarnings("null") // scriptEngine is validated before this method is called
+    private void executeScriptWithBindings(String script, SimpleBindings bindings) throws ScriptException {
+        scriptEngine.eval(script, bindings);
+        processConsoleLogs(bindings);
+    }
+
+    /**
+     * Processes console logs from script execution
+     */
+    private void processConsoleLogs(SimpleBindings bindings) {
+        try {
+            Object consoleLogsResult = scriptEngine.eval("__consoleLogs", bindings);
+            if (consoleLogsResult instanceof java.util.List<?>) {
+                @SuppressWarnings("unchecked")
+                java.util.List<Object> consoleLogs = (java.util.List<Object>) consoleLogsResult;
+                processConsoleLogsList(consoleLogs);
+            } else {
+                processConsoleLogsArray(bindings);
+            }
+        } catch (Exception e) {
+            log.warn("Error reading console logs: {}", e.getMessage());
+        }
+    }
+
+    private void processConsoleLogsList(java.util.List<Object> consoleLogs) {
+        for (Object logMessage : consoleLogs) {
+            logConsoleMessage(logMessage);
+        }
+    }
+
+    private void processConsoleLogsArray(SimpleBindings bindings) {
+        try {
+            Object arrayLength = scriptEngine.eval("__consoleLogs.length", bindings);
+            if (arrayLength instanceof Number) {
+                int length = ((Number) arrayLength).intValue();
+                for (int i = 0; i < length; i++) {
+                    Object logMessage = scriptEngine.eval("__consoleLogs[" + i + "]", bindings);
+                    logConsoleMessage(logMessage);
+                }
+            }
+        } catch (ScriptException e) {
+            log.warn("Error processing console logs array: {}", e.getMessage());
+        }
+    }
+
+    private void logConsoleMessage(Object logMessage) {
+        if (logMessage != null) {
+            String message = logMessage.toString();
+            if (message.startsWith("[CONSOLE.ERROR]")) {
+                log.error(message);
+            } else if (message.startsWith("[CONSOLE.WARN]")) {
+                log.warn(message);
+            } else {
+                log.info(message);
+            }
+        }
+    }
+
+    /**
+     * Syncs JavaScript objects back to Java maps
+     */
+    @SuppressWarnings("null") // scriptEngine is validated before this method is called
+    private void syncJavaScriptObjects(SimpleBindings bindings, Map<String, String> headers) {
+        try {
+            // Sync variables from JavaScript
+            syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsVariables", variables,
+                    value -> value);
+
+            // Sync headers from JavaScript
+            syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsHeaders", headers,
+                    value -> value != null ? value.toString() : null);
+
+            // Debug logs
+            log.info("Headers after script execution: {}", headers);
+            log.info("Variables after script execution: {}", variables);
+        } catch (Exception e) {
+            log.warn("Error syncing JavaScript objects back to Java: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Notifies script execution completion
+     */
+    private void notifyScriptComplete() {
+        if (onScriptExecutionComplete != null) {
+            onScriptExecutionComplete.run();
+        }
+    }
+
+    /**
+     * Handles script execution errors
+     */
+    private RuntimeException handleScriptError(Exception e, String context) {
+        String message = context + ": " + e.getMessage();
+        log.error(message, e);
+        return new RuntimeException(message, e);
+    }
+
+    /**
      * Executes the pre-request script and applies any changes to the provided headers map
      *
      * @param headers The headers map to update with script-modified headers
      * @return CompletableFuture that completes when script execution is done
      */
     public CompletableFuture<Void> executeScript(Map<String, String> headers) {
-        // Run script execution in a separate thread to avoid JavaFX threading issues
         return CompletableFuture.runAsync(() -> {
             try {
-                // Check if script engine is available
-                if (scriptEngine == null) {
-                    String errorMsg = "JavaScript engine is not available. Please ensure GraalVM JavaScript engine is properly configured.";
-                    log.error(errorMsg);
-                    throw new RuntimeException(errorMsg);
-                }
+                validateScriptEngine();
 
                 String script = getScript();
                 if (script == null || script.trim().isEmpty()) {
                     return;
                 }
 
-                // Create bindings for the script
-                SimpleBindings bindings = new SimpleBindings();
-
-                // Create JavaScript objects for variables and headers
-                // Convert Java variables to JavaScript object
-                String jsVariables = Json.mapper().writeValueAsString(variables);
-
-                // Convert Java headers to JavaScript object
-                StringBuilder jsHeaders = new StringBuilder("{");
-                boolean first = true;
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    if (!first)
-                        jsHeaders.append(",");
-                    jsHeaders.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
-                    first = false;
-                }
-                jsHeaders.append("}");
-
-                // Debug: Add a simple test to see what's available
-                log.info("Bindings keys: {}", bindings.keySet());
-                log.info("Headers object: {}", headers);
-
-                // Create pm object structure in JavaScript using pure JavaScript objects
-                String pmSetupScript = String.format("""
-                        var __jsVariables = %s;
-                        var __jsHeaders = %s;
-                        var __consoleLogs = [];
-                        var console = {
-                          log: function(message) { __consoleLogs.push('[CONSOLE.LOG] ' + message); },
-                          error: function(message) { __consoleLogs.push('[CONSOLE.ERROR] ' + message); },
-                          warn: function(message) { __consoleLogs.push('[CONSOLE.WARN] ' + message); }
-                        };
-                        var pm = {
-                          variables: {
-                            get: function(key) {
-                              var value = __jsVariables[key];
-                              if (value === undefined) {
-                                console.warn('Variable "' + key + '" is undefined. Available variables: ' + Object.keys(__jsVariables).join(', '));
-                              } else {
-                                console.log('Retrieved variable "' + key + '" = ' + value);
-                              }
-                              return value;
-                            },
-                            set: function(key, value) {
-                              console.log('Setting variable "' + key + '" = ' + value);
-                              __jsVariables[key] = value;
-                            }
-                          },
-                          request: {
-                            headers: __jsHeaders
-                          },
-                          sendRequest: function(url, callback) { console.log('sendRequest called with URL: ' + url); }
-                        };
-                        """, jsVariables, jsHeaders);
-
-                // Execute the pm setup script first
-                try {
-                    log.debug("Executing pm setup script: {}", pmSetupScript);
-                    scriptEngine.eval(pmSetupScript, bindings);
-                    log.debug("PM setup script executed successfully");
-
-                    // Test if pm object was created
-                    Object pmTest = scriptEngine.eval("typeof pm", bindings);
-                    log.info("PM object type: {}", pmTest);
-
-                    if ("object".equals(pmTest)) {
-                        Object pmVarTest = scriptEngine.eval("typeof pm.variables", bindings);
-                        log.info("PM variables type: {}", pmVarTest);
-                    }
-                } catch (Exception e) {
-                    log.error("Error executing pm setup script: {}", e.getMessage(), e);
-                    throw e;
-                }
-
-                // Execute the script
-                scriptEngine.eval(script, bindings);
-
-                // Read and log console messages
-                try {
-                    Object consoleLogsResult = scriptEngine.eval("__consoleLogs", bindings);
-                    if (consoleLogsResult instanceof java.util.List) {
-                        @SuppressWarnings("unchecked")
-                        java.util.List<Object> consoleLogs = (java.util.List<Object>) consoleLogsResult;
-                        for (Object logMessage : consoleLogs) {
-                            if (logMessage != null) {
-                                String message = logMessage.toString();
-                                if (message.startsWith("[CONSOLE.ERROR]")) {
-                                    log.error(message);
-                                } else if (message.startsWith("[CONSOLE.WARN]")) {
-                                    log.warn(message);
-                                } else {
-                                    log.info(message);
-                                }
-                            }
-                        }
-                    } else {
-                        // Try to access as array using eval
-                        Object arrayLength = scriptEngine.eval("__consoleLogs.length", bindings);
-                        if (arrayLength instanceof Number) {
-                            int length = ((Number) arrayLength).intValue();
-                            for (int i = 0; i < length; i++) {
-                                Object logMessage = scriptEngine.eval("__consoleLogs[" + i + "]", bindings);
-                                if (logMessage != null) {
-                                    String message = logMessage.toString();
-                                    if (message.startsWith("[CONSOLE.ERROR]")) {
-                                        log.error(message);
-                                    } else if (message.startsWith("[CONSOLE.WARN]")) {
-                                        log.warn(message);
-                                    } else {
-                                        log.info(message);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.warn("Error reading console logs: {}", e.getMessage());
-                }
-
-                // Sync JavaScript objects back to Java objects
-                try {
-                    // Sync variables from JavaScript
-                    syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsVariables", variables,
-                            value -> value);
-
-                    // Sync headers from JavaScript
-                    syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsHeaders", headers,
-                            value -> value != null ? value.toString() : null);
-
-                } catch (Exception e) {
-                    log.warn("Error syncing JavaScript objects back to Java: {}", e.getMessage(), e);
-                }
-
-                // Debug: Check headers after script execution
-                log.info("Headers after script execution: {}", headers);
-                log.info("Variables after script execution: {}", variables);
-
-                // Headers are already updated directly since pmHeaders is a reference to the same map
-                // No need to copy back as the script modifies the original headers map directly
-
-                // Notify that script execution is complete
-                if (onScriptExecutionComplete != null) {
-                    onScriptExecutionComplete.run();
-                }
+                SimpleBindings bindings = createScriptBindings(headers);
+                executeScriptWithBindings(script, bindings);
+                syncJavaScriptObjects(bindings, headers);
+                notifyScriptComplete();
             } catch (ScriptException e) {
-                log.error("Error executing pre-request script: {}", e.getMessage());
-                throw new RuntimeException("Script execution failed: " + e.getMessage(), e);
+                throw handleScriptError(e, "Script execution failed");
             } catch (Exception e) {
-                log.error("Unexpected error during script execution: {}", e.getMessage(), e);
-                throw new RuntimeException("Unexpected script execution error: " + e.getMessage(), e);
+                throw handleScriptError(e, "Unexpected script execution error");
             }
         });
     }

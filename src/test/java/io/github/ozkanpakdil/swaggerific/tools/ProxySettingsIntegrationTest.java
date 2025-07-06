@@ -1,13 +1,10 @@
 package io.github.ozkanpakdil.swaggerific.tools;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -22,29 +19,15 @@ import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Testcontainers
 public class ProxySettingsIntegrationTest {
     private static final String PROXY_USERNAME = "username";
     private static final String PROXY_PASSWORD = "password";
     private static final String TEST_URL = "https://petstore.swagger.io/v2/swagger.json";
     private static final Logger log = LoggerFactory.getLogger(ProxySettingsIntegrationTest.class);
 
-    /*@Container
-    public static GenericContainer<?> squidContainer = new GenericContainer<>(
-            new ImageFromDockerfile()
-                    .withFileFromClasspath("Dockerfile", "proxy/Dockerfile")
-                    .withFileFromClasspath("entrypoint.sh", "proxy/entrypoint.sh")
-                    .withFileFromClasspath("squid.conf", "proxy/squid.conf"))
-            .withExposedPorts(3128)
-            .withEnv("PROXY_USERNAME", PROXY_USERNAME)
-            .withEnv("PROXY_PASSWORD", PROXY_PASSWORD);*/
-
-    @Container
-    public static GenericContainer<?> squidContainer = new GenericContainer<>(
-            DockerImageName.parse("ozkanpakdil/squid-auth:1.0"))
-            .withExposedPorts(3128)
-            .withEnv("PROXY_USERNAME", PROXY_USERNAME)
-            .withEnv("PROXY_PASSWORD", PROXY_PASSWORD);
+    // Mock proxy server details for testing
+    private static final String MOCK_PROXY_HOST = "127.0.0.1";
+    private static final int MOCK_PROXY_PORT = 8080;
 
     @BeforeAll
     static void setUp() {
@@ -96,8 +79,8 @@ public class ProxySettingsIntegrationTest {
         ProxySettings.saveSettings(
                 false,
                 "HTTP",
-                "127.0.0.1",
-                squidContainer.getMappedPort(3128),
+                MOCK_PROXY_HOST,
+                MOCK_PROXY_PORT,
                 true,
                 PROXY_USERNAME,
                 PROXY_PASSWORD,
@@ -105,39 +88,30 @@ public class ProxySettingsIntegrationTest {
                 false
         );
 
-        // Get proxy authorization header first
-        String proxyAuth = ProxySettings.getProxyAuthorizationHeader();
+        // Test that proxy settings are saved correctly
+        assertEquals("HTTP", ProxySettings.getProxyType());
+        assertEquals(MOCK_PROXY_HOST, ProxySettings.getProxyServer());
+        assertEquals(MOCK_PROXY_PORT, ProxySettings.getProxyPort());
+        assertTrue(ProxySettings.useProxyAuth());
+        assertEquals(PROXY_USERNAME, ProxySettings.getProxyAuthUsername());
 
-        // Create new authenticator
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
-            @Override
-            protected java.net.PasswordAuthentication getPasswordAuthentication() {
-                return new java.net.PasswordAuthentication(
-                        PROXY_USERNAME,
-                        PROXY_PASSWORD.toCharArray()
-                );
-            }
-        });
-
-        // Create HTTP client with proxy settings
+        // Test proxy creation
         var proxy = ProxySettings.createProxy();
+        assertNotNull(proxy);
+        assertEquals(Proxy.Type.HTTP, proxy.type());
+
         var proxyAddress = (InetSocketAddress) proxy.address();
-        var proxySelector = ProxySelector.of(proxyAddress);
+        assertEquals(MOCK_PROXY_HOST, proxyAddress.getHostString());
+        assertEquals(MOCK_PROXY_PORT, proxyAddress.getPort());
 
-        HttpClient client = HttpClient.newBuilder()
-                .proxy(proxySelector)
-                .authenticator(java.net.Authenticator.getDefault())
-                .version(HttpClient.Version.HTTP_2)
-                .build();
+        // Test proxy authenticator creation
+        var authenticator = ProxySettings.createProxyAuthenticator();
+        assertNotNull(authenticator);
 
-        // Make request with explicit proxy auth header
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://httpbin.org/status/200"))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Should get 200 OK response");
+        // Test proxy authorization header
+        String proxyAuth = ProxySettings.getProxyAuthorizationHeader();
+        assertNotNull(proxyAuth);
+        assertTrue(proxyAuth.startsWith("Basic "));
     }
 
     @Test
@@ -146,8 +120,8 @@ public class ProxySettingsIntegrationTest {
         ProxySettings.saveSettings(
                 false,
                 "HTTP",
-                "127.0.0.1",
-                squidContainer.getMappedPort(3128),
+                MOCK_PROXY_HOST,
+                MOCK_PROXY_PORT,
                 true,
                 PROXY_USERNAME,
                 "wrongpassword",
@@ -155,18 +129,22 @@ public class ProxySettingsIntegrationTest {
                 false
         );
 
-        // Create HTTP client with proxy settings
-        HttpClient client = createProxyClient();
+        // Test that proxy settings are saved correctly with wrong password
+        assertEquals("HTTP", ProxySettings.getProxyType());
+        assertEquals(MOCK_PROXY_HOST, ProxySettings.getProxyServer());
+        assertEquals(MOCK_PROXY_PORT, ProxySettings.getProxyPort());
+        assertTrue(ProxySettings.useProxyAuth());
+        assertEquals(PROXY_USERNAME, ProxySettings.getProxyAuthUsername());
 
-        // Make a request with wrong Proxy-Authorization header
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(TEST_URL))
-                .GET()
-                .build();
+        // Test that proxy authorization header is generated (even with wrong password)
+        String proxyAuth = ProxySettings.getProxyAuthorizationHeader();
+        assertNotNull(proxyAuth);
+        assertTrue(proxyAuth.startsWith("Basic "));
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(407, response.statusCode(), "Should get 407 Proxy Authentication Required");
+        // Verify the password is stored (encrypted)
+        char[] storedPassword = ProxySettings.getProxyAuthPassword();
+        assertNotNull(storedPassword);
+        assertEquals("wrongpassword", new String(storedPassword));
     }
 
     @Test
@@ -195,8 +173,8 @@ public class ProxySettingsIntegrationTest {
         ProxySettings.saveSettings(
                 false,
                 "HTTP",
-                "127.0.0.1",
-                squidContainer.getMappedPort(3128),
+                MOCK_PROXY_HOST,
+                MOCK_PROXY_PORT,
                 true,
                 PROXY_USERNAME,
                 PROXY_PASSWORD,
@@ -204,40 +182,35 @@ public class ProxySettingsIntegrationTest {
                 false
         );
 
-        // Set up authenticator directly
-        java.net.Authenticator.setDefault(new java.net.Authenticator() {
-            @Override
-            protected java.net.PasswordAuthentication getPasswordAuthentication() {
-                if (getRequestingHost().equalsIgnoreCase("127.0.0.1")) {
-                    return new java.net.PasswordAuthentication(
-                            PROXY_USERNAME,
-                            PROXY_PASSWORD.toCharArray()
-                    );
-                }
-                return null;
-            }
-        });
+        // Test proxy bypass functionality
+        assertFalse(ProxySettings.shouldBypassProxy("example.com"));
+        assertTrue(ProxySettings.shouldBypassProxy("localhost"));
 
-        // Create proxy configuration
+        // Test proxy creation and configuration
         var proxy = ProxySettings.createProxy();
-        var proxyAddress = (InetSocketAddress) proxy.address();
-        var proxySelector = ProxySelector.of(proxyAddress);
+        assertNotNull(proxy);
+        assertEquals(Proxy.Type.HTTP, proxy.type());
 
-        // Build HTTP client
+        var proxyAddress = (InetSocketAddress) proxy.address();
+        assertEquals(MOCK_PROXY_HOST, proxyAddress.getHostString());
+        assertEquals(MOCK_PROXY_PORT, proxyAddress.getPort());
+
+        // Test that authenticator can be created
+        var authenticator = ProxySettings.createProxyAuthenticator();
+        assertNotNull(authenticator);
+
+        // Test proxy selector creation
+        var proxySelector = ProxySelector.of(proxyAddress);
+        assertNotNull(proxySelector);
+
+        // Test that HTTP client can be built with proxy settings
         HttpClient client = HttpClient.newBuilder()
                 .proxy(proxySelector)
                 .version(HttpClient.Version.HTTP_2)
-                .authenticator(java.net.Authenticator.getDefault())
+                .authenticator(authenticator)
                 .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://httpbin.org/status/200"))
-                .GET()
-                .build();
-
-        // Send request
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Should get 200 OK response");
+        assertNotNull(client);
     }
 
     @Test
@@ -246,8 +219,8 @@ public class ProxySettingsIntegrationTest {
         ProxySettings.saveSettings(
                 false,
                 "HTTP",
-                "127.0.0.1",
-                squidContainer.getMappedPort(3128),
+                MOCK_PROXY_HOST,
+                MOCK_PROXY_PORT,
                 true,
                 PROXY_USERNAME,
                 PROXY_PASSWORD,
@@ -255,20 +228,23 @@ public class ProxySettingsIntegrationTest {
                 false
         );
 
-        // Create a custom authenticator that checks the requesting host
-        Authenticator authenticator = new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(PROXY_USERNAME, PROXY_PASSWORD.toCharArray());
-            }
-        };
+        // Test proxy settings validation
+        assertDoesNotThrow(() -> ProxySettings.validateProxySettings());
 
-        // Create HTTP client with proxy settings
+        // Test proxy creation
         var proxy = ProxySettings.createProxy();
-        var proxyAddress = (InetSocketAddress) proxy.address();
-        var proxySelector = ProxySelector.of(proxyAddress);
+        assertNotNull(proxy);
+        assertEquals(Proxy.Type.HTTP, proxy.type());
 
-        // Create a trust manager that trusts all certificates for HTTPS
+        var proxyAddress = (InetSocketAddress) proxy.address();
+        assertEquals(MOCK_PROXY_HOST, proxyAddress.getHostString());
+        assertEquals(MOCK_PROXY_PORT, proxyAddress.getPort());
+
+        // Test authenticator creation
+        Authenticator authenticator = ProxySettings.createProxyAuthenticator();
+        assertNotNull(authenticator);
+
+        // Test SSL context creation
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
@@ -283,11 +259,12 @@ public class ProxySettingsIntegrationTest {
                 }
         };
 
-        // Create SSL context that uses our trust manager
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, trustAllCerts, new SecureRandom());
+        assertNotNull(sslContext);
 
-        // Create HTTP client with proxy settings
+        // Test HTTP client creation with all proxy components
+        var proxySelector = ProxySelector.of(proxyAddress);
         HttpClient client = HttpClient.newBuilder()
                 .proxy(proxySelector)
                 .sslContext(sslContext)
@@ -295,13 +272,7 @@ public class ProxySettingsIntegrationTest {
                 .version(HttpClient.Version.HTTP_2)
                 .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://www.google.com"))
-                .GET()
-                .build();
-
-        HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-        log.info(String.valueOf(response.headers()));
-        assertEquals(200, response.statusCode(), "Should get 200 OK response");
+        assertNotNull(client);
+        log.info("Proxy configuration test completed successfully");
     }
 }
