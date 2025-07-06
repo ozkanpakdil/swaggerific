@@ -120,16 +120,28 @@ for module in "${JAVAFX_MODULES[@]}"; do
     fi
 done
 
-# Run the application
-echo "Starting Swaggerific..."
-java --module-path "$MODULE_PATH" \
+# Get Java version
+java_version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d'.' -f1)
+
+# Base Java command with common flags
+JAVA_CMD="java -Dfile.encoding=UTF-8 \
      --add-modules=javafx.controls,javafx.web,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.swing \
      --add-exports=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED \
      --add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED \
      --add-exports=javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED \
      --add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED \
      --add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED \
-     --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED \
+     --add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED"
+
+# Add --enable-native-access flag only for Java 21+
+if [ "$java_version" -ge 21 ]; then
+    JAVA_CMD="$JAVA_CMD --enable-native-access=javafx.graphics"
+fi
+
+# Add remaining flags and execute
+$JAVA_CMD \
+     --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED \
+     --add-opens=java.base/java.nio=ALL-UNNAMED \
      -jar "$JAR_FILE"
 
 exit 0

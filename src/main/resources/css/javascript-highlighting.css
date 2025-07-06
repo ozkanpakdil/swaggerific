@@ -1,0 +1,56 @@
+/* JavaScript syntax highlighting styles */
+
+.line-highlighter { -fx-highlight-fill: ghostwhite; }
+
+/* Keywords like var, let, const, function, if, else, etc. */
+.js_keyword {
+    -fx-fill: #7986cb;
+    -fx-font-weight: bold;
+}
+
+/* String literals */
+.js_string {
+    -fx-fill: #4caf50;
+}
+
+/* Comments */
+.js_comment {
+    -fx-fill: #9e9e9e;
+    -fx-font-style: italic;
+}
+
+/* Numbers */
+.js_number {
+    -fx-fill: #f44336;
+}
+
+/* Function calls */
+.js_function {
+    -fx-fill: #ff9800;
+}
+
+/* Brackets [], {}, () */
+.js_bracket {
+    -fx-fill: #78909c;
+}
+
+/* Operators +, -, *, /, etc. */
+.js_operator {
+    -fx-fill: #9c27b0;
+}
+
+/* Semicolons */
+.js_semicolon {
+    -fx-fill: #78909c;
+}
+
+/* Property access (.property) */
+.js_property {
+    -fx-fill: #03a9f4;
+}
+
+/* Line numbers */
+.code-area .lineno {
+    -fx-background-color: #fafafa;
+    -fx-text-fill: #a9a9a9;
+}

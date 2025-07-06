@@ -90,6 +90,9 @@
                     <Tab text="Authorization">
                         <fx:include fx:id="authorization" source="edit/authorization.fxml"/>
                     </Tab>
+                    <Tab text="Pre-request Script">
+                        <fx:include fx:id="preRequestScript" source="edit/pre-request-script.fxml"/>
+                    </Tab>
                 </TabPane>
             </VBox>
         </AnchorPane>

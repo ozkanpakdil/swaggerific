@@ -5,6 +5,8 @@ import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
 import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeItemOperationLeaf;
+import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController;
+import io.github.ozkanpakdil.swaggerific.ui.edit.PreRequestScriptController;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.BracketHighlighter;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.JsonColorize;
@@ -79,7 +81,10 @@ public class TabRequestController extends TabPane {
     TableView tableHeaders;
 
     @FXML
-    private io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController authorizationController;
+    AuthorizationController authorizationController;
+
+    @FXML
+    PreRequestScriptController preRequestScriptController;
 
     JsonColorize jsonColorize = new JsonColorize();
 
@@ -286,6 +291,21 @@ public class TabRequestController extends TabPane {
                         log.info("Headers after applying authentication: {}", headers);
                     } else {
                         log.warn("Authorization controller is null, skipping authentication");
+                    }
+
+                    // Execute pre-request script if available
+                    if (preRequestScriptController != null) {
+                        try {
+                            log.info("Executing pre-request script");
+                            // Execute script and wait for it to complete
+                            preRequestScriptController.executeScript(headers).get();
+                            log.info("Headers after executing pre-request script: {}", headers);
+                        } catch (Exception e) {
+                            log.error("Error executing pre-request script: {}", e.getMessage());
+                            // Continue with the request even if the script fails
+                        }
+                    } else {
+                        log.warn("Pre-request script controller is null, skipping script execution");
                     }
 
                     // Get request body
