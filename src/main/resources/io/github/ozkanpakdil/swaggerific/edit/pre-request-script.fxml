@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import org.fxmisc.richtext.CodeArea?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.PreRequestScriptController"
+            prefHeight="400.0" prefWidth="600.0">
+    <SplitPane dividerPositions="0.75" orientation="HORIZONTAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+            <VBox fx:id="boxPreScriptCode" VBox.vgrow="ALWAYS">
+                <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS">
+                    <content>
+                        <CodeArea fx:id="codePreRequestScript" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS"/>
+                    </content>
+                </VirtualizedScrollPane>
+            </VBox>
+            <VBox spacing="5">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+                <Label text="Snippets" style="-fx-font-weight: bold;"/>
+                <TitledPane text="Variables" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Get a variable" onAction="#insertGetVariableSnippet" maxWidth="Infinity"/>
+                            <Button text="Set a variable" onAction="#insertSetVariableSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="HTTP Requests" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Send GET request" onAction="#insertSendRequestSnippet" maxWidth="Infinity"/>
+                            <Button text="Modify headers" onAction="#insertModifyHeadersSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Logging" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Log message" onAction="#insertLogSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Examples" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Complete example" onAction="#insertCompleteExampleSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </VBox>
+        </items>
+    </SplitPane>
+</AnchorPane>

@@ -16,8 +16,8 @@
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <gluonfx.plugin.version>1.0.26</gluonfx.plugin.version>
         <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <maven.version>${maven.version}</maven.version>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -27,7 +27,8 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>22.1.0.1</graalvm.version>
+        <graalvm.version>24.1.1</graalvm.version>
+        <truffle.version>24.1.1</truffle.version>
     </properties>
 
     <dependencies>
@@ -243,10 +244,40 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>17.0.0</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- JavaScript engine for script execution -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>${graalvm.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
+            <version>${truffle.version}</version>
         </dependency>
 
     </dependencies>
@@ -297,6 +328,11 @@
                 <version>${javafx.plugin.version}</version>
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
+                    <options>
+                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED</option>
+                        <option>--add-opens=java.base/java.nio=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
 
