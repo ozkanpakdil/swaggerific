@@ -437,17 +437,23 @@
                         <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</arg>
                     </runtimeArgs>-->
 					<nativeImageArgs>
-						<arg>--enable-native-access=ALL-UNNAMED</arg>
+                        <arg>-H:+UnlockExperimentalVMOptions</arg>
+                        <arg>--enable-native-access=ALL-UNNAMED</arg>
 						<arg>--add-exports=org.graalvm.truffle.runtime/com.oracle.truffle.runtime=ALL-UNNAMED</arg>
 						<arg>--enable-native-access=org.graalvm.truffle</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
-						<arg>--initialize-at-run-time=com.sun.javafx.application.PlatformImpl</arg>
-						<arg>--initialize-at-run-time=com.sun.javafx.tk.quantum.QuantumToolkit</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.utils.NativeLibLoader</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win</arg>
+						<arg>--initialize-at-run-time=com.sun.glass</arg>
+						<arg>--initialize-at-run-time=com.sun.javafx</arg>
+						<arg>--initialize-at-run-time=javafx</arg>
+						<arg>--initialize-at-run-time=com.sun.prism</arg>
+						<arg>--initialize-at-run-time=com.sun.scenario</arg>
+						<arg>--initialize-at-run-time=com.sun.webkit</arg>
+						<arg>--initialize-at-run-time=com.sun.media</arg>
 						<arg>-H:EnableURLProtocols=http,https,file,jar</arg>
+						<arg>-H:+JNI</arg>
+						<arg>-H:+ReportExceptionStackTraces</arg>
+						<arg>--enable-monitoring=all</arg>
+						<arg>-H:+UnlockExperimentalVMOptions</arg>
+						<arg>-H:+UseServiceLoaderFeature</arg>
 						<arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
 						<arg>--add-opens=java.base/java.nio=ALL-UNNAMED</arg>
 						<arg>--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</arg>
@@ -457,7 +463,17 @@
 						<arg>--add-opens=javafx.graphics/com.sun.glass.utils=ALL-UNNAMED</arg>
 						<arg>--add-opens=javafx.graphics/com.sun.glass.ui.win=ALL-UNNAMED</arg>
 						<arg>--add-opens=javafx.base/com.sun.javafx.runtime=ALL-UNNAMED</arg>
-					</nativeImageArgs>
+						<arg>--add-opens=javafx.graphics/com.sun.glass.ui.win.WinApplication=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.graphics/com.sun.glass.ui.Application=ALL-UNNAMED</arg>
+
+                        <arg>-H:+AddAllCharsets</arg>
+                        <arg>-H:+EnableSignalHandling</arg>
+                        <arg>--initialize-at-build-time=org.graalvm.sdk.jni</arg>
+                        <arg>-H:ServiceLoaderFeatureExcludeServices=com.oracle.svm.hosted.jni.JNIFeature</arg>
+                        <arg>-H:+SharedLibrary</arg>
+                        <arg>--install-exit-handlers</arg>
+
+                    </nativeImageArgs>
 					<reflectionList>
 						<list>java.util.Properties</list>
 					</reflectionList>
