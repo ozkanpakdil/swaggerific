@@ -31,6 +31,14 @@ module swaggerific {
     requires org.jetbrains.annotations;
     requires java.scripting;
 
+    // GraalVM Truffle modules for JavaScript execution
+    requires org.graalvm.polyglot;
+    requires org.graalvm.truffle;
+	//opens com.oracle.truffle.polyglot;
+
+    // GraalVM native image support for substitutions
+    //requires static org.graalvm.nativeimage;
+
     //    requires swagger.parser.core;
     //    requires swagger.parser;
     //    requires swagger.parser.v2.converter;

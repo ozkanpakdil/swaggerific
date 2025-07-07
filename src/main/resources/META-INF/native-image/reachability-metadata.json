@@ -291,6 +291,18 @@
       ]
     },
     {
+      "type": "com.sun.prism.shader.DrawRoundRect_Color_Loader",
+      "methods": [
+        {
+          "name": "loadShader",
+          "parameterTypes": [
+            "com.sun.prism.ps.ShaderFactory",
+            "java.io.InputStream"
+          ]
+        }
+      ]
+    },
+    {
       "type": "com.sun.prism.shader.FillPgram_Color_Loader",
       "methods": [
         {
@@ -509,6 +521,12 @@
         {
           "name": "<init>",
           "parameterTypes": []
+        },
+        {
+          "name": "menuFileExit",
+          "parameterTypes": [
+            "javafx.event.ActionEvent"
+          ]
         }
       ]
     },
@@ -551,6 +569,20 @@
       "methods": [
         {
           "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "io.github.ozkanpakdil.swaggerific.ui.edit.PreRequestScriptController",
+      "allDeclaredFields": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "insertLogSnippet",
           "parameterTypes": []
         }
       ]
@@ -847,6 +879,12 @@
           "name": "setOnMouseClicked",
           "parameterTypes": [
             "javafx.event.EventHandler"
+          ]
+        },
+        {
+          "name": "setStyle",
+          "parameterTypes": [
+            "java.lang.String"
           ]
         },
         {
@@ -1233,6 +1271,27 @@
       ]
     },
     {
+      "type": "javafx.scene.control.TitledPane",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "setContent",
+          "parameterTypes": [
+            "javafx.scene.Node"
+          ]
+        },
+        {
+          "name": "setExpanded",
+          "parameterTypes": [
+            "boolean"
+          ]
+        }
+      ]
+    },
+    {
       "type": "javafx.scene.control.TreeView",
       "methods": [
         {
@@ -1535,6 +1594,9 @@
       "type": "javafx.stage.Window"
     },
     {
+      "type": "jdk.internal.jrtfs.JrtFileSystemProvider"
+    },
+    {
       "type": "org.controlsfx.control.StatusBar",
       "methods": [
         {
@@ -1618,6 +1680,22 @@
     },
     {
       "type": "org.fxmisc.richtext.StyledTextArea"
+    },
+    {
+      "type": "org.graalvm.polyglot.io.IOHelper",
+      "fields": [
+        {
+          "name": "ACCESS"
+        }
+      ]
+    },
+    {
+      "type": "org.graalvm.polyglot.management.Management",
+      "fields": [
+        {
+          "name": "ACCESS"
+        }
+      ]
     },
     {
       "type": "sun.misc.Unsafe",
@@ -1953,6 +2031,45 @@
       "glob": "META-INF/services/ch.qos.logback.classic.spi.Configurator"
     },
     {
+      "glob": "META-INF/services/com.oracle.truffle.api.TruffleRuntimeAccess"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.impl.TruffleLocator"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.instrumentation.provider.TruffleInstrumentProvider"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.library.provider.DefaultExportProvider"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.object.LayoutFactory"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.provider.InternalResourceProvider"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.api.provider.TruffleLanguageProvider"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.js.runtime.Evaluator"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.runtime.EngineCacheSupport"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.runtime.FloodControlHandler"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.runtime.LoopNodeFactory"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.runtime.TruffleTypes"
+    },
+    {
+      "glob": "META-INF/services/com.oracle.truffle.runtime.jfr.EventFactory$Provider"
+    },
+    {
       "glob": "META-INF/services/java.lang.System$LoggerFinder"
     },
     {
@@ -1965,10 +2082,16 @@
       "glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"
     },
     {
+      "glob": "META-INF/services/java.nio.file.spi.FileSystemProvider"
+    },
+    {
       "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
     },
     {
       "glob": "META-INF/services/java.util.prefs.PreferencesFactory"
+    },
+    {
+      "glob": "META-INF/services/javax.script.ScriptEngineFactory"
     },
     {
       "glob": "META-INF/services/javax.xml.parsers.SAXParserFactory"
@@ -11915,6 +12038,10 @@
     },
     {
       "module": "javafx.graphics",
+      "glob": "com/sun/prism/d3d/hlsl/DrawRoundRect_Color.obj"
+    },
+    {
+      "module": "javafx.graphics",
       "glob": "com/sun/prism/d3d/hlsl/FillPgram_Color.obj"
     },
     {
@@ -11956,6 +12083,10 @@
     {
       "module": "javafx.graphics",
       "glob": "com/sun/scenario/effect/impl/hw/d3d/hlsl/InvertMask.obj"
+    },
+    {
+      "module": "javafx.graphics",
+      "glob": "com/sun/scenario/effect/impl/hw/d3d/hlsl/LinearConvolveShadow_16.obj"
     },
     {
       "module": "javafx.graphics",
@@ -12002,6 +12133,10 @@
       "glob": "vcruntime140_1.dll"
     },
     {
+      "module": "jdk.jfr",
+      "glob": "jdk/jfr/internal/types/metadata.bin"
+    },
+    {
       "module": "org.controlsfx.controls",
       "glob": "controlsfx.properties"
     },
@@ -12034,8 +12169,24 @@
       "glob": "org/fxmisc/richtext/styled-text-area.css"
     },
     {
+      "module": "org.graalvm.polyglot",
+      "glob": "META-INF/graalvm/org.graalvm.polyglot/version"
+    },
+    {
+      "module": "org.graalvm.truffle",
+      "glob": "META-INF/graalvm/org.graalvm.truffle/version"
+    },
+    {
+      "module": "org.graalvm.truffle",
+      "glob": "META-INF/resources/engine/libtruffleattach/windows/amd64/sha256"
+    },
+    {
       "module": "swaggerific",
       "glob": "applogo.png"
+    },
+    {
+      "module": "swaggerific",
+      "glob": "css/javascript-highlighting.css"
     },
     {
       "module": "swaggerific",
@@ -13248,6 +13399,19 @@
       "type": "[Lcom.sun.glass.ui.Screen;"
     },
     {
+      "type": "com.sun.glass.ui.Application",
+      "methods": [
+        {
+          "name": "loadNativeLibrary",
+          "parameterTypes": []
+        },
+        {
+          "name": "run",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sun.glass.ui.Cursor",
       "methods": [
         {
@@ -13287,6 +13451,10 @@
             "float",
             "float"
           ]
+        },
+        {
+          "name": "notifySettingsChanged",
+          "parameterTypes": []
         }
       ]
     },
@@ -13298,6 +13466,61 @@
           "parameterTypes": [
             "int",
             "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.glass.ui.win.WinApplication",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "staticScreen_getScreens",
+          "parameterTypes": []
+        },
+        {
+          "name": "staticScreen_getVideoRefreshPeriod",
+          "parameterTypes": []
+        },
+        {
+          "name": "staticView_getMultiClickMaxX",
+          "parameterTypes": []
+        },
+        {
+          "name": "staticView_getMultiClickMaxY",
+          "parameterTypes": []
+        },
+        {
+          "name": "staticView_getMultiClickTime",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.glass.ui.win.WinPlatformFactory",
+      "methods": [
+        {
+          "name": "createApplication",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.glass.utils.NativeLibLoader",
+      "methods": [
+        {
+          "name": "loadLibrary",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "loadLibraryInternal",
+          "parameterTypes": [
+            "java.lang.String"
           ]
         }
       ]
@@ -13548,6 +13771,15 @@
       ]
     },
     {
+      "type": "com.sun.management.internal.OperatingSystemImpl",
+      "methods": [
+        {
+          "name": "initialize0",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sun.prism.impl.PrismSettings",
       "fields": [
         {
@@ -13603,6 +13835,21 @@
             "java.lang.String",
             "boolean",
             "java.lang.ClassLoader"
+          ]
+        },
+        {
+          "name": "getClassLoader",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.ClassLoader",
+      "methods": [
+        {
+          "name": "loadClass",
+          "parameterTypes": [
+            "java.lang.String"
           ]
         }
       ]
@@ -13672,6 +13919,9 @@
           ]
         }
       ]
+    },
+    {
+      "type": "jdk.internal.loader.ClassLoaders$AppClassLoader"
     }
   ]
 }

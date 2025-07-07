@@ -346,9 +346,15 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <!--<argLine>
-                        &#45;&#45;add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-                    </argLine>-->
+                    <argLine>
+                        --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api.impl=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.runtime=ALL-UNNAMED
+                        --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
+                        --add-opens=java.base/java.nio=ALL-UNNAMED
+                    </argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -361,6 +367,11 @@
                         <option>--enable-native-access=javafx.graphics</option>
                         <option>--add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED</option>
                         <option>--add-opens=java.base/java.nio=ALL-UNNAMED</option>
+                        <!-- GraalVM Truffle module access for JavaScript engine -->
+                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED</option>
+                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED</option>
+                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.api.impl=ALL-UNNAMED</option>
+                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.runtime=ALL-UNNAMED</option>
                     </options>
                 </configuration>
             </plugin>
@@ -427,10 +438,33 @@
                     </runtimeArgs>-->
 					<nativeImageArgs>
 						<arg>--enable-native-access=ALL-UNNAMED</arg>
+						<arg>--add-exports=org.graalvm.truffle.runtime/com.oracle.truffle.runtime=ALL-UNNAMED</arg>
+						<arg>--enable-native-access=org.graalvm.truffle</arg>
+						<arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
+						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
+						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
+						<arg>--initialize-at-run-time=com.sun.javafx.application.PlatformImpl</arg>
+						<arg>--initialize-at-run-time=com.sun.javafx.tk.quantum.QuantumToolkit</arg>
+						<arg>--initialize-at-run-time=com.sun.glass.utils.NativeLibLoader</arg>
+						<arg>--initialize-at-run-time=com.sun.glass.ui.win</arg>
+						<arg>-H:EnableURLProtocols=http,https,file,jar</arg>
+						<arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+						<arg>--add-opens=java.base/java.nio=ALL-UNNAMED</arg>
+						<arg>--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+						<arg>--add-opens=java.base/sun.security.util=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.graphics/com.sun.glass.utils=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.graphics/com.sun.glass.ui.win=ALL-UNNAMED</arg>
+						<arg>--add-opens=javafx.base/com.sun.javafx.runtime=ALL-UNNAMED</arg>
 					</nativeImageArgs>
 					<reflectionList>
 						<list>java.util.Properties</list>
 					</reflectionList>
+					<linkerArgs>
+						<arg>management_ext.lib</arg>
+						<arg>psapi.lib</arg>
+					</linkerArgs>
                 </configuration>
             </plugin>
 
