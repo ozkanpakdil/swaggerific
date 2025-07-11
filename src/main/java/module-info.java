@@ -31,10 +31,12 @@ module swaggerific {
     requires org.jetbrains.annotations;
     requires java.scripting;
 
-    // GraalVM Truffle modules for JavaScript execution
-    requires org.graalvm.polyglot;
+    // GraalVM JavaScript engine for script execution
+    requires org.graalvm.sdk;
     requires org.graalvm.truffle;
-	//opens com.oracle.truffle.polyglot;
+    // Note: org.graalvm.js module causes resolution issues with org.graalvm.truffle
+    // Using ScriptEngine approach instead of direct module requirement
+//	requires org.graalvm.js.engine;
 
     // GraalVM native image support for substitutions
     //requires static org.graalvm.nativeimage;

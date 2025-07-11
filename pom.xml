@@ -12,12 +12,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
-        <javafx.version>22.0.2</javafx.version>
+        <javafx.version>19.0.2.1</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <gluonfx.plugin.version>1.0.26</gluonfx.plugin.version>
         <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.version>${maven.version}</maven.version>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -27,9 +27,50 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>24.2.1</graalvm.version>
-        <truffle.version>24.2.1</truffle.version>
+        <graalvm.version>22.3.3</graalvm.version>
+        <truffle.version>22.3.3</truffle.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Explicitly manage JavaFX versions to prevent conflicts -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-web</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-media</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-fxml</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-swing</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -264,8 +305,13 @@
 
         <!-- JavaScript engine for script execution -->
         <dependency>
-            <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>polyglot</artifactId>
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-api</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
         <dependency>
@@ -277,36 +323,11 @@
             <groupId>org.graalvm.js</groupId>
             <artifactId>js</artifactId>
             <version>${graalvm.version}</version>
-            <type>pom</type>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-api</artifactId>
-            <version>${truffle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-dsl-processor</artifactId>
-            <version>${truffle.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-compiler</artifactId>
-            <version>${graalvm.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-runtime</artifactId>
-            <version>${graalvm.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.sdk</groupId>
-            <artifactId>jniutils</artifactId>
-            <version>${graalvm.version}</version>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>23.1.7</version>
         </dependency>
 
     </dependencies>
@@ -322,10 +343,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <proc>none</proc>
+                    <compilerArgs>
+                        <arg>-proc:none</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -348,12 +373,12 @@
                     </includes>
                     <argLine>
                         --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-                        --add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED
-                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
-                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api.impl=ALL-UNNAMED
-                        --add-opens=org.graalvm.truffle/com.oracle.truffle.runtime=ALL-UNNAMED
                         --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
                         --add-opens=java.base/java.nio=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED
+                        --add-opens=org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
+                        --add-exports=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
@@ -367,11 +392,11 @@
                         <option>--enable-native-access=javafx.graphics</option>
                         <option>--add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED</option>
                         <option>--add-opens=java.base/java.nio=ALL-UNNAMED</option>
-                        <!-- GraalVM Truffle module access for JavaScript engine -->
-                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED</option>
                         <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED</option>
-                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.api.impl=ALL-UNNAMED</option>
-                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.runtime=ALL-UNNAMED</option>
+                        <option>--add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED</option>
+                        <option>--add-opens=org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED</option>
+                        <option>--add-exports=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED</option>
+                        <option>-Dpolyglot.js.syntax-extensions=false</option>
                     </options>
                 </configuration>
             </plugin>
@@ -437,9 +462,6 @@
                         <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</arg>
                     </runtimeArgs>-->
 					<nativeImageArgs>
-						<arg>--enable-native-access=ALL-UNNAMED</arg>
-						<arg>--add-exports=org.graalvm.truffle.runtime/com.oracle.truffle.runtime=ALL-UNNAMED</arg>
-						<arg>--enable-native-access=org.graalvm.truffle</arg>
 						<arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
 						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
 						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
@@ -731,45 +753,14 @@
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.graalvm.js</groupId>
-                                    <artifactId>js-scriptengine</artifactId>
-                                    <version>${graalvm.version}</version>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.graalvm.js</groupId>
-                                    <artifactId>js</artifactId>
-                                    <version>${graalvm.version}</version>
-                                    <type>pom</type>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.graalvm.truffle</groupId>
                                     <artifactId>truffle-api</artifactId>
                                     <version>${truffle.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.graalvm.truffle</groupId>
-                                    <artifactId>truffle-dsl-processor</artifactId>
-                                    <version>${truffle.version}</version>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.graalvm.truffle</groupId>
-                                    <artifactId>truffle-compiler</artifactId>
-                                    <version>${graalvm.version}</version>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.graalvm.truffle</groupId>
-                                    <artifactId>truffle-runtime</artifactId>
-                                    <version>${graalvm.version}</version>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.graalvm.sdk</groupId>
-                                    <artifactId>jniutils</artifactId>
+                                    <groupId>org.graalvm.js</groupId>
+                                    <artifactId>js-scriptengine</artifactId>
                                     <version>${graalvm.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>

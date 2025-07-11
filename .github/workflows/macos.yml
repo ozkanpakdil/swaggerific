@@ -8,12 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: graalvm/setup-graalvm@v1
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '24'
-          distribution: 'graalvm-community'
-          github-token:
-            ${{ secrets.GITHUB_TOKEN }}
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Show system info
         run: |
           system_profiler SPSoftwareDataType SPHardwareDataType

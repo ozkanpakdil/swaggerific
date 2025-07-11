@@ -7,12 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '24'
-          distribution: 'graalvm-community'
-          github-token:
-            ${{ secrets.GITHUB_TOKEN }}
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install libraries
         run: |
           sudo apt update
@@ -26,7 +28,7 @@ jobs:
           set -e
           chmod +x target/gluonfx/x86_64-linux/swaggerific
           tar -czvf staging/swaggerific_x86.tar.gz -C target/gluonfx/x86_64-linux swaggerific
-          
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:

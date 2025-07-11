@@ -19,12 +19,13 @@ jobs:
       - name: Make staging directory
         run: mkdir staging
 
-      - uses: graalvm/setup-graalvm@v1
+      - name: Setup Gluon's GraalVM
+        uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '24'
-          distribution: 'graalvm-community'
-          github-token:
-            ${{ secrets.GITHUB_TOKEN }}
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Gluon Build and Package
         shell: cmd
