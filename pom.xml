@@ -450,17 +450,6 @@
                         <description>${project.description}</description>
                         <version>${project.version}</version>
                     </releaseConfiguration>
-                    <!--<runtimeArgs>
-                        <arg>&#45;&#45;add-modules=javafx.controls,javafx.web</arg>
-                        <arg>&#45;&#45;add-exports=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.base/com.sun.javafx.reflect=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.base/com.sun.javafx.beans=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</arg>
-                        <arg>&#45;&#45;add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</arg>
-                    </runtimeArgs>-->
 					<nativeImageArgs>
 						<arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
 						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
@@ -483,10 +472,6 @@
 					<reflectionList>
 						<list>java.util.Properties</list>
 					</reflectionList>
-					<linkerArgs>
-						<arg>management_ext.lib</arg>
-						<arg>psapi.lib</arg>
-					</linkerArgs>
                 </configuration>
             </plugin>
 
