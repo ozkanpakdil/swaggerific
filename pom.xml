@@ -29,6 +29,7 @@
         <dockfx.version>0.1.5</dockfx.version>
         <graalvm.version>22.3.3</graalvm.version>
         <truffle.version>22.3.3</truffle.version>
+        <polyglot-version>23.1.7</polyglot-version>
     </properties>
 
     <dependencyManagement>
@@ -327,7 +328,7 @@
         <dependency>
             <groupId>org.graalvm.polyglot</groupId>
             <artifactId>polyglot</artifactId>
-            <version>23.1.7</version>
+            <version>${polyglot-version}</version>
         </dependency>
 
     </dependencies>
@@ -734,7 +735,7 @@
                                 <artifactItem>
                                     <groupId>org.graalvm.polyglot</groupId>
                                     <artifactId>polyglot</artifactId>
-                                    <version>${graalvm.version}</version>
+                                    <version>${polyglot-version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

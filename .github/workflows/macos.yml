@@ -42,12 +42,14 @@ jobs:
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          chmod +x ./target/gluonfx/aarch64-darwin/swaggerific
-          cp -r ./target/gluonfx/aarch64-darwin/swaggerific staging/
-          tar -czvf staging/swaggerific_aarch64.tar.gz -C target/gluonfx/aarch64-darwin swaggerific
-          pkgbuild --root ./target/gluonfx/aarch64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.2 --install-location /Applications Swaggerific.pkg
+          chmod +x ./target/gluonfx/x86_64-darwin/swaggerific.app
+          cp -r ./target/gluonfx/x86_64-darwin/swaggerific.app staging/
+          tar -czvf staging/swaggerific_x86_64-darwin.tar.gz -C target/gluonfx/x86_64-darwin swaggerific
+          pkgbuild --root ./target/gluonfx/x86_64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.4 --install-location /Applications Swaggerific.pkg
           productbuild --package Swaggerific.pkg SwaggerificInstaller.pkg
           cp -r SwaggerificInstaller.pkg staging/
+          
+          
 
       - name: Upload
         uses: actions/upload-artifact@v4

@@ -13,7 +13,7 @@ cd "$SCRIPT_DIR"
 # Check if Java is installed
 if ! command -v java &> /dev/null; then
     echo "Error: Java is not installed or not in PATH"
-    echo "Please install Java 21 or later"
+    echo "Please install Java 17 or later"
     exit 1
 fi
 
@@ -21,8 +21,8 @@ fi
 JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
 
-if [[ "$JAVA_MAJOR_VERSION" -lt 21 ]]; then
-    echo "Error: Java 21 or later is required (found version $JAVA_VERSION)"
+if [[ "$JAVA_MAJOR_VERSION" -lt 17 ]]; then
+    echo "Error: Java 17 or later is required (found version $JAVA_VERSION)"
     echo "Please install a newer version of Java"
     exit 1
 fi
