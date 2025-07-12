@@ -21,7 +21,6 @@ jobs:
       - name: Make scripts executable
         run: |
           chmod +x package.sh
-          chmod +x run.sh
 
       - name: Run package script
         run: ./package.sh
