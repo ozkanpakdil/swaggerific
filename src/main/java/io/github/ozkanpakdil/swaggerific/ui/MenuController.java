@@ -50,6 +50,10 @@ public class MenuController {
     public void reportBugOrFeatureRequestFromHelpMenu(ActionEvent event) {
         mainController.reportBugOrFeatureRequestFromHelpMenu(event);
     }
+    
+    public void openEnvironmentVariables(ActionEvent event) {
+        mainController.openEnvironmentVariables(event);
+    }
 
     public void setMainController(MainController mainController) {
         this.mainController = mainController;

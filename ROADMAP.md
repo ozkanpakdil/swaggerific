@@ -84,10 +84,10 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
   - [ ] Import/export collections
   - [ ] Share collections between team members
 
-- [ ] **Environment Variables**
-  - [ ] Define multiple environments (dev, staging, production)
-  - [ ] Switch between environments easily
-  - [ ] Environment-specific variables
+- [x] **Environment Variables**
+  - [x] Define multiple environments (dev, staging, production)
+  - [x] Switch between environments easily
+  - [x] Environment-specific variables
 
 - [ ] **Response Testing**
   - [ ] Assertions for response validation
@@ -142,6 +142,11 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
 
 ### Current Focus (2025 Q3)
 
+- [x] Implement environment variables support
+  - Added Environment and EnvironmentVariable classes
+  - Created UI for managing environments and variables
+  - Integrated with pre-request scripts via pm.environment API
+  - Added variable substitution in requests (URL, parameters, headers, body)
 - [ ] Stabilize and enhance the pre-request scripts feature
 - [ ] Improve cross-platform compatibility
 - [ ] Enhance GraalVM integration for better JavaScript support
@@ -150,7 +155,7 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
 ### Next Steps (2025 Q4)
 
 - [ ] Implement request collections
-- [ ] Add environment variables support
+- [x] Add environment variables support
 - [ ] Enhance authentication mechanisms
 - [ ] Improve test capabilities
 

@@ -10,7 +10,7 @@ The vision is to become the best open-source UI for HTTP utilities, offering a m
 
 ### Core Technologies
 
-- **Java**: JDK 21 or higher is required
+- **Java**: JDK 17 or higher is required
 - **JavaFX**: The primary UI framework
   - JavaFX Controls, Graphics, FXML, Web, Base, Media, and Swing components
   - AtlantaFX for modern theming (currently using PrimerLight theme)

@@ -6,6 +6,7 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.ozkanpakdil.swaggerific.DisableWindow;
 import io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings;
+import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
 import io.github.ozkanpakdil.swaggerific.data.SwaggerModal;
 import io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
@@ -127,6 +128,7 @@ public class MainController implements Initializable {
     VBox boxLoader;
     HttpUtility httpUtility = new HttpUtility();
     AuthorizationSettings authorizationSettings = new AuthorizationSettings();
+    EnvironmentManager environmentManager = EnvironmentManager.loadSettings();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -577,6 +579,10 @@ public class MainController implements Initializable {
                 oos.flush();
                 log.info("Saved authorization settings with {} entries", authorizationSettings.size());
             }
+            
+            // Save environment settings
+            environmentManager.saveSettings();
+            log.info("Saved environment settings with {} environments", environmentManager.size());
         } catch (Exception e) {
             log.error("Problem serializing", e);
         }
@@ -700,6 +706,39 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    /**
+     * Opens the Environment Variables management window.
+     *
+     * @param ignoredActionEvent the action event (ignored)
+     */
+    public void openEnvironmentVariables(ActionEvent ignoredActionEvent) {
+        FXMLLoader environmentsFxmlLoader = new FXMLLoader(getClass().getResource(
+                "/io/github/ozkanpakdil/swaggerific/edit/environments.fxml"));
+        Parent root;
+        try {
+            root = environmentsFxmlLoader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        io.github.ozkanpakdil.swaggerific.ui.edit.EnvironmentController controller = environmentsFxmlLoader.getController();
+        Stage stage = new Stage();
+        stage.initOwner(mainBox.getScene().getWindow());
+        stage.initModality(Modality.WINDOW_MODAL); // make the environments window focused only.
+        stage.setTitle("Environment Variables");
+        
+        Scene environmentsScene = new Scene(root);
+        environmentsScene.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            if (t.getCode() == KeyCode.ESCAPE) {
+                environmentsScene.getWindow().hide();
+            }
+        });
+        
+        controller.setMainController(this);
+        stage.setScene(environmentsScene);
+        stage.show();
     }
 
     public void filterTree(KeyEvent ignoredKeyEvent) {

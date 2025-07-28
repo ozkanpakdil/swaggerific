@@ -29,6 +29,11 @@
         <MenuItem text="Copy"/>
         <MenuItem text="Cut"/>
         <MenuItem text="Paste"/>
+        <MenuItem text="Environment Variables" onAction="#openEnvironmentVariables">
+            <accelerator>
+                <KeyCodeCombination alt="DOWN" code="E" control="DOWN" meta="UP" shift="ANY" shortcut="ANY"/>
+            </accelerator>
+        </MenuItem>
         <MenuItem text="Settings" onAction="#openSettings">
             <accelerator>
                 <KeyCodeCombination alt="DOWN" code="S" control="DOWN" meta="UP" shift="ANY" shortcut="ANY"/>

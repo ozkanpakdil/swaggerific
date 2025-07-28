@@ -240,6 +240,13 @@ public class TabRequestController extends TabPane {
             HttpUtility httpUtility = mainController.getHttpUtility();
             new Thread(() -> {
                 try {
+                    // Resolve environment variables in the request URL
+                    String resolvedUri = targetUri;
+                    if (preRequestScriptController != null) {
+                        resolvedUri = preRequestScriptController.resolveEnvironmentVariables(targetUri);
+                        log.info("Resolved URI: {}", resolvedUri);
+                    }
+                    
                     // Extract query and path parameters from UI components
                     Map<String, String> queryParams = new HashMap<>();
                     Map<String, String> pathParams = new HashMap<>();
@@ -249,10 +256,16 @@ public class TabRequestController extends TabPane {
                             .filter(n -> n instanceof STextField)
                             .forEach(n -> {
                                 STextField node = (STextField) n;
+                                String paramValue = node.getText();
+                                // Resolve environment variables in parameter value
+                                if (preRequestScriptController != null) {
+                                    paramValue = preRequestScriptController.resolveEnvironmentVariables(paramValue);
+                                }
+                                
                                 if ("query".equals(node.getIn())) {
-                                    queryParams.put(node.getParamName(), node.getText());
+                                    queryParams.put(node.getParamName(), paramValue);
                                 } else if ("path".equals(node.getIn())) {
-                                    pathParams.put(node.getParamName(), node.getText());
+                                    pathParams.put(node.getParamName(), paramValue);
                                 }
                             });
 
@@ -264,10 +277,16 @@ public class TabRequestController extends TabPane {
                                 STextField paramInfo = (STextField) comboBox.getUserData();
 
                                 if (comboBox.getValue() != null) {
+                                    String paramValue = comboBox.getValue().toString();
+                                    // Resolve environment variables in parameter value
+                                    if (preRequestScriptController != null) {
+                                        paramValue = preRequestScriptController.resolveEnvironmentVariables(paramValue);
+                                    }
+                                    
                                     if ("query".equals(paramInfo.getIn())) {
-                                        queryParams.put(paramInfo.getParamName(), comboBox.getValue().toString());
+                                        queryParams.put(paramInfo.getParamName(), paramValue);
                                     } else if ("path".equals(paramInfo.getIn())) {
-                                        pathParams.put(paramInfo.getParamName(), comboBox.getValue().toString());
+                                        pathParams.put(paramInfo.getParamName(), paramValue);
                                     }
                                 }
                             });
@@ -278,7 +297,16 @@ public class TabRequestController extends TabPane {
                         if (item instanceof RequestHeader header) {
                             if (Boolean.TRUE.equals(header.getChecked()) && 
                                 header.getName() != null && !header.getName().isEmpty()) {
-                                headers.put(header.getName(), header.getValue());
+                                String headerName = header.getName();
+                                String headerValue = header.getValue();
+                                
+                                // Resolve environment variables in header name and value
+                                if (preRequestScriptController != null) {
+                                    headerName = preRequestScriptController.resolveEnvironmentVariables(headerName);
+                                    headerValue = preRequestScriptController.resolveEnvironmentVariables(headerValue);
+                                }
+                                
+                                headers.put(headerName, headerValue);
                             }
                         }
                     });
@@ -308,8 +336,12 @@ public class TabRequestController extends TabPane {
                         log.warn("Pre-request script controller is null, skipping script execution");
                     }
 
-                    // Get request body
+                    // Get request body and resolve environment variables
                     String body = codeJsonRequest.getText();
+                    if (preRequestScriptController != null) {
+                        body = preRequestScriptController.resolveEnvironmentVariables(body);
+                        log.info("Resolved request body with environment variables");
+                    }
 
                     // Get HTTP method
                     PathItem.HttpMethod httpMethod = PathItem.HttpMethod.valueOf(
@@ -349,6 +381,12 @@ public class TabRequestController extends TabPane {
 
             // Load authorization settings for the current URL
             loadAuthorizationSettings(uri);
+        }
+    
+        // Set environment manager in pre-request script controller
+        if (preRequestScriptController != null && parent.environmentManager != null) {
+            preRequestScriptController.setEnvironmentManager(parent.environmentManager);
+            log.info("Set environment manager in pre-request script controller");
         }
 
         // Add listener to txtAddress to load authorization settings when URL changes

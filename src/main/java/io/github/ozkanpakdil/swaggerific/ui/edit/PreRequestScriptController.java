@@ -1,5 +1,6 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
+import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
 import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpService;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl;
@@ -69,6 +70,9 @@ public class PreRequestScriptController implements Initializable {
 
     // Store for variables that can be accessed across script executions
     private final Map<String, Object> variables = new ConcurrentHashMap<>();
+    
+    // Environment manager for accessing environment variables
+    private EnvironmentManager environmentManager;
 
     // Callback to be called when script execution is complete
     private Runnable onScriptExecutionComplete;
@@ -140,6 +144,33 @@ public class PreRequestScriptController implements Initializable {
 
         // Convert Java headers to JavaScript object
         String jsHeaders = Json.mapper().writeValueAsString(headers);
+        
+        // Get active environment name and variables
+        String activeEnvironmentName = "";
+        String jsEnvironmentVariables = "{}";
+        if (environmentManager != null) {
+            environmentManager.getActiveEnvironment().ifPresent(env -> {
+                log.info("Active environment: {}", env.getName());
+            });
+            
+            // Convert environment variables to JSON
+            try {
+                jsEnvironmentVariables = Json.mapper().writeValueAsString(
+                    environmentManager.getActiveEnvironment()
+                        .map(env -> env.getAllVariables().stream()
+                            .collect(java.util.stream.Collectors.toMap(
+                                var -> var.getKey(),
+                                var -> var.getValue())))
+                        .orElse(new java.util.HashMap<>())
+                );
+                
+                activeEnvironmentName = environmentManager.getActiveEnvironment()
+                    .map(env -> env.getName())
+                    .orElse("");
+            } catch (Exception e) {
+                log.error("Error converting environment variables to JSON", e);
+            }
+        }
 
         // Debug info
         log.info("Bindings keys: {}", bindings.keySet());
@@ -149,6 +180,8 @@ public class PreRequestScriptController implements Initializable {
         String pmSetupScript = String.format("""
                 var __jsVariables = %s;
                 var __jsHeaders = %s;
+                var __jsEnvironmentVariables = %s;
+                var __activeEnvironmentName = "%s";
                 var __consoleLogs = [];
                 var console = {
                   log: function(message) { __consoleLogs.push('[CONSOLE.LOG] ' + message); },
@@ -171,12 +204,24 @@ public class PreRequestScriptController implements Initializable {
                       __jsVariables[key] = value;
                     }
                   },
+                  environment: {
+                    name: __activeEnvironmentName,
+                    get: function(key) {
+                      var value = __jsEnvironmentVariables[key];
+                      if (value === undefined) {
+                        console.warn('Environment variable "' + key + '" is undefined. Available variables: ' + Object.keys(__jsEnvironmentVariables).join(', '));
+                      } else {
+                        console.log('Retrieved environment variable "' + key + '" = ' + value);
+                      }
+                      return value;
+                    }
+                  },
                   request: {
                     headers: __jsHeaders
                   },
                   sendRequest: function(url, callback) { console.log('sendRequest called with URL: ' + url); }
                 };
-                """, jsVariables, jsHeaders);
+                """, jsVariables, jsHeaders, jsEnvironmentVariables, activeEnvironmentName);
 
         try {
             log.debug("Executing pm setup script: {}", pmSetupScript);
@@ -362,6 +407,30 @@ public class PreRequestScriptController implements Initializable {
      */
     public Map<String, Object> getVariables() {
         return variables;
+    }
+    
+    /**
+     * Sets the environment manager
+     * 
+     * @param environmentManager the environment manager to use
+     */
+    public void setEnvironmentManager(EnvironmentManager environmentManager) {
+        this.environmentManager = environmentManager;
+    }
+    
+    /**
+     * Resolves environment variables in a string.
+     * Environment variables are referenced using the syntax {{variable_name}}.
+     * 
+     * @param input the input string to resolve
+     * @return the resolved string with environment variables replaced
+     */
+    public String resolveEnvironmentVariables(String input) {
+        if (input == null || input.isEmpty() || environmentManager == null) {
+            return input;
+        }
+        
+        return environmentManager.resolveVariables(input);
     }
 
     /**

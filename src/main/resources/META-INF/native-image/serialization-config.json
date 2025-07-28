@@ -4,6 +4,12 @@
       "name":"io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings"
     },
     {
+      "name":"io.github.ozkanpakdil.swaggerific.data.Environment"
+    },
+    {
+      "name":"io.github.ozkanpakdil.swaggerific.data.EnvironmentManager"
+    },
+    {
       "name":"io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
     },
     {
