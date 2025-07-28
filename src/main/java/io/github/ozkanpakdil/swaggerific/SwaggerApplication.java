@@ -27,7 +27,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
-import static io.github.ozkanpakdil.swaggerific.ui.edit.General.*;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.FONT_SIZE;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.SELECTED_FONT;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_HEIGHT;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_WIDTH;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_X;
+import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_Y;
 
 public class SwaggerApplication extends Application {
     static SwaggerApplication instance;

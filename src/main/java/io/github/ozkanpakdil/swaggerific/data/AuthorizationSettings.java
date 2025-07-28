@@ -1,8 +1,8 @@
 package io.github.ozkanpakdil.swaggerific.data;
 
+import io.github.ozkanpakdil.swaggerific.security.CredentialEncryption;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController.AuthType;
-import io.github.ozkanpakdil.swaggerific.security.CredentialEncryption;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

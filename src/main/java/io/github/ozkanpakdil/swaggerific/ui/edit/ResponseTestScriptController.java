@@ -2,7 +2,6 @@ package io.github.ozkanpakdil.swaggerific.ui.edit;
 
 import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
-import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.JavaScriptColorize;
 import io.swagger.v3.core.util.Json;
 import javafx.fxml.FXML;
