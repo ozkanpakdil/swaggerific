@@ -301,7 +301,10 @@
   "name":"io.github.ozkanpakdil.swaggerific.ui.MainController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
+  ]
 },
 {
   "name":"io.github.ozkanpakdil.swaggerific.ui.MenuController",
@@ -408,10 +411,7 @@
   "name":"io.github.ozkanpakdil.swaggerific.ui.edit.ResponseTestScriptController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"<init>","parameterTypes":[] }, 
-    {"name":"insertAssertStatusCodeSnippet","parameterTypes":[] }
-  ]
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"io.github.ozkanpakdil.swaggerific.ui.edit.SettingsController",

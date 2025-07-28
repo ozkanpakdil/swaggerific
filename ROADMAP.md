@@ -89,10 +89,10 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
   - [x] Switch between environments easily
   - [x] Environment-specific variables
 
-- [ ] **Response Testing**
-  - [ ] Assertions for response validation
-  - [ ] Test scripts (similar to pre-request scripts but for response validation)
-  - [ ] Test reports and history
+- [x] **Response Testing**
+  - [x] Assertions for response validation
+  - [x] Test scripts (similar to pre-request scripts but for response validation)
+  - [x] Test results display
 
 ### Medium-term Goals
 

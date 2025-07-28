@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.fxmisc.flowless.VirtualizedScrollPane?>
+<?import org.fxmisc.richtext.CodeArea?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.ResponseTestScriptController"
+            prefHeight="400.0" prefWidth="600.0">
+    <SplitPane dividerPositions="0.75" orientation="HORIZONTAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+            <VBox fx:id="boxResponseTestCode" VBox.vgrow="ALWAYS">
+                <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS">
+                    <content>
+                        <CodeArea fx:id="codeResponseTestScript" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS"/>
+                    </content>
+                </VirtualizedScrollPane>
+            </VBox>
+            <VBox spacing="5">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+                <Label text="Snippets" style="-fx-font-weight: bold;"/>
+                <TitledPane text="Status Code Assertions" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Assert status code" onAction="#insertAssertStatusCodeSnippet" maxWidth="Infinity"/>
+                            <Button text="Assert status code range" onAction="#insertAssertStatusCodeRangeSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Header Assertions" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Assert header exists" onAction="#insertAssertHeaderExistsSnippet" maxWidth="Infinity"/>
+                            <Button text="Assert header value" onAction="#insertAssertHeaderValueSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Body Assertions" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Assert JSON property" onAction="#insertAssertJsonPropertySnippet" maxWidth="Infinity"/>
+                            <Button text="Assert JSON array length" onAction="#insertAssertJsonArrayLengthSnippet" maxWidth="Infinity"/>
+                            <Button text="Assert body contains" onAction="#insertAssertBodyContainsSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Variables" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Get a variable" onAction="#insertGetVariableSnippet" maxWidth="Infinity"/>
+                            <Button text="Set a variable" onAction="#insertSetVariableSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Logging" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Log message" onAction="#insertLogSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <TitledPane text="Examples" expanded="false">
+                    <content>
+                        <VBox spacing="5">
+                            <Button text="Complete example" onAction="#insertCompleteExampleSnippet" maxWidth="Infinity"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </VBox>
+        </items>
+    </SplitPane>
+</AnchorPane>

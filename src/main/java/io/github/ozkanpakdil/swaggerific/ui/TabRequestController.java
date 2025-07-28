@@ -7,6 +7,8 @@ import io.github.ozkanpakdil.swaggerific.ui.component.STextField;
 import io.github.ozkanpakdil.swaggerific.ui.component.TreeItemOperationLeaf;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController;
 import io.github.ozkanpakdil.swaggerific.ui.edit.PreRequestScriptController;
+import io.github.ozkanpakdil.swaggerific.ui.edit.ResponseTestScriptController;
+import io.github.ozkanpakdil.swaggerific.ui.model.TestResult;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.BracketHighlighter;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.JsonColorize;
@@ -85,6 +87,12 @@ public class TabRequestController extends TabPane {
 
     @FXML
     PreRequestScriptController preRequestScriptController;
+    
+    @FXML
+    ResponseTestScriptController responseTestScriptController;
+    
+    @FXML
+    TableView<TestResult> tableTestResults;
 
     JsonColorize jsonColorize = new JsonColorize();
 
@@ -352,7 +360,54 @@ public class TabRequestController extends TabPane {
                             targetUri, httpMethod, headers, body, queryParams, pathParams);
 
                     // Process response in the UI thread
-                    Platform.runLater(() -> mainController.processResponse(response));
+                    Platform.runLater(() -> {
+                        // First process the response in the UI
+                        mainController.processResponse(response);
+                        
+                        // Then execute response test script if available
+                        if (responseTestScriptController != null) {
+                            try {
+                                log.info("Executing response test script");
+                                
+                                // Clear previous test results
+                                if (tableTestResults != null) {
+                                    tableTestResults.getItems().clear();
+                                }
+                                
+                                // Execute the test script and get results
+                                responseTestScriptController.executeScript(response)
+                                    .thenAccept(results -> {
+                                        // Update test results table
+                                        if (tableTestResults != null && results != null) {
+                                            // Convert assertion results to TestResult objects
+                                            ObservableList<TestResult> testResults = FXCollections.observableArrayList();
+                                            results.forEach(result -> 
+                                                testResults.add(new TestResult(result.passed(), result.message()))
+                                            );
+                                            
+                                            // Update the table in the UI thread
+                                            Platform.runLater(() -> {
+                                                tableTestResults.setItems(testResults);
+                                                
+                                                // Count passed and failed tests
+                                                long passedCount = testResults.stream()
+                                                    .filter(TestResult::isPassed)
+                                                    .count();
+                                                
+                                                log.info("Test results: {} passed, {} failed", 
+                                                    passedCount, testResults.size() - passedCount);
+                                            });
+                                        }
+                                    })
+                                    .exceptionally(e -> {
+                                        log.error("Error executing response test script: {}", e.getMessage());
+                                        return null;
+                                    });
+                            } catch (Exception e) {
+                                log.error("Error executing response test script: {}", e.getMessage());
+                            }
+                        }
+                    });
                 } finally {
                     Platform.runLater(() -> {
                         mainController.setIsOffloading();
@@ -387,6 +442,18 @@ public class TabRequestController extends TabPane {
         if (preRequestScriptController != null && parent.environmentManager != null) {
             preRequestScriptController.setEnvironmentManager(parent.environmentManager);
             log.info("Set environment manager in pre-request script controller");
+        }
+        
+        // Set environment manager in response test script controller
+        if (responseTestScriptController != null && parent.environmentManager != null) {
+            responseTestScriptController.setEnvironmentManager(parent.environmentManager);
+            log.info("Set environment manager in response test script controller");
+        }
+        
+        // Initialize test results table
+        if (tableTestResults != null) {
+            tableTestResults.setItems(FXCollections.observableArrayList());
+            log.info("Initialized test results table");
         }
 
         // Add listener to txtAddress to load authorization settings when URL changes

@@ -93,6 +93,9 @@
                     <Tab text="Pre-request Script">
                         <fx:include fx:id="preRequestScript" source="edit/pre-request-script.fxml"/>
                     </Tab>
+                    <Tab text="Tests">
+                        <fx:include fx:id="responseTestScript" source="edit/response-test-script.fxml"/>
+                    </Tab>
                 </TabPane>
             </VBox>
         </AnchorPane>
@@ -109,6 +112,27 @@
                 <Tab fx:id="tabRaw" text="Raw">
                     <TextArea fx:id="codeRawJsonResponse" minHeight="-Infinity" minWidth="-Infinity" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                               AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
+                </Tab>
+                <Tab fx:id="tabTestResults" text="Test Results">
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="5" right="5" bottom="5" left="5"/>
+                        </padding>
+                        <TableView fx:id="tableTestResults" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn prefWidth="50" text="Status">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="status"/>
+                                    </cellValueFactory>
+                                </TableColumn>
+                                <TableColumn prefWidth="400" text="Assertion">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="message"/>
+                                    </cellValueFactory>
+                                </TableColumn>
+                            </columns>
+                        </TableView>
+                    </VBox>
                 </Tab>
             </TabPane>
         </AnchorPane>
