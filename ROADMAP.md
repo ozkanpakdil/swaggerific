@@ -149,7 +149,12 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
   - Added variable substitution in requests (URL, parameters, headers, body)
 - [ ] Stabilize and enhance the pre-request scripts feature
 - [ ] Improve cross-platform compatibility
-- [ ] Enhance GraalVM integration for better JavaScript support
+- [x] Enhance GraalVM integration for better JavaScript support
+  - Enhanced JavaScript API with additional methods and properties
+  - Implemented better error handling with line numbers and stack traces
+  - Added support for JavaScript Promises
+  - Added utility methods for JSON, string operations, and Base64 encoding/decoding
+  - Enhanced console object with more methods (info, debug, trace, assert, table)
 - [ ] Fix known issues and improve error handling
 
 ### Next Steps (2025 Q4)

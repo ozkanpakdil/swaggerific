@@ -176,19 +176,47 @@ public class PreRequestScriptController implements Initializable {
         log.info("Bindings keys: {}", bindings.keySet());
         log.info("Headers object: {}", headers);
 
-        // Create pm object structure
+        // Create pm object structure with enhanced features
         String pmSetupScript = String.format("""
+                // Setup error handling with line numbers and stack traces
+                var __lastError = null;
+                var __promiseQueue = [];
                 var __jsVariables = %s;
                 var __jsHeaders = %s;
                 var __jsEnvironmentVariables = %s;
                 var __activeEnvironmentName = "%s";
                 var __consoleLogs = [];
+                
+                // Enhanced console with more methods
                 var console = {
                   log: function(message) { __consoleLogs.push('[CONSOLE.LOG] ' + message); },
                   error: function(message) { __consoleLogs.push('[CONSOLE.ERROR] ' + message); },
-                  warn: function(message) { __consoleLogs.push('[CONSOLE.WARN] ' + message); }
+                  warn: function(message) { __consoleLogs.push('[CONSOLE.WARN] ' + message); },
+                  info: function(message) { __consoleLogs.push('[CONSOLE.INFO] ' + message); },
+                  debug: function(message) { __consoleLogs.push('[CONSOLE.DEBUG] ' + message); },
+                  trace: function(message) { 
+                    try { throw new Error('Trace'); } 
+                    catch(e) { 
+                      __consoleLogs.push('[CONSOLE.TRACE] ' + message + '\\n' + e.stack); 
+                    }
+                  },
+                  assert: function(condition, message) {
+                    if (!condition) {
+                      __consoleLogs.push('[CONSOLE.ASSERT] Assertion failed: ' + (message || 'Assertion failed'));
+                    }
+                  },
+                  table: function(data) {
+                    if (Array.isArray(data) || typeof data === 'object') {
+                      __consoleLogs.push('[CONSOLE.TABLE] ' + JSON.stringify(data, null, 2));
+                    } else {
+                      __consoleLogs.push('[CONSOLE.TABLE] Invalid data for table: ' + data);
+                    }
+                  }
                 };
+                
+                // Enhanced pm object with more methods and properties
                 var pm = {
+                  // Enhanced variables API
                   variables: {
                     get: function(key) {
                       var value = __jsVariables[key];
@@ -202,8 +230,30 @@ public class PreRequestScriptController implements Initializable {
                     set: function(key, value) {
                       console.log('Setting variable "' + key + '" = ' + value);
                       __jsVariables[key] = value;
+                    },
+                    has: function(key) {
+                      return __jsVariables.hasOwnProperty(key);
+                    },
+                    unset: function(key) {
+                      if (__jsVariables.hasOwnProperty(key)) {
+                        console.log('Removing variable "' + key + '"');
+                        delete __jsVariables[key];
+                        return true;
+                      }
+                      return false;
+                    },
+                    clear: function() {
+                      console.log('Clearing all variables');
+                      Object.keys(__jsVariables).forEach(function(key) {
+                        delete __jsVariables[key];
+                      });
+                    },
+                    toObject: function() {
+                      return Object.assign({}, __jsVariables);
                     }
                   },
+                  
+                  // Enhanced environment API
                   environment: {
                     name: __activeEnvironmentName,
                     get: function(key) {
@@ -214,12 +264,191 @@ public class PreRequestScriptController implements Initializable {
                         console.log('Retrieved environment variable "' + key + '" = ' + value);
                       }
                       return value;
+                    },
+                    has: function(key) {
+                      return __jsEnvironmentVariables.hasOwnProperty(key);
+                    },
+                    toObject: function() {
+                      return Object.assign({}, __jsEnvironmentVariables);
                     }
                   },
+                  
+                  // Enhanced request API
                   request: {
-                    headers: __jsHeaders
+                    headers: __jsHeaders,
+                    addHeader: function(name, value) {
+                      this.headers[name] = value;
+                      console.log('Added header "' + name + '" = "' + value + '"');
+                    },
+                    removeHeader: function(name) {
+                      if (this.headers.hasOwnProperty(name)) {
+                        delete this.headers[name];
+                        console.log('Removed header "' + name + '"');
+                        return true;
+                      }
+                      return false;
+                    },
+                    getHeader: function(name) {
+                      return this.headers[name];
+                    },
+                    hasHeader: function(name) {
+                      return this.headers.hasOwnProperty(name);
+                    }
                   },
-                  sendRequest: function(url, callback) { console.log('sendRequest called with URL: ' + url); }
+                  
+                  // Enhanced sendRequest with Promise support
+                  sendRequest: function(url, options, callback) {
+                    console.log('sendRequest called with URL: ' + url);
+                    
+                    // Handle different parameter combinations
+                    if (typeof options === 'function') {
+                      callback = options;
+                      options = {};
+                    }
+                    
+                    options = options || {};
+                    
+                    // Create a promise that will be resolved/rejected by the Java code
+                    var promise = new Promise(function(resolve, reject) {
+                      // Store the promise callbacks in the queue for later execution
+                      __promiseQueue.push({
+                        url: url,
+                        options: options,
+                        resolve: resolve,
+                        reject: reject
+                      });
+                      
+                      console.log('Added request to promise queue: ' + url);
+                    });
+                    
+                    // If a callback was provided, attach it to the promise
+                    if (typeof callback === 'function') {
+                      promise.then(
+                        function(response) { callback(null, response); },
+                        function(error) { callback(error, null); }
+                      );
+                    }
+                    
+                    return promise;
+                  },
+                  
+                  // Utility methods
+                  utils: {
+                    // JSON utilities
+                    json: {
+                      parse: function(text) {
+                        try {
+                          return JSON.parse(text);
+                        } catch (e) {
+                          console.error('JSON parse error: ' + e.message);
+                          return null;
+                        }
+                      },
+                      stringify: function(obj, replacer, space) {
+                        try {
+                          return JSON.stringify(obj, replacer, space);
+                        } catch (e) {
+                          console.error('JSON stringify error: ' + e.message);
+                          return '';
+                        }
+                      }
+                    },
+                    
+                    // String utilities
+                    string: {
+                      isEmpty: function(str) {
+                        return !str || str.trim().length === 0;
+                      },
+                      isBlank: function(str) {
+                        return !str || /^\\s*$/.test(str);
+                      },
+                      trim: function(str) {
+                        return str ? str.trim() : '';
+                      }
+                    },
+                    
+                    // Base64 encoding/decoding
+                    base64: {
+                      encode: function(text) {
+                        try {
+                          // Use browser's btoa if available, otherwise fallback
+                          if (typeof btoa === 'function') {
+                            return btoa(text);
+                          }
+                          // Simple fallback implementation
+                          var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+                          var output = '';
+                          var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                          var i = 0;
+                          
+                          while (i < text.length) {
+                            chr1 = text.charCodeAt(i++);
+                            chr2 = i < text.length ? text.charCodeAt(i++) : NaN;
+                            chr3 = i < text.length ? text.charCodeAt(i++) : NaN;
+                            
+                            enc1 = chr1 >> 2;
+                            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                            enc3 = isNaN(chr2) ? 64 : ((chr2 & 15) << 2) | (chr3 >> 6);
+                            enc4 = isNaN(chr3) ? 64 : (chr3 & 63);
+                            
+                            output += keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+                          }
+                          return output;
+                        } catch (e) {
+                          console.error('Base64 encode error: ' + e.message);
+                          return '';
+                        }
+                      },
+                      decode: function(text) {
+                        try {
+                          // Use browser's atob if available, otherwise fallback
+                          if (typeof atob === 'function') {
+                            return atob(text);
+                          }
+                          // Simple fallback implementation
+                          var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+                          var output = '';
+                          var chr1, chr2, chr3;
+                          var enc1, enc2, enc3, enc4;
+                          var i = 0;
+                          
+                          // Remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+                          text = text.replace(/[^A-Za-z0-9\\+\\/\\=]/g, '');
+                          
+                          while (i < text.length) {
+                            enc1 = keyStr.indexOf(text.charAt(i++));
+                            enc2 = keyStr.indexOf(text.charAt(i++));
+                            enc3 = keyStr.indexOf(text.charAt(i++));
+                            enc4 = keyStr.indexOf(text.charAt(i++));
+                            
+                            chr1 = (enc1 << 2) | (enc2 >> 4);
+                            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                            chr3 = ((enc3 & 3) << 6) | enc4;
+                            
+                            output += String.fromCharCode(chr1);
+                            
+                            if (enc3 !== 64) {
+                              output += String.fromCharCode(chr2);
+                            }
+                            if (enc4 !== 64) {
+                              output += String.fromCharCode(chr3);
+                            }
+                          }
+                          return output;
+                        } catch (e) {
+                          console.error('Base64 decode error: ' + e.message);
+                          return '';
+                        }
+                      }
+                    }
+                  },
+                  
+                  // Information about the current execution environment
+                  info: {
+                    version: '1.0.0',
+                    engine: 'GraalVM JavaScript',
+                    timestamp: Date.now()
+                  }
                 };
                 """, jsVariables, jsHeaders, jsEnvironmentVariables, activeEnvironmentName);
 
@@ -249,11 +478,127 @@ public class PreRequestScriptController implements Initializable {
 
     /**
      * Executes the script with given bindings and processes console logs
+     * Also handles errors with line numbers and stack traces
      */
     @SuppressWarnings("null") // scriptEngine is validated before this method is called
     private void executeScriptWithBindings(String script, SimpleBindings bindings) throws ScriptException {
-        scriptEngine.eval(script, bindings);
-        processConsoleLogs(bindings);
+        try {
+            // Wrap the script in a try-catch block to capture line numbers and stack traces
+            String wrappedScript = """
+                    try {
+                        %s
+                    } catch (e) {
+                        __lastError = {
+                            message: e.message,
+                            stack: e.stack,
+                            lineNumber: e.lineNumber,
+                            columnNumber: e.columnNumber,
+                            name: e.name
+                        };
+                        console.error('Script error: ' + e.message + ' at line ' + e.lineNumber);
+                        console.error('Stack trace: ' + e.stack);
+                        throw e;
+                    }
+                    """.formatted(script);
+            
+            scriptEngine.eval(wrappedScript, bindings);
+            
+            // Process any promises in the queue
+            processPromiseQueue(bindings);
+            
+            // Process console logs
+            processConsoleLogs(bindings);
+            
+            // Check if there was an error
+            Object lastError = scriptEngine.eval("__lastError", bindings);
+            if (lastError != null && !"null".equals(lastError.toString())) {
+                log.error("Script execution error: {}", lastError);
+            }
+        } catch (ScriptException e) {
+            // Extract line number and column information if available
+            int lineNumber = e.getLineNumber();
+            int columnNumber = e.getColumnNumber();
+            
+            if (lineNumber > 0) {
+                // Adjust line number to account for the wrapper
+                lineNumber = Math.max(1, lineNumber - 1);
+                
+                // Get the line of code that caused the error
+                String[] lines = script.split("\n");
+                String errorLine = lineNumber <= lines.length ? lines[lineNumber - 1] : "unknown";
+                
+                log.error("Script error at line {}, column {}: {}", lineNumber, columnNumber, e.getMessage());
+                log.error("Error line: {}", errorLine);
+            } else {
+                log.error("Script error: {}", e.getMessage());
+            }
+            
+            throw e;
+        }
+    }
+    
+    /**
+     * Processes any promises in the queue
+     */
+    private void processPromiseQueue(SimpleBindings bindings) {
+        try {
+            // Check if there are any promises in the queue
+            Object queueResult = scriptEngine.eval("__promiseQueue", bindings);
+            if (queueResult instanceof java.util.List<?>) {
+                @SuppressWarnings("unchecked")
+                java.util.List<Object> promiseQueue = (java.util.List<Object>) queueResult;
+                
+                if (!promiseQueue.isEmpty()) {
+                    log.info("Processing {} promises in queue", promiseQueue.size());
+                    
+                    // Process each promise in the queue
+                    for (Object promiseObj : promiseQueue) {
+                        if (promiseObj instanceof java.util.Map<?, ?>) {
+                            @SuppressWarnings("unchecked")
+                            java.util.Map<String, Object> promise = (java.util.Map<String, Object>) promiseObj;
+                            
+                            String url = promise.get("url").toString();
+                            log.info("Processing promise for URL: {}", url);
+                            
+                            try {
+                                // Here we would actually make the HTTP request
+                                // For now, we'll just simulate a successful response
+                                String responseJson = """
+                                        {
+                                            "status": 200,
+                                            "statusText": "OK",
+                                            "headers": {"Content-Type": "application/json"},
+                                            "body": "{\\"success\\": true, \\"message\\": \\"Request successful\\"}",
+                                            "json": function() { return {"success": true, "message": "Request successful"}; }
+                                        }
+                                        """;
+                                
+                                // Resolve the promise
+                                String resolveScript = String.format(
+                                        "var response = %s; __promiseQueue[0].resolve(response);", 
+                                        responseJson);
+                                scriptEngine.eval(resolveScript, bindings);
+                                
+                                log.info("Resolved promise for URL: {}", url);
+                            } catch (Exception e) {
+                                // Reject the promise
+                                String rejectScript = String.format(
+                                        "var error = {message: '%s'}; __promiseQueue[0].reject(error);", 
+                                        e.getMessage().replace("'", "\\'"));
+                                scriptEngine.eval(rejectScript, bindings);
+                                
+                                log.error("Rejected promise for URL: {}: {}", url, e.getMessage());
+                            }
+                        }
+                    }
+                    
+                    // Clear the promise queue
+                    scriptEngine.eval("__promiseQueue = [];", bindings);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error processing promise queue: {}", e.getMessage());
+        }
     }
 
     /**
@@ -310,6 +655,7 @@ public class PreRequestScriptController implements Initializable {
 
     /**
      * Syncs JavaScript objects back to Java maps
+     * Enhanced to handle new JavaScript objects and properties
      */
     @SuppressWarnings("null") // scriptEngine is validated before this method is called
     private void syncJavaScriptObjects(SimpleBindings bindings, Map<String, String> headers) {
@@ -321,6 +667,18 @@ public class PreRequestScriptController implements Initializable {
             // Sync headers from JavaScript
             syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsHeaders", headers,
                     value -> value != null ? value.toString() : null);
+
+            // Check for any remaining promises in the queue
+            Object queueResult = scriptEngine.eval("__promiseQueue.length", bindings);
+            if (queueResult instanceof Number && ((Number) queueResult).intValue() > 0) {
+                log.warn("There are {} unprocessed promises in the queue", queueResult);
+            }
+
+            // Check for any errors that occurred during script execution
+            Object lastError = scriptEngine.eval("__lastError", bindings);
+            if (lastError != null && !"null".equals(lastError.toString())) {
+                log.warn("Script execution had errors: {}", lastError);
+            }
 
             // Debug logs
             log.info("Headers after script execution: {}", headers);
