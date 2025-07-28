@@ -1,5 +1,7 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
+import io.github.ozkanpakdil.swaggerific.security.OAuth2Service;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +14,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Controller for the Authorization tab in the request panel.
@@ -28,7 +32,8 @@ public class AuthorizationController implements Initializable {
         NO_AUTH("No Auth"),
         API_KEY("API Key"),
         BASIC_AUTH("Basic Authentication"),
-        BEARER_TOKEN("Bearer Token");
+        BEARER_TOKEN("Bearer Token"),
+        OAUTH2("OAuth 2.0");
 
         private final String displayName;
 
@@ -63,8 +68,33 @@ public class AuthorizationController implements Initializable {
     private VBox bearerTokenContainer;
     @FXML
     private TextField tokenField;
+    
+    // OAuth 2.0 UI components
+    @FXML
+    private VBox oauth2Container;
+    @FXML
+    private ComboBox<OAuth2Service.GrantType> grantTypeComboBox;
+    @FXML
+    private TextField clientIdField;
+    @FXML
+    private PasswordField clientSecretField;
+    @FXML
+    private TextField tokenUrlField;
+    @FXML
+    private TextField authUrlField;
+    @FXML
+    private TextField redirectUriField;
+    @FXML
+    private TextField scopeField;
+    @FXML
+    private TextField accessTokenField;
+    @FXML
+    private TextField refreshTokenField;
 
     private AuthType currentAuthType = AuthType.NO_AUTH;
+    
+    // OAuth 2.0 service
+    private final OAuth2Service oauth2Service = new OAuth2Service();
 
     // Callback to be called when authorization settings change
     private Runnable onSettingsChangeCallback;
@@ -121,6 +151,69 @@ public class AuthorizationController implements Initializable {
     public TextField getTokenField() {
         return tokenField;
     }
+    
+    /**
+     * Gets the client ID field
+     */
+    public TextField getClientIdField() {
+        return clientIdField;
+    }
+    
+    /**
+     * Gets the client secret field
+     */
+    public PasswordField getClientSecretField() {
+        return clientSecretField;
+    }
+    
+    /**
+     * Gets the token URL field
+     */
+    public TextField getTokenUrlField() {
+        return tokenUrlField;
+    }
+    
+    /**
+     * Gets the authorization URL field
+     */
+    public TextField getAuthUrlField() {
+        return authUrlField;
+    }
+    
+    /**
+     * Gets the redirect URI field
+     */
+    public TextField getRedirectUriField() {
+        return redirectUriField;
+    }
+    
+    /**
+     * Gets the scope field
+     */
+    public TextField getScopeField() {
+        return scopeField;
+    }
+    
+    /**
+     * Gets the access token field
+     */
+    public TextField getAccessTokenField() {
+        return accessTokenField;
+    }
+    
+    /**
+     * Gets the refresh token field
+     */
+    public TextField getRefreshTokenField() {
+        return refreshTokenField;
+    }
+    
+    /**
+     * Gets the grant type combo box
+     */
+    public ComboBox<OAuth2Service.GrantType> getGrantTypeComboBox() {
+        return grantTypeComboBox;
+    }
 
     /**
      * Sets the current authentication type and updates the UI
@@ -139,6 +232,10 @@ public class AuthorizationController implements Initializable {
         authTypeComboBox.setItems(FXCollections.observableArrayList(AuthType.values()));
         authTypeComboBox.getSelectionModel().select(AuthType.NO_AUTH);
 
+        // Initialize the OAuth 2.0 grant type combo box
+        grantTypeComboBox.setItems(FXCollections.observableArrayList(OAuth2Service.GrantType.values()));
+        grantTypeComboBox.getSelectionModel().select(OAuth2Service.GrantType.AUTHORIZATION_CODE);
+
         // Add listener to show/hide appropriate fields based on selected auth type
         authTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -154,6 +251,25 @@ public class AuthorizationController implements Initializable {
         usernameField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
         tokenField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        
+        // Add listeners to OAuth 2.0 fields
+        clientIdField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        clientSecretField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        tokenUrlField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        authUrlField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        redirectUriField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        scopeField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        
+        // Add listener to grant type combo box
+        grantTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                updateOAuth2FieldsVisibility(newValue);
+                notifySettingsChanged();
+            }
+        });
+        
+        // Set default values for OAuth 2.0 fields
+        redirectUriField.setText("http://localhost:8080/callback");
     }
 
     /**
@@ -167,6 +283,8 @@ public class AuthorizationController implements Initializable {
         basicAuthContainer.setManaged(false);
         bearerTokenContainer.setVisible(false);
         bearerTokenContainer.setManaged(false);
+        oauth2Container.setVisible(false);
+        oauth2Container.setManaged(false);
 
         // Show the appropriate container based on auth type
         switch (authType) {
@@ -182,9 +300,56 @@ public class AuthorizationController implements Initializable {
                 bearerTokenContainer.setVisible(true);
                 bearerTokenContainer.setManaged(true);
                 break;
+            case OAUTH2:
+                oauth2Container.setVisible(true);
+                oauth2Container.setManaged(true);
+                // Update OAuth 2.0 fields visibility based on selected grant type
+                updateOAuth2FieldsVisibility(grantTypeComboBox.getSelectionModel().getSelectedItem());
+                break;
             case NO_AUTH:
             default:
                 // No additional fields needed for NO_AUTH
+                break;
+        }
+    }
+    
+    /**
+     * Updates the visibility of OAuth 2.0 fields based on the selected grant type
+     */
+    private void updateOAuth2FieldsVisibility(OAuth2Service.GrantType grantType) {
+        if (grantType == null) {
+            return;
+        }
+        
+        // Show/hide fields based on grant type
+        switch (grantType) {
+            case AUTHORIZATION_CODE:
+                // Show all fields for Authorization Code flow
+                authUrlField.setVisible(true);
+                authUrlField.setManaged(true);
+                redirectUriField.setVisible(true);
+                redirectUriField.setManaged(true);
+                break;
+            case CLIENT_CREDENTIALS:
+                // Hide authorization URL and redirect URI for Client Credentials flow
+                authUrlField.setVisible(false);
+                authUrlField.setManaged(false);
+                redirectUriField.setVisible(false);
+                redirectUriField.setManaged(false);
+                break;
+            case PASSWORD:
+                // Hide authorization URL and redirect URI for Password flow
+                authUrlField.setVisible(false);
+                authUrlField.setManaged(false);
+                redirectUriField.setVisible(false);
+                redirectUriField.setManaged(false);
+                break;
+            case REFRESH_TOKEN:
+                // Hide most fields for Refresh Token flow, only show token URL and refresh token
+                authUrlField.setVisible(false);
+                authUrlField.setManaged(false);
+                redirectUriField.setVisible(false);
+                redirectUriField.setManaged(false);
                 break;
         }
     }
@@ -227,6 +392,77 @@ public class AuthorizationController implements Initializable {
                 if (tokenField.getText() != null && !tokenField.getText().isEmpty()) {
                     headers.put("Authorization", "Bearer " + tokenField.getText());
                     log.info("Applied Bearer Token authentication");
+                }
+                break;
+            case OAUTH2:
+                // For OAuth 2.0, we need to get an access token first
+                if (accessTokenField.getText() != null && !accessTokenField.getText().isEmpty()) {
+                    // Use the existing access token if available
+                    headers.put("Authorization", "Bearer " + accessTokenField.getText());
+                    log.info("Applied OAuth 2.0 authentication with existing access token");
+                } else {
+                    // Get a new access token based on the grant type
+                    OAuth2Service.GrantType grantType = grantTypeComboBox.getSelectionModel().getSelectedItem();
+                    if (grantType != null && clientIdField.getText() != null && !clientIdField.getText().isEmpty() &&
+                        clientSecretField.getText() != null && !clientSecretField.getText().isEmpty() &&
+                        tokenUrlField.getText() != null && !tokenUrlField.getText().isEmpty()) {
+                        
+                        try {
+                            // Use a final variable for the access token to use in lambda
+                            final String[] accessTokenHolder = new String[1];
+                            
+                            switch (grantType) {
+                                case CLIENT_CREDENTIALS:
+                                    accessTokenHolder[0] = oauth2Service.getClientCredentialsToken(
+                                            tokenUrlField.getText(),
+                                            clientIdField.getText(),
+                                            clientSecretField.getText(),
+                                            scopeField.getText()
+                                    ).get(); // Blocking call for simplicity
+                                    break;
+                                case PASSWORD:
+                                    // For password grant, we use the username and password fields
+                                    if (usernameField.getText() != null && !usernameField.getText().isEmpty() &&
+                                        passwordField.getText() != null) {
+                                        accessTokenHolder[0] = oauth2Service.getPasswordToken(
+                                                tokenUrlField.getText(),
+                                                clientIdField.getText(),
+                                                clientSecretField.getText(),
+                                                usernameField.getText(),
+                                                passwordField.getText(),
+                                                scopeField.getText()
+                                        ).get(); // Blocking call for simplicity
+                                    }
+                                    break;
+                                case REFRESH_TOKEN:
+                                    // For refresh token grant, we use the refresh token field
+                                    if (refreshTokenField.getText() != null && !refreshTokenField.getText().isEmpty()) {
+                                        accessTokenHolder[0] = oauth2Service.refreshToken(
+                                                tokenUrlField.getText(),
+                                                clientIdField.getText(),
+                                                clientSecretField.getText(),
+                                                refreshTokenField.getText()
+                                        ).get(); // Blocking call for simplicity
+                                    }
+                                    break;
+                                case AUTHORIZATION_CODE:
+                                    // Authorization Code flow requires user interaction and is handled separately
+                                    log.warn("Authorization Code flow requires user interaction and cannot be applied automatically");
+                                    break;
+                            }
+                            
+                            if (accessTokenHolder[0] != null) {
+                                headers.put("Authorization", "Bearer " + accessTokenHolder[0]);
+                                
+                                // Update the access token field
+                                Platform.runLater(() -> accessTokenField.setText(accessTokenHolder[0]));
+                                
+                                log.info("Applied OAuth 2.0 authentication with new access token");
+                            }
+                        } catch (Exception e) {
+                            log.error("Failed to get OAuth 2.0 access token", e);
+                        }
+                    }
                 }
                 break;
             case NO_AUTH:

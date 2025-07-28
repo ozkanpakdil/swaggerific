@@ -1,6 +1,7 @@
 package io.github.ozkanpakdil.swaggerific.data;
 
 import io.github.ozkanpakdil.swaggerific.security.CredentialEncryption;
+import io.github.ozkanpakdil.swaggerific.security.OAuth2Service;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController;
 import io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController.AuthType;
 
@@ -38,12 +39,30 @@ public class AuthorizationSettings implements Serializable {
         private transient String username;
         private transient String password;
         private transient String bearerToken;
+        
+        // OAuth 2.0 specific fields
+        private transient String clientId;
+        private transient String clientSecret;
+        private transient String tokenUrl;
+        private transient String authorizationUrl;
+        private transient String redirectUri;
+        private transient String scope;
+        private transient String accessToken;
+        private transient String refreshToken;
 
         // Encrypted versions of sensitive fields for serialization
         private String encryptedApiKeyValue;
         private String encryptedUsername;
         private String encryptedPassword;
         private String encryptedBearerToken;
+        private String encryptedClientId;
+        private String encryptedClientSecret;
+        private String encryptedTokenUrl;
+        private String encryptedAuthorizationUrl;
+        private String encryptedRedirectUri;
+        private String encryptedScope;
+        private String encryptedAccessToken;
+        private String encryptedRefreshToken;
 
         @Serial
         private void writeObject(ObjectOutputStream out) throws IOException {
@@ -52,6 +71,16 @@ public class AuthorizationSettings implements Serializable {
             this.encryptedUsername = CredentialEncryption.encrypt(username);
             this.encryptedPassword = CredentialEncryption.encrypt(password);
             this.encryptedBearerToken = CredentialEncryption.encrypt(bearerToken);
+            
+            // Encrypt OAuth 2.0 sensitive data
+            this.encryptedClientId = CredentialEncryption.encrypt(clientId);
+            this.encryptedClientSecret = CredentialEncryption.encrypt(clientSecret);
+            this.encryptedTokenUrl = CredentialEncryption.encrypt(tokenUrl);
+            this.encryptedAuthorizationUrl = CredentialEncryption.encrypt(authorizationUrl);
+            this.encryptedRedirectUri = CredentialEncryption.encrypt(redirectUri);
+            this.encryptedScope = CredentialEncryption.encrypt(scope);
+            this.encryptedAccessToken = CredentialEncryption.encrypt(accessToken);
+            this.encryptedRefreshToken = CredentialEncryption.encrypt(refreshToken);
 
             out.defaultWriteObject();
             out.writeObject(apiKeyName); // apiKeyName is not sensitive, but still needs manual writing due to transient
@@ -69,6 +98,16 @@ public class AuthorizationSettings implements Serializable {
             this.username = CredentialEncryption.decrypt(encryptedUsername);
             this.password = CredentialEncryption.decrypt(encryptedPassword);
             this.bearerToken = CredentialEncryption.decrypt(encryptedBearerToken);
+            
+            // Decrypt OAuth 2.0 sensitive data
+            this.clientId = CredentialEncryption.decrypt(encryptedClientId);
+            this.clientSecret = CredentialEncryption.decrypt(encryptedClientSecret);
+            this.tokenUrl = CredentialEncryption.decrypt(encryptedTokenUrl);
+            this.authorizationUrl = CredentialEncryption.decrypt(encryptedAuthorizationUrl);
+            this.redirectUri = CredentialEncryption.decrypt(encryptedRedirectUri);
+            this.scope = CredentialEncryption.decrypt(encryptedScope);
+            this.accessToken = CredentialEncryption.decrypt(encryptedAccessToken);
+            this.refreshToken = CredentialEncryption.decrypt(encryptedRefreshToken);
         }
 
         public AuthSetting() {
@@ -126,6 +165,72 @@ public class AuthorizationSettings implements Serializable {
         public void setBearerToken(String bearerToken) {
             this.bearerToken = bearerToken;
         }
+        
+        // OAuth 2.0 getters and setters
+        
+        public String getClientId() {
+            return clientId;
+        }
+        
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+        
+        public String getClientSecret() {
+            return clientSecret;
+        }
+        
+        public void setClientSecret(String clientSecret) {
+            this.clientSecret = clientSecret;
+        }
+        
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+        
+        public void setTokenUrl(String tokenUrl) {
+            this.tokenUrl = tokenUrl;
+        }
+        
+        public String getAuthorizationUrl() {
+            return authorizationUrl;
+        }
+        
+        public void setAuthorizationUrl(String authorizationUrl) {
+            this.authorizationUrl = authorizationUrl;
+        }
+        
+        public String getRedirectUri() {
+            return redirectUri;
+        }
+        
+        public void setRedirectUri(String redirectUri) {
+            this.redirectUri = redirectUri;
+        }
+        
+        public String getScope() {
+            return scope;
+        }
+        
+        public void setScope(String scope) {
+            this.scope = scope;
+        }
+        
+        public String getAccessToken() {
+            return accessToken;
+        }
+        
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+        
+        public String getRefreshToken() {
+            return refreshToken;
+        }
+        
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
     }
     
     /**
@@ -163,6 +268,17 @@ public class AuthorizationSettings implements Serializable {
                 break;
             case BEARER_TOKEN:
                 setting.setBearerToken(authController.getTokenField().getText());
+                break;
+            case OAUTH2:
+                // Save OAuth 2.0 settings
+                setting.setClientId(authController.getClientIdField().getText());
+                setting.setClientSecret(authController.getClientSecretField().getText());
+                setting.setTokenUrl(authController.getTokenUrlField().getText());
+                setting.setAuthorizationUrl(authController.getAuthUrlField().getText());
+                setting.setRedirectUri(authController.getRedirectUriField().getText());
+                setting.setScope(authController.getScopeField().getText());
+                setting.setAccessToken(authController.getAccessTokenField().getText());
+                setting.setRefreshToken(authController.getRefreshTokenField().getText());
                 break;
             case NO_AUTH:
             default:
@@ -206,6 +322,23 @@ public class AuthorizationSettings implements Serializable {
                 break;
             case BEARER_TOKEN:
                 authController.getTokenField().setText(setting.getBearerToken());
+                break;
+            case OAUTH2:
+                // Apply OAuth 2.0 settings
+                authController.getClientIdField().setText(setting.getClientId());
+                authController.getClientSecretField().setText(setting.getClientSecret());
+                authController.getTokenUrlField().setText(setting.getTokenUrl());
+                authController.getAuthUrlField().setText(setting.getAuthorizationUrl());
+                authController.getRedirectUriField().setText(setting.getRedirectUri());
+                authController.getScopeField().setText(setting.getScope());
+                authController.getAccessTokenField().setText(setting.getAccessToken());
+                authController.getRefreshTokenField().setText(setting.getRefreshToken());
+                
+                // Set the grant type if it was saved
+                if (setting.getClientId() != null && !setting.getClientId().isEmpty()) {
+                    // Default to CLIENT_CREDENTIALS if we have a client ID but no specific grant type saved
+                    authController.getGrantTypeComboBox().getSelectionModel().select(OAuth2Service.GrantType.CLIENT_CREDENTIALS);
+                }
                 break;
             case NO_AUTH:
             default:

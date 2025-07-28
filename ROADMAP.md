@@ -74,8 +74,12 @@ To become the best open-source UI for HTTP utilities, offering a modern, feature
 
 ### Short-term Goals
 
-- [ ] **Enhanced Authentication**
-  - [ ] OAuth 2.0 flow support
+- [x] **Enhanced Authentication**
+  - [x] OAuth 2.0 flow support
+    - Added OAuth2Service class for handling OAuth 2.0 authentication flows
+    - Implemented support for Authorization Code, Client Credentials, Password, and Refresh Token flows
+    - Added UI for configuring OAuth 2.0 settings
+    - Added token caching to avoid unnecessary token requests
   - [ ] JWT token handling
   - [ ] API key management
 

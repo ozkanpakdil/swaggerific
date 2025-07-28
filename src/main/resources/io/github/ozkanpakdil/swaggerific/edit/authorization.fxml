@@ -43,6 +43,36 @@
                 <Label text="Token:" />
                 <TextField fx:id="tokenField" promptText="Enter bearer token" maxWidth="Infinity" />
             </VBox>
+            
+            <!-- OAuth 2.0 Authentication -->
+            <VBox fx:id="oauth2Container" spacing="10" visible="false" managed="false" maxWidth="Infinity">
+                <Label text="Grant Type:" />
+                <ComboBox fx:id="grantTypeComboBox" prefWidth="200" maxWidth="Infinity" />
+                
+                <Label text="Client ID:" />
+                <TextField fx:id="clientIdField" promptText="Enter client ID" maxWidth="Infinity" />
+                
+                <Label text="Client Secret:" />
+                <PasswordField fx:id="clientSecretField" promptText="Enter client secret" maxWidth="Infinity" />
+                
+                <Label text="Token URL:" />
+                <TextField fx:id="tokenUrlField" promptText="Enter token URL" maxWidth="Infinity" />
+                
+                <Label text="Authorization URL:" />
+                <TextField fx:id="authUrlField" promptText="Enter authorization URL" maxWidth="Infinity" />
+                
+                <Label text="Redirect URI:" />
+                <TextField fx:id="redirectUriField" promptText="Enter redirect URI" maxWidth="Infinity" />
+                
+                <Label text="Scope:" />
+                <TextField fx:id="scopeField" promptText="Enter scope (space-separated)" maxWidth="Infinity" />
+                
+                <Label text="Access Token:" />
+                <TextField fx:id="accessTokenField" promptText="Access token will appear here" maxWidth="Infinity" editable="false" />
+                
+                <Label text="Refresh Token:" />
+                <TextField fx:id="refreshTokenField" promptText="Refresh token will appear here" maxWidth="Infinity" editable="false" />
+            </VBox>
         </VBox>
     </ScrollPane>
 </AnchorPane>
