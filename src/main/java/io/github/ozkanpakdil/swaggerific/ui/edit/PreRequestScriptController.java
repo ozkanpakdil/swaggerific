@@ -52,13 +52,16 @@ public class PreRequestScriptController implements Initializable {
             }
         }
 
-        log.error("No JavaScript engine found! Available engines:");
-        scriptEngineManager.getEngineFactories().forEach(factory -> log.error(
-                "  Engine: {} ({}), Language: {} ({}), Extensions: {}",
-                factory.getEngineName(), factory.getEngineVersion(),
-                factory.getLanguageName(), factory.getLanguageVersion(),
-                factory.getExtensions()));
-
+        try {
+            log.error("No JavaScript engine found! Available engines:");
+            scriptEngineManager.getEngineFactories().forEach(factory -> log.error(
+                    "  Engine: {} ({}), Language: {} ({}), Extensions: {}",
+                    factory.getEngineName(), factory.getEngineVersion(),
+                    factory.getLanguageName(), factory.getLanguageVersion(),
+                    factory.getExtensions()));
+        } catch (Exception e) {
+            log.error("Error initializing JavaScript engine: {}", e.getMessage(), e);
+        }
         return null;
     }
 

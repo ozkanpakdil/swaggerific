@@ -64,11 +64,6 @@ public class ResponseTestScriptController implements Initializable {
         }
 
         log.error("No JavaScript engine found! Available engines:");
-        scriptEngineManager.getEngineFactories().forEach(factory -> log.error(
-                "  Engine: {} ({}), Language: {} ({}), Extensions: {}",
-                factory.getEngineName(), factory.getEngineVersion(),
-                factory.getLanguageName(), factory.getLanguageVersion(),
-                factory.getExtensions()));
 
         return null;
     }

@@ -30,6 +30,9 @@
   "name":"[Ljava.lang.String;"
 },
 {
+  "name":"[Ljava.util.HashMap$Node;"
+},
+{
   "name":"[Ljavafx.collections.transformation.SortedList$Element;"
 },
 {
@@ -125,6 +128,10 @@
 },
 {
   "name":"com.sun.crypto.provider.PBES2Parameters$General",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.PBKDF2Core$HmacSHA256",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -285,6 +292,19 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"io.github.ozkanpakdil.swaggerific.data.SwaggerModal",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setBasePath","parameterTypes":["java.lang.String"] }, 
+    {"name":"setHost","parameterTypes":["java.lang.String"] }, 
+    {"name":"setSchemes","parameterTypes":["java.lang.String[]"] }, 
+    {"name":"setSwagger","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
   "name":"io.github.ozkanpakdil.swaggerific.model.ShortcutModel",
   "methods":[
     {"name":"actionProperty","parameterTypes":[] }, 
@@ -301,7 +321,10 @@
   "name":"io.github.ozkanpakdil.swaggerific.ui.MainController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"treeOnClick","parameterTypes":["javafx.scene.input.MouseEvent"] }
+  ]
 },
 {
   "name":"io.github.ozkanpakdil.swaggerific.ui.MenuController",
@@ -311,6 +334,7 @@
     {"name":"<init>","parameterTypes":[] }, 
     {"name":"handleAboutAction","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"menuFileExit","parameterTypes":["javafx.event.ActionEvent"] }, 
+    {"name":"menuFileOpenSwagger","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"openDebugConsole","parameterTypes":[] }, 
     {"name":"openEnvironmentVariables","parameterTypes":["javafx.event.ActionEvent"] }, 
     {"name":"openSettings","parameterTypes":["javafx.event.ActionEvent"] }, 
@@ -450,10 +474,199 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"io.swagger.v3.core.jackson.mixin.ComponentsMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.ExampleMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
   "name":"io.swagger.v3.core.jackson.mixin.ExtensionsMixin",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.InfoMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.LicenseMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.MediaTypeMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.OpenAPIMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"io.swagger.v3.core.jackson.mixin.OperationMixin",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.Components",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.ExternalDocumentation",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setUrl","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.OpenAPI",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[
+    {"name":"addExtension","parameterTypes":["java.lang.String","java.lang.Object"] }, 
+    {"name":"setExternalDocs","parameterTypes":["io.swagger.v3.oas.models.ExternalDocumentation"] }, 
+    {"name":"setInfo","parameterTypes":["io.swagger.v3.oas.models.info.Info"] }, 
+    {"name":"setPaths","parameterTypes":["io.swagger.v3.oas.models.Paths"] }, 
+    {"name":"setTags","parameterTypes":["java.util.List"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.Operation",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"addExtension","parameterTypes":["java.lang.String","java.lang.Object"] }, 
+    {"name":"setDeprecated","parameterTypes":["java.lang.Boolean"] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setOperationId","parameterTypes":["java.lang.String"] }, 
+    {"name":"setParameters","parameterTypes":["java.util.List"] }, 
+    {"name":"setResponses","parameterTypes":["io.swagger.v3.oas.models.responses.ApiResponses"] }, 
+    {"name":"setSecurity","parameterTypes":["java.util.List"] }, 
+    {"name":"setSummary","parameterTypes":["java.lang.String"] }, 
+    {"name":"setTags","parameterTypes":["java.util.List"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.PathItem",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setDelete","parameterTypes":["io.swagger.v3.oas.models.Operation"] }, 
+    {"name":"setGet","parameterTypes":["io.swagger.v3.oas.models.Operation"] }, 
+    {"name":"setPost","parameterTypes":["io.swagger.v3.oas.models.Operation"] }, 
+    {"name":"setPut","parameterTypes":["io.swagger.v3.oas.models.Operation"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.examples.Example",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.headers.Header",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"addExtension","parameterTypes":["java.lang.String","java.lang.Object"] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.info.Contact",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setEmail","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.info.Info",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setContact","parameterTypes":["io.swagger.v3.oas.models.info.Contact"] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setLicense","parameterTypes":["io.swagger.v3.oas.models.info.License"] }, 
+    {"name":"setTermsOfService","parameterTypes":["java.lang.String"] }, 
+    {"name":"setTitle","parameterTypes":["java.lang.String"] }, 
+    {"name":"setVersion","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.info.License",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setUrl","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.links.Link",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.media.Content",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.media.Encoding",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.media.MediaType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.parameters.HeaderParameter",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getIn","parameterTypes":[] }, 
+    {"name":"setIn","parameterTypes":["java.lang.String"] }
+  ]
 },
 {
   "name":"io.swagger.v3.oas.models.parameters.Parameter",
@@ -461,6 +674,7 @@
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
   "methods":[
+    {"name":"addExtension","parameterTypes":["java.lang.String","java.lang.Object"] }, 
     {"name":"get$ref","parameterTypes":[] }, 
     {"name":"getAllowEmptyValue","parameterTypes":[] }, 
     {"name":"getAllowReserved","parameterTypes":[] }, 
@@ -475,13 +689,95 @@
     {"name":"getName","parameterTypes":[] }, 
     {"name":"getRequired","parameterTypes":[] }, 
     {"name":"getSchema","parameterTypes":[] }, 
-    {"name":"getStyle","parameterTypes":[] }
+    {"name":"getStyle","parameterTypes":[] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setName","parameterTypes":["java.lang.String"] }, 
+    {"name":"setRequired","parameterTypes":["java.lang.Boolean"] }
   ]
 },
 {
   "name":"io.swagger.v3.oas.models.parameters.Parameter$StyleEnum",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"io.swagger.v3.oas.models.parameters.PathParameter",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getIn","parameterTypes":[] }, 
+    {"name":"getRequired","parameterTypes":[] }, 
+    {"name":"setIn","parameterTypes":["java.lang.String"] }, 
+    {"name":"setRequired","parameterTypes":["java.lang.Boolean"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.parameters.QueryParameter",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"getIn","parameterTypes":[] }, 
+    {"name":"setIn","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.parameters.RequestBody",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.responses.ApiResponse",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"addExtension","parameterTypes":["java.lang.String","java.lang.Object"] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setHeaders","parameterTypes":["java.util.Map"] }
+  ]
+},
+{
+  "name":"io.swagger.v3.oas.models.security.SecurityRequirement",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"io.swagger.v3.oas.models.servers.Server",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.servers.ServerVariable",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.servers.ServerVariables",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"io.swagger.v3.oas.models.tags.Tag",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"setDescription","parameterTypes":["java.lang.String"] }, 
+    {"name":"setExternalDocs","parameterTypes":["io.swagger.v3.oas.models.ExternalDocumentation"] }, 
+    {"name":"setName","parameterTypes":["java.lang.String"] }
+  ]
 },
 {
   "name":"java.io.FilePermission"
@@ -500,6 +796,10 @@
     {"name":"forName","parameterTypes":["java.lang.Module","java.lang.String"] }, 
     {"name":"getModule","parameterTypes":[] }
   ]
+},
+{
+  "name":"java.lang.Cloneable",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"java.lang.Iterable",
@@ -582,11 +882,21 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"java.util.AbstractMap",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"java.util.Collection",
   "queryAllDeclaredMethods":true
 },
 {
   "name":"java.util.Date"
+},
+{
+  "name":"java.util.HashMap",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"java.util.ImmutableCollections$AbstractImmutableCollection",
@@ -605,7 +915,16 @@
   "queryAllDeclaredConstructors":true
 },
 {
+  "name":"java.util.LinkedHashMap",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"java.util.List",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"java.util.Map",
   "queryAllDeclaredMethods":true
 },
 {
@@ -897,6 +1216,7 @@
   "name":"javafx.scene.control.TextInputControl",
   "queryAllDeclaredMethods":true,
   "methods":[
+    {"name":"setEditable","parameterTypes":["boolean"] }, 
     {"name":"setPromptText","parameterTypes":["java.lang.String"] }, 
     {"name":"setText","parameterTypes":["java.lang.String"] }
   ]

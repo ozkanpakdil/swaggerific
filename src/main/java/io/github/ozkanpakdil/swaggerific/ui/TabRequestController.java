@@ -87,18 +87,18 @@ public class TabRequestController extends TabPane {
 
     @FXML
     PreRequestScriptController preRequestScriptController;
-    
+
     @FXML
     ResponseTestScriptController responseTestScriptController;
-    
+
     @FXML
     TableView<TestResult> tableTestResults;
 
     JsonColorize jsonColorize = new JsonColorize();
 
     /**
-     * Saves the current authorization settings for the current URL.
-     * This method is called when the authorization settings change.
+     * Saves the current authorization settings for the current URL. This method is called when the authorization settings
+     * change.
      */
     private void saveAuthorizationSettings() {
         if (mainController != null && authorizationController != null && txtAddress != null) {
@@ -111,9 +111,8 @@ public class TabRequestController extends TabPane {
     }
 
     /**
-     * Loads authorization settings for the specified URL.
-     * This method is called when the URL changes.
-     * 
+     * Loads authorization settings for the specified URL. This method is called when the URL changes.
+     *
      * @param url the URL to load settings for
      */
     private void loadAuthorizationSettings(String url) {
@@ -124,6 +123,7 @@ public class TabRequestController extends TabPane {
             }
         }
     }
+
     XmlColorizer xmlColorizer = new XmlColorizer();
 
     private void addTableRowIfFulfilled() {
@@ -254,7 +254,7 @@ public class TabRequestController extends TabPane {
                         resolvedUri = preRequestScriptController.resolveEnvironmentVariables(targetUri);
                         log.info("Resolved URI: {}", resolvedUri);
                     }
-                    
+
                     // Extract query and path parameters from UI components
                     Map<String, String> queryParams = new HashMap<>();
                     Map<String, String> pathParams = new HashMap<>();
@@ -269,7 +269,7 @@ public class TabRequestController extends TabPane {
                                 if (preRequestScriptController != null) {
                                     paramValue = preRequestScriptController.resolveEnvironmentVariables(paramValue);
                                 }
-                                
+
                                 if ("query".equals(node.getIn())) {
                                     queryParams.put(node.getParamName(), paramValue);
                                 } else if ("path".equals(node.getIn())) {
@@ -290,7 +290,7 @@ public class TabRequestController extends TabPane {
                                     if (preRequestScriptController != null) {
                                         paramValue = preRequestScriptController.resolveEnvironmentVariables(paramValue);
                                     }
-                                    
+
                                     if ("query".equals(paramInfo.getIn())) {
                                         queryParams.put(paramInfo.getParamName(), paramValue);
                                     } else if ("path".equals(paramInfo.getIn())) {
@@ -303,17 +303,17 @@ public class TabRequestController extends TabPane {
                     Map<String, String> headers = new HashMap<>();
                     tableHeaders.getItems().forEach(item -> {
                         if (item instanceof RequestHeader header) {
-                            if (Boolean.TRUE.equals(header.getChecked()) && 
-                                header.getName() != null && !header.getName().isEmpty()) {
+                            if (Boolean.TRUE.equals(header.getChecked()) &&
+                                    header.getName() != null && !header.getName().isEmpty()) {
                                 String headerName = header.getName();
                                 String headerValue = header.getValue();
-                                
+
                                 // Resolve environment variables in header name and value
                                 if (preRequestScriptController != null) {
                                     headerName = preRequestScriptController.resolveEnvironmentVariables(headerName);
                                     headerValue = preRequestScriptController.resolveEnvironmentVariables(headerValue);
                                 }
-                                
+
                                 headers.put(headerName, headerValue);
                             }
                         }
@@ -334,7 +334,9 @@ public class TabRequestController extends TabPane {
                         try {
                             log.info("Executing pre-request script");
                             // Execute script and wait for it to complete
-                            preRequestScriptController.executeScript(headers).get();
+                            if (preRequestScriptController.getScript() != null && !preRequestScriptController.getScript()
+                                    .isEmpty())
+                                preRequestScriptController.executeScript(headers).get();
                             log.info("Headers after executing pre-request script: {}", headers);
                         } catch (Exception e) {
                             log.error("Error executing pre-request script: {}", e.getMessage());
@@ -363,46 +365,47 @@ public class TabRequestController extends TabPane {
                     Platform.runLater(() -> {
                         // First process the response in the UI
                         mainController.processResponse(response);
-                        
+
                         // Then execute response test script if available
-                        if (responseTestScriptController != null) {
+                        if (responseTestScriptController != null && responseTestScriptController.getScript() != null &&
+                                !responseTestScriptController.getScript().isEmpty()) {
                             try {
                                 log.info("Executing response test script");
-                                
+
                                 // Clear previous test results
                                 if (tableTestResults != null) {
                                     tableTestResults.getItems().clear();
                                 }
-                                
+
                                 // Execute the test script and get results
                                 responseTestScriptController.executeScript(response)
-                                    .thenAccept(results -> {
-                                        // Update test results table
-                                        if (tableTestResults != null && results != null) {
-                                            // Convert assertion results to TestResult objects
-                                            ObservableList<TestResult> testResults = FXCollections.observableArrayList();
-                                            results.forEach(result -> 
-                                                testResults.add(new TestResult(result.passed(), result.message()))
-                                            );
-                                            
-                                            // Update the table in the UI thread
-                                            Platform.runLater(() -> {
-                                                tableTestResults.setItems(testResults);
-                                                
-                                                // Count passed and failed tests
-                                                long passedCount = testResults.stream()
-                                                    .filter(TestResult::isPassed)
-                                                    .count();
-                                                
-                                                log.info("Test results: {} passed, {} failed", 
-                                                    passedCount, testResults.size() - passedCount);
-                                            });
-                                        }
-                                    })
-                                    .exceptionally(e -> {
-                                        log.error("Error executing response test script: {}", e.getMessage());
-                                        return null;
-                                    });
+                                        .thenAccept(results -> {
+                                            // Update test results table
+                                            if (tableTestResults != null && results != null) {
+                                                // Convert assertion results to TestResult objects
+                                                ObservableList<TestResult> testResults = FXCollections.observableArrayList();
+                                                results.forEach(result ->
+                                                        testResults.add(new TestResult(result.passed(), result.message()))
+                                                );
+
+                                                // Update the table in the UI thread
+                                                Platform.runLater(() -> {
+                                                    tableTestResults.setItems(testResults);
+
+                                                    // Count passed and failed tests
+                                                    long passedCount = testResults.stream()
+                                                            .filter(TestResult::isPassed)
+                                                            .count();
+
+                                                    log.info("Test results: {} passed, {} failed",
+                                                            passedCount, testResults.size() - passedCount);
+                                                });
+                                            }
+                                        })
+                                        .exceptionally(e -> {
+                                            log.error("Error executing response test script: {}", e.getMessage());
+                                            return null;
+                                        });
                             } catch (Exception e) {
                                 log.error("Error executing response test script: {}", e.getMessage());
                             }
@@ -437,19 +440,19 @@ public class TabRequestController extends TabPane {
             // Load authorization settings for the current URL
             loadAuthorizationSettings(uri);
         }
-    
+
         // Set environment manager in pre-request script controller
         if (preRequestScriptController != null && parent.environmentManager != null) {
             preRequestScriptController.setEnvironmentManager(parent.environmentManager);
             log.info("Set environment manager in pre-request script controller");
         }
-        
+
         // Set environment manager in response test script controller
         if (responseTestScriptController != null && parent.environmentManager != null) {
             responseTestScriptController.setEnvironmentManager(parent.environmentManager);
             log.info("Set environment manager in response test script controller");
         }
-        
+
         // Initialize test results table
         if (tableTestResults != null) {
             tableTestResults.setItems(FXCollections.observableArrayList());

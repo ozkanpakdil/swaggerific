@@ -1,0 +1,76 @@
+[
+  {
+    "id": 9,
+    "category": {
+      "id": 0,
+      "name": "cats"
+    },
+    "name": "King Kong",
+    "photoUrls": [
+      "https://example.com/cat.jpg"
+    ],
+    "tags": [
+      {
+        "id": 0,
+        "name": "string"
+      }
+    ],
+    "status": "sold"
+  },
+  {
+    "id": 1111,
+    "category": {
+      "id": 1111,
+      "name": ""
+    },
+    "name": "doggie",
+    "photoUrls": [
+      "https://example.com/dog.jpg"
+    ],
+    "tags": [
+      {
+        "id": 0,
+        "name": "ToToToTo"
+      }
+    ],
+    "status": "sold"
+  },
+  {
+    "id": 922337203685951900,
+    "name": "Chapa (mtkp-edition)",
+    "photoUrls": [
+      "./doggy.png"
+    ],
+    "tags": [],
+    "status": "sold"
+  },
+  {
+    "id": 7574746,
+    "category": {
+      "id": 1,
+      "name": "Dog"
+    },
+    "name": "Hardyyy",
+    "photoUrls": [
+      "https://example.com/dog2.jpg"
+    ],
+    "tags": [
+      {
+        "id": 7805,
+        "name": "Mainecoon"
+      }
+    ],
+    "status": "sold"
+  },
+  {
+    "id": 1,
+    "category": {
+      "id": 1,
+      "name": "cat"
+    },
+    "name": "dog",
+    "photoUrls": [],
+    "tags": [],
+    "status": "sold"
+  }
+]

@@ -41,6 +41,10 @@
       ]
     }, 
     {
+      "name":"com.sun.org.apache.xerces.internal.impl.msg.XMLMessages",
+      "locales":["und"]
+    }, 
+    {
       "name":"com/sun/glass/ui/win/themes",
       "locales":[
         "", 

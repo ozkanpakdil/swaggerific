@@ -27,9 +27,7 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>22.3.3</graalvm.version>
-        <truffle.version>22.3.3</truffle.version>
-        <polyglot-version>23.1.7</polyglot-version>
+        <graalvm.version>22.1.0</graalvm.version>
     </properties>
 
     <dependencyManagement>
@@ -310,11 +308,11 @@
             <artifactId>graal-sdk</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.graalvm.truffle</groupId>
             <artifactId>truffle-api</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
@@ -324,11 +322,7 @@
             <groupId>org.graalvm.js</groupId>
             <artifactId>js</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>polyglot</artifactId>
-            <version>${polyglot-version}</version>
+            <type>pom</type>
         </dependency>
 
     </dependencies>
@@ -734,15 +728,9 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.graalvm.polyglot</groupId>
-                                    <artifactId>polyglot</artifactId>
-                                    <version>${polyglot-version}</version>
-                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>org.graalvm.truffle</groupId>
                                     <artifactId>truffle-api</artifactId>
-                                    <version>${truffle.version}</version>
+                                    <version>${graalvm.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

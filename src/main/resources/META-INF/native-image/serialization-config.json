@@ -4,6 +4,9 @@
       "name":"io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings"
     },
     {
+      "name":"io.github.ozkanpakdil.swaggerific.data.AuthorizationSettings$AuthSetting"
+    },
+    {
       "name":"io.github.ozkanpakdil.swaggerific.data.Environment"
     },
     {
@@ -11,6 +14,12 @@
     },
     {
       "name":"io.github.ozkanpakdil.swaggerific.data.TreeItemSerialisationWrapper"
+    },
+    {
+      "name":"io.github.ozkanpakdil.swaggerific.ui.edit.AuthorizationController$AuthType"
+    },
+    {
+      "name":"java.lang.Enum"
     },
     {
       "name":"java.lang.String"

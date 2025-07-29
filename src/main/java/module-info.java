@@ -32,14 +32,15 @@ module swaggerific {
     requires java.scripting;
 
     // GraalVM JavaScript engine for script execution
-    requires org.graalvm.sdk;
-    requires org.graalvm.truffle;
+//    requires org.graalvm.sdk;
+//    requires org.graalvm.truffle;
+//    requires org.graalvm.word;
     // Note: org.graalvm.js module causes resolution issues with org.graalvm.truffle
     // Using ScriptEngine approach instead of direct module requirement
 //	requires org.graalvm.js.engine;
 
     // GraalVM native image support for substitutions
-    //requires static org.graalvm.nativeimage;
+//    requires static org.graalvm.nativeimage;
 
     //    requires swagger.parser.core;
     //    requires swagger.parser;
