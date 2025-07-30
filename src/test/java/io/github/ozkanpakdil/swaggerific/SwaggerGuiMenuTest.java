@@ -28,6 +28,8 @@ class SwaggerGuiMenuTest {
         SwaggerApplication swaggerApplication = new SwaggerApplication();
         swaggerApplication.start(stage);
         stage.show();
+        stage.toFront();
+        stage.requestFocus();
     }
 
     @Test
@@ -46,6 +48,8 @@ class SwaggerGuiMenuTest {
     void openJson(FxRobot robot) {
         robot.push(KeyCode.CONTROL, KeyCode.O);
         robot.push(KeyCode.ESCAPE);
+        robot.push(KeyCode.CONTROL, KeyCode.O);
+        robot.push(KeyCode.ENTER);
     }
 
 }

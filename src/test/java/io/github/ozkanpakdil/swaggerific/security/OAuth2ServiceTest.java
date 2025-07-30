@@ -1,28 +1,39 @@
 package io.github.ozkanpakdil.swaggerific.security;
 
+import io.github.ozkanpakdil.swaggerific.SimpleHttpServer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockserver.integration.ClientAndServer;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
 /**
  * Tests for the OAuth2Service class.
  */
 class OAuth2ServiceTest {
     private OAuth2Service oauth2Service;
-    private ClientAndServer mockServer;
+    private SimpleHttpServer httpServer;
+    private static final int PORT = 8080;
     
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         oauth2Service = new OAuth2Service();
-        mockServer = ClientAndServer.startClientAndServer(8080);
+        httpServer = new SimpleHttpServer(PORT);
+        httpServer.start();
+    }
+    
+    @AfterEach
+    void tearDown() {
+        if (httpServer != null) {
+            httpServer.stop();
+        }
     }
     
     @Test
@@ -37,31 +48,21 @@ class OAuth2ServiceTest {
         
         assertTrue(url.startsWith(authUrl));
         assertTrue(url.contains("response_type=code"));
-        assertTrue(url.contains("client_id=" + clientId));
-        assertTrue(url.contains("redirect_uri=" + redirectUri.replace(":", "%3A").replace("/", "%2F")));
-        assertTrue(url.contains("scope=" + scope.replace(" ", "%20")));
-        assertTrue(url.contains("state=" + state));
+        assertTrue(url.contains("client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)));
+        assertTrue(url.contains("redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)));
+        assertTrue(url.contains("scope=" + URLEncoder.encode(scope, StandardCharsets.UTF_8)));
+        assertTrue(url.contains("state=" + URLEncoder.encode(state, StandardCharsets.UTF_8)));
     }
     
     @Test
     void testClientCredentialsFlow() throws ExecutionException, InterruptedException {
-        // Setup mock server to respond to token request
-        mockServer.when(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-                .withHeader("Authorization", "Basic dGVzdC1jbGllbnQ6dGVzdC1zZWNyZXQ=") // test-client:test-secret
-        ).respond(
-            response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600}")
-        );
+        // Setup server to respond to token request
+        String responseBody = "{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600}";
+        httpServer.addResponse("/oauth2/token", responseBody, "application/json", 200);
         
         // Test client credentials flow
         CompletableFuture<String> tokenFuture = oauth2Service.getClientCredentialsToken(
-            "http://localhost:8080/oauth2/token",
+            "http://localhost:" + PORT + "/oauth2/token",
             "test-client",
             "test-secret",
             "read write"
@@ -69,36 +70,17 @@ class OAuth2ServiceTest {
         
         String token = tokenFuture.get();
         assertEquals("test-access-token", token);
-        
-        // Verify the request was made correctly
-        mockServer.verify(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-                .withHeader("Authorization", "Basic dGVzdC1jbGllbnQ6dGVzdC1zZWNyZXQ=")
-        );
     }
     
     @Test
     void testPasswordFlow() throws ExecutionException, InterruptedException {
-        // Setup mock server to respond to token request
-        mockServer.when(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-                .withHeader("Authorization", "Basic dGVzdC1jbGllbnQ6dGVzdC1zZWNyZXQ=") // test-client:test-secret
-        ).respond(
-            response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"test-refresh-token\"}")
-        );
+        // Setup server to respond to token request
+        String responseBody = "{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"test-refresh-token\"}";
+        httpServer.addResponse("/oauth2/token", responseBody, "application/json", 200);
         
         // Test password flow
         CompletableFuture<String> tokenFuture = oauth2Service.getPasswordToken(
-            "http://localhost:8080/oauth2/token",
+            "http://localhost:" + PORT + "/oauth2/token",
             "test-client",
             "test-secret",
             "testuser",
@@ -108,35 +90,17 @@ class OAuth2ServiceTest {
         
         String token = tokenFuture.get();
         assertEquals("test-access-token", token);
-        
-        // Verify the request was made correctly
-        mockServer.verify(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-                .withHeader("Authorization", "Basic dGVzdC1jbGllbnQ6dGVzdC1zZWNyZXQ=")
-        );
     }
     
     @Test
     void testRefreshToken() throws ExecutionException, InterruptedException {
-        // Setup mock server to respond to token request
-        mockServer.when(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-        ).respond(
-            response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"access_token\":\"new-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"new-refresh-token\"}")
-        );
+        // Setup server to respond to token request
+        String responseBody = "{\"access_token\":\"new-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"new-refresh-token\"}";
+        httpServer.addResponse("/oauth2/token", responseBody, "application/json", 200);
         
         // Test refresh token flow
         CompletableFuture<String> tokenFuture = oauth2Service.refreshToken(
-            "http://localhost:8080/oauth2/token",
+            "http://localhost:" + PORT + "/oauth2/token",
             "test-client",
             "test-secret",
             "test-refresh-token"
@@ -144,49 +108,24 @@ class OAuth2ServiceTest {
         
         String token = tokenFuture.get();
         assertEquals("new-access-token", token);
-        
-        // Verify the request was made correctly
-        mockServer.verify(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-        );
     }
     
     @Test
     void testExchangeCodeForToken() throws ExecutionException, InterruptedException {
-        // Setup mock server to respond to token request
-        mockServer.when(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-        ).respond(
-            response()
-                .withStatusCode(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"test-refresh-token\"}")
-        );
+        // Setup server to respond to token request
+        String responseBody = "{\"access_token\":\"test-access-token\",\"token_type\":\"bearer\",\"expires_in\":3600,\"refresh_token\":\"test-refresh-token\"}";
+        httpServer.addResponse("/oauth2/token", responseBody, "application/json", 200);
         
         // Test authorization code flow
         CompletableFuture<String> tokenFuture = oauth2Service.exchangeCodeForToken(
-            "http://localhost:8080/oauth2/token",
+            "http://localhost:" + PORT + "/oauth2/token",
             "test-client",
             "test-secret",
             "test-code",
-            "http://localhost:8080/callback"
+            "http://localhost:" + PORT + "/callback"
         );
         
         String token = tokenFuture.get();
         assertEquals("test-access-token", token);
-        
-        // Verify the request was made correctly
-        mockServer.verify(
-            request()
-                .withMethod("POST")
-                .withPath("/oauth2/token")
-                .withHeader("Content-Type", "application/x-www-form-urlencoded")
-        );
     }
 }

@@ -30,6 +30,7 @@ module swaggerific {
     requires org.dockfx;
     requires org.jetbrains.annotations;
     requires java.scripting;
+    requires jdk.httpserver;
 
     // GraalVM JavaScript engine for script execution
 //    requires org.graalvm.sdk;

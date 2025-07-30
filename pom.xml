@@ -260,18 +260,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-netty</artifactId>
-            <version>5.15.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-client-java</artifactId>
-            <version>5.15.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>1.21.1</version>
@@ -367,15 +355,15 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <!--<argLine>
-                        &#45;&#45;add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-                        &#45;&#45;add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
-                        &#45;&#45;add-opens=java.base/java.nio=ALL-UNNAMED
-                        &#45;&#45;add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
-                        &#45;&#45;add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED
-                        &#45;&#45;add-opens=org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
-                        &#45;&#45;add-exports=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
-                    </argLine>-->
+                    <argLine>
+                        --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                        --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
+                        --add-opens=java.base/java.nio=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
+                        --add-opens=org.graalvm.truffle/com.oracle.truffle.polyglot=ALL-UNNAMED
+                        --add-opens=org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED
+                        --add-exports=org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED
+                    </argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -446,28 +434,28 @@
                         <description>${project.description}</description>
                         <version>${project.version}</version>
                     </releaseConfiguration>
-					<nativeImageArgs>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
-						<arg>--initialize-at-run-time=com.sun.javafx.application.PlatformImpl</arg>
-						<arg>--initialize-at-run-time=com.sun.javafx.tk.quantum.QuantumToolkit</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.utils.NativeLibLoader</arg>
-						<arg>--initialize-at-run-time=com.sun.glass.ui.win</arg>
-						<arg>-H:EnableURLProtocols=http,https,file,jar</arg>
-						<arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
-						<arg>--add-opens=java.base/java.nio=ALL-UNNAMED</arg>
-						<arg>--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</arg>
-						<arg>--add-opens=java.base/sun.security.util=ALL-UNNAMED</arg>
-						<arg>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</arg>
-						<arg>--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</arg>
-						<arg>--add-opens=javafx.graphics/com.sun.glass.utils=ALL-UNNAMED</arg>
-						<arg>--add-opens=javafx.graphics/com.sun.glass.ui.win=ALL-UNNAMED</arg>
-						<arg>--add-opens=javafx.base/com.sun.javafx.runtime=ALL-UNNAMED</arg>
-					</nativeImageArgs>
-					<reflectionList>
-						<list>java.util.Properties</list>
-					</reflectionList>
+                    <nativeImageArgs>
+                        <arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
+                        <arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
+                        <arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
+                        <arg>--initialize-at-run-time=com.sun.javafx.application.PlatformImpl</arg>
+                        <arg>--initialize-at-run-time=com.sun.javafx.tk.quantum.QuantumToolkit</arg>
+                        <arg>--initialize-at-run-time=com.sun.glass.utils.NativeLibLoader</arg>
+                        <arg>--initialize-at-run-time=com.sun.glass.ui.win</arg>
+                        <arg>-H:EnableURLProtocols=http,https,file,jar</arg>
+                        <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/java.nio=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+                        <arg>--add-opens=java.base/sun.security.util=ALL-UNNAMED</arg>
+                        <arg>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</arg>
+                        <arg>--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</arg>
+                        <arg>--add-opens=javafx.graphics/com.sun.glass.utils=ALL-UNNAMED</arg>
+                        <arg>--add-opens=javafx.graphics/com.sun.glass.ui.win=ALL-UNNAMED</arg>
+                        <arg>--add-opens=javafx.base/com.sun.javafx.runtime=ALL-UNNAMED</arg>
+                    </nativeImageArgs>
+                    <reflectionList>
+                        <list>java.util.Properties</list>
+                    </reflectionList>
                 </configuration>
             </plugin>
 
