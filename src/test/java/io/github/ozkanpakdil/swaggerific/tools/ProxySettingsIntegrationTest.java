@@ -1,7 +1,6 @@
 package io.github.ozkanpakdil.swaggerific.tools;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,15 +8,21 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.net.*;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProxySettingsIntegrationTest {
     private static final String PROXY_USERNAME = "username";
@@ -38,7 +43,7 @@ public class ProxySettingsIntegrationTest {
 
     private HttpClient createProxyClient() throws Exception {
         // Create a trust manager that trusts all certificates
-        TrustManager[] trustAllCerts = new TrustManager[]{
+        TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
@@ -150,19 +155,17 @@ public class ProxySettingsIntegrationTest {
     @Test
     void testMissingProxySettings() {
         // Configure proxy settings with empty server
-        Exception exception = assertThrows(IllegalStateException.class, () -> {
-            ProxySettings.saveSettings(
-                    false,
-                    "HTTP",
-                    "",
-                    3128,
-                    true,
-                    PROXY_USERNAME,
-                    PROXY_PASSWORD,
-                    "localhost",
-                    false
-            );
-        });
+        Exception exception = assertThrows(IllegalStateException.class, () -> ProxySettings.saveSettings(
+                false,
+                "HTTP",
+                "",
+                3128,
+                true,
+                PROXY_USERNAME,
+                PROXY_PASSWORD,
+                "localhost",
+                false
+        ));
 
         assertTrue(exception.getMessage().contains("Proxy server cannot be empty"));
     }
@@ -229,7 +232,7 @@ public class ProxySettingsIntegrationTest {
         );
 
         // Test proxy settings validation
-        assertDoesNotThrow(() -> ProxySettings.validateProxySettings());
+        assertDoesNotThrow(ProxySettings::validateProxySettings);
 
         // Test proxy creation
         var proxy = ProxySettings.createProxy();
@@ -245,7 +248,7 @@ public class ProxySettingsIntegrationTest {
         assertNotNull(authenticator);
 
         // Test SSL context creation
-        TrustManager[] trustAllCerts = new TrustManager[]{
+        TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;

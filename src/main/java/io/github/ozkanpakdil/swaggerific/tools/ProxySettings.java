@@ -569,6 +569,7 @@ public class ProxySettings {
         try {
             Proxy proxy = createProxy();
 
+            assert proxy != null;
             log.info("Testing proxy connection to: {}", proxy.address());
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustAllCerts, new SecureRandom());

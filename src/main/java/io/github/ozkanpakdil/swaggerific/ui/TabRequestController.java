@@ -150,7 +150,7 @@ public class TabRequestController extends TabPane {
     }
 
     private static String getCss(String css) {
-        return MainController.class.getResource(css).toString();
+        return Objects.requireNonNull(MainController.class.getResource(css)).toString();
     }
 
     private static void editorSettingsForAll(CodeArea area, String cssName) {

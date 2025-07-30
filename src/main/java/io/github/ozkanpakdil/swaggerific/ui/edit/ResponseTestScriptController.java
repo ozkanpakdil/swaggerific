@@ -600,8 +600,10 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertStatusCodeSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that the status code is 200\n" +
-                "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n";
+        String snippet = """
+                // Assert that the status code is 200
+                pm.test.assertStatusCode("Status code should be 200", 200);
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -611,9 +613,11 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertStatusCodeRangeSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that the status code is in the 2xx range\n" +
-                "pm.test.assertTrue(\"Status code should be in 2xx range\", \n" +
-                "    pm.response.status >= 200 && pm.response.status < 300);\n";
+        String snippet = """
+                // Assert that the status code is in the 2xx range
+                pm.test.assertTrue("Status code should be in 2xx range",\s
+                    pm.response.status >= 200 && pm.response.status < 300);
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -623,8 +627,10 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertHeaderExistsSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that a specific header exists\n" +
-                "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n";
+        String snippet = """
+                // Assert that a specific header exists
+                pm.test.assertHeader("Response should have Content-Type header", "Content-Type");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -634,9 +640,11 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertHeaderValueSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that a header has a specific value\n" +
-                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                "    \"Content-Type\", \"application/json\");\n";
+        String snippet = """
+                // Assert that a header has a specific value
+                pm.test.assertHeaderValue("Content-Type should be application/json",\s
+                    "Content-Type", "application/json");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -646,10 +654,12 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertJsonPropertySnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that a JSON property has a specific value\n" +
-                "const jsonData = pm.response.json();\n" +
-                "pm.test.assertEquals(\"Property should have expected value\", \n" +
-                "    jsonData.propertyName, \"expectedValue\");\n";
+        String snippet = """
+                // Assert that a JSON property has a specific value
+                const jsonData = pm.response.json();
+                pm.test.assertEquals("Property should have expected value",\s
+                    jsonData.propertyName, "expectedValue");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -659,10 +669,12 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertJsonArrayLengthSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that a JSON array has a specific length\n" +
-                "const jsonData = pm.response.json();\n" +
-                "pm.test.assertEquals(\"Array should have expected length\", \n" +
-                "    jsonData.arrayProperty.length, 3);\n";
+        String snippet = """
+                // Assert that a JSON array has a specific length
+                const jsonData = pm.response.json();
+                pm.test.assertEquals("Array should have expected length",\s
+                    jsonData.arrayProperty.length, 3);
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -672,9 +684,11 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertAssertBodyContainsSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Assert that the response body contains a specific string\n" +
-                "pm.test.assertContains(\"Response should contain expected text\", \n" +
-                "    pm.response.body, \"expected text\");\n";
+        String snippet = """
+                // Assert that the response body contains a specific string
+                pm.test.assertContains("Response should contain expected text",\s
+                    pm.response.body, "expected text");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -684,9 +698,11 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertGetVariableSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Get a variable\n" +
-                "const myVar = pm.variables.get(\"variableName\");\n" +
-                "console.log(\"Variable value:\", myVar);\n";
+        String snippet = """
+                // Get a variable
+                const myVar = pm.variables.get("variableName");
+                console.log("Variable value:", myVar);
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -696,9 +712,11 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertSetVariableSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Set a variable\n" +
-                "pm.variables.set(\"variableName\", \"variableValue\");\n" +
-                "console.log(\"Variable set\");\n";
+        String snippet = """
+                // Set a variable
+                pm.variables.set("variableName", "variableValue");
+                console.log("Variable set");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -708,8 +726,10 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertLogSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
-        String snippet = "// Log a message\n" +
-                "console.log(\"Log message\");\n";
+        String snippet = """
+                // Log a message
+                console.log("Log message");
+                """;
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -718,25 +738,33 @@ public class ResponseTestScriptController implements Initializable {
      */
     @FXML
     public void insertCompleteExampleSnippet() {
-        String snippet = "// Complete response test example\n\n" +
-                "// Test status code\n" +
-                "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n\n" +
-                "// Test headers\n" +
-                "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n" +
-                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                "    \"Content-Type\", \"application/json\");\n\n" +
-                "// Parse JSON response\n" +
-                "const jsonData = pm.response.json();\n\n" +
-                "// Test JSON properties\n" +
-                "pm.test.assertTrue(\"Response should have id property\", \n" +
-                "    jsonData.hasOwnProperty(\"id\"));\n\n" +
-                "// Store a value from the response in a variable\n" +
-                "if (jsonData.id) {\n" +
-                "    pm.variables.set(\"lastId\", jsonData.id);\n" +
-                "    console.log(\"Saved ID:\", jsonData.id);\n" +
-                "}\n\n" +
-                "// Log the response\n" +
-                "console.log(\"Response received:\", jsonData);\n";
+        String snippet = """
+                // Complete response test example
+                
+                // Test status code
+                pm.test.assertStatusCode("Status code should be 200", 200);
+                
+                // Test headers
+                pm.test.assertHeader("Response should have Content-Type header", "Content-Type");
+                pm.test.assertHeaderValue("Content-Type should be application/json",\s
+                    "Content-Type", "application/json");
+                
+                // Parse JSON response
+                const jsonData = pm.response.json();
+                
+                // Test JSON properties
+                pm.test.assertTrue("Response should have id property",\s
+                    jsonData.hasOwnProperty("id"));
+                
+                // Store a value from the response in a variable
+                if (jsonData.id) {
+                    pm.variables.set("lastId", jsonData.id);
+                    console.log("Saved ID:", jsonData.id);
+                }
+                
+                // Log the response
+                console.log("Response received:", jsonData);
+                """;
 
         codeResponseTestScript.replaceText(snippet);
     }

@@ -13,7 +13,7 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 
 @ExtendWith(ApplicationExtension.class)
-class ClickableButtonTest_JUnit5Hamcrest {
+class clickableButtonTestJUnit5Hamcrest {
 
     private Button button;
 

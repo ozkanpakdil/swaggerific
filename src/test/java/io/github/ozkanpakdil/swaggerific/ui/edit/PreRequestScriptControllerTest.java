@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Simple tests for PreRequestScriptController
- * Note: These tests don't test UI components, only the JavaScript execution functionality
+ * Simple tests for PreRequestScriptController Note: These tests don't test UI components, only the JavaScript execution
+ * functionality
  */
 public class PreRequestScriptControllerTest {
-    
+
     /**
      * Test the enhanced variables API
      */
@@ -26,10 +26,10 @@ public class PreRequestScriptControllerTest {
     void testEnhancedVariablesAPI() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script that uses enhanced variables API
         String script = """
                 // Test has method
@@ -51,17 +51,17 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('enhancedVarsTestExecuted', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
         assertEquals(true, controller.getVariables().get("enhancedVarsTestExecuted"));
     }
-    
+
     /**
      * Test the enhanced environment API
      */
@@ -69,10 +69,10 @@ public class PreRequestScriptControllerTest {
     void testEnhancedEnvironmentAPI() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script that uses enhanced environment API
         String script = """
                 // Test environment API
@@ -89,17 +89,17 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('enhancedEnvTestExecuted', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
         assertEquals(true, controller.getVariables().get("enhancedEnvTestExecuted"));
     }
-    
+
     /**
      * Test the enhanced request API
      */
@@ -107,10 +107,10 @@ public class PreRequestScriptControllerTest {
     void testEnhancedRequestAPI() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script that uses enhanced request API
         String script = """
                 // Test addHeader method
@@ -135,18 +135,18 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('enhancedRequestTestExecuted', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
         assertEquals(true, controller.getVariables().get("enhancedRequestTestExecuted"));
         assertEquals("verify-value", headers.get("X-Verify-Header"));
     }
-    
+
     /**
      * Test the utility methods
      */
@@ -154,17 +154,17 @@ public class PreRequestScriptControllerTest {
     void testUtilityMethods() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script that uses utility methods
         String script = """
                 // Test JSON utilities
                 try {
                     var jsonObj = pm.utils.json.parse('{"name":"test","value":123}');
                     console.log('Parsed JSON: ' + jsonObj.name + ', ' + jsonObj.value);
-                    
+                
                     var jsonStr = pm.utils.json.stringify(jsonObj, null, 2);
                     console.log('Stringified JSON: ' + jsonStr);
                 } catch (e) {
@@ -188,17 +188,17 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('utilityTestExecuted', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
         assertEquals(true, controller.getVariables().get("utilityTestExecuted"));
     }
-    
+
     /**
      * Test the enhanced error handling
      */
@@ -206,10 +206,10 @@ public class PreRequestScriptControllerTest {
     void testEnhancedErrorHandling() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script with a deliberate error
         String script = """
                 // Set a variable before the error
@@ -224,7 +224,7 @@ public class PreRequestScriptControllerTest {
                     console.error('Caught error: ' + e.message);
                     console.error('Line number: ' + e.lineNumber);
                     console.error('Stack trace: ' + e.stack);
-                    
+                
                     // Store error info in a variable
                     pm.variables.set('errorMessage', e.message);
                     pm.variables.set('errorCaught', true);
@@ -234,11 +234,11 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('afterError', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed and error was caught
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
@@ -247,7 +247,7 @@ public class PreRequestScriptControllerTest {
         assertEquals(true, controller.getVariables().get("afterError"));
         assertTrue(controller.getVariables().containsKey("errorMessage"));
     }
-    
+
     /**
      * Test the enhanced console methods
      */
@@ -255,10 +255,10 @@ public class PreRequestScriptControllerTest {
     void testEnhancedConsoleMethods() throws Exception {
         // Create a controller instance
         TestablePreRequestScriptController controller = new TestablePreRequestScriptController();
-        
+
         // Create headers map
         Map<String, String> headers = new HashMap<>();
-        
+
         // Set script that uses enhanced console methods
         String script = """
                 // Test enhanced console methods
@@ -276,11 +276,11 @@ public class PreRequestScriptControllerTest {
                 pm.variables.set('consoleTestExecuted', true);
                 """;
         controller.setTestScript(script);
-        
+
         // Execute script
         CompletableFuture<Void> future = controller.executeScript(headers);
         future.get(); // Wait for completion
-        
+
         // Verify the test executed
         assertTrue(future.isDone());
         assertFalse(future.isCompletedExceptionally());
@@ -316,10 +316,12 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // Test basic script execution - just verify it runs without threading issues
-        String script = 
-            "// Simple script to test basic execution and threading\n" +
-            "var x = 1 + 1;\n" +
-            "// Script executed successfully if no exception is thrown\n";
+        String script =
+                """
+                        // Simple script to test basic execution and threading
+                        var x = 1 + 1;
+                        // Script executed successfully if no exception is thrown
+                        """;
         controller.setTestScript(script);
 
         // Execute script
@@ -347,11 +349,12 @@ public class PreRequestScriptControllerTest {
 
         // Set script that uses variables
         // Use a simpler script that just sets a header directly
-        String script = 
-            "// Set a header directly without using variables\n" +
-            "pm.request.headers['X-Test-Var'] = 'testValue';\n" +
-            "// Set a variable for later verification\n" +
-            "pm.variables.set('testVar', 'testValue');";
+        String script =
+                """
+                        // Set a header directly without using variables
+                        pm.request.headers['X-Test-Var'] = 'testValue';
+                        // Set a variable for later verification
+                        pm.variables.set('testVar', 'testValue');""";
         controller.setTestScript(script);
 
         // Execute script
@@ -385,14 +388,16 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // Set a script that uses console logging
-        String script = 
-            "// Test console logging functions\n" +
-            "console.log('This is a log message');\n" +
-            "console.error('This is an error message');\n" +
-            "console.warn('This is a warning message');\n" +
-            "\n" +
-            "// Set a variable to verify script executed\n" +
-            "pm.variables.set('consoleTestExecuted', true);\n";
+        String script =
+                """
+                        // Test console logging functions
+                        console.log('This is a log message');
+                        console.error('This is an error message');
+                        console.warn('This is a warning message');
+                        
+                        // Set a variable to verify script executed
+                        pm.variables.set('consoleTestExecuted', true);
+                        """;
 
         controller.setTestScript(script);
 
@@ -424,9 +429,9 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // Use the exact script from the issue
-        String script = 
-            "var value = pm.variables.get(\"111111111variable_name\");\n" +
-            "console.log(\"1111111111111Variable value: \" + value);";
+        String script =
+                "var value = pm.variables.get(\"111111111variable_name\");\n" +
+                        "console.log(\"1111111111111Variable value: \" + value);";
 
         controller.setTestScript(script);
 
@@ -463,10 +468,11 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // Test setting and getting a variable with numbers in the name
-        String script = 
-            "pm.variables.set(\"111111111variable_name\", \"test_value\");\n" +
-            "var value = pm.variables.get(\"111111111variable_name\");\n" +
-            "console.log(\"Variable value: \" + value);";
+        String script =
+                """
+                        pm.variables.set("111111111variable_name", "test_value");
+                        var value = pm.variables.get("111111111variable_name");
+                        console.log("Variable value: " + value);""";
 
         controller.setTestScript(script);
 
@@ -494,9 +500,9 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // Test accessing an undefined variable (this should generate a warning)
-        String script = 
-            "var value = pm.variables.get(\"nonexistent_variable\");\n" +
-            "console.log(\"Value: \" + value);";
+        String script =
+                "var value = pm.variables.get(\"nonexistent_variable\");\n" +
+                        "console.log(\"Value: \" + value);";
 
         controller.setTestScript(script);
 
@@ -523,9 +529,9 @@ public class PreRequestScriptControllerTest {
         Map<String, String> headers = new HashMap<>();
 
         // First execution: Set a variable
-        String script1 = 
-            "pm.variables.set(\"111111111variable_name\", \"persistent_value\");\n" +
-            "console.log(\"Set variable to: persistent_value\");";
+        String script1 =
+                "pm.variables.set(\"111111111variable_name\", \"persistent_value\");\n" +
+                        "console.log(\"Set variable to: persistent_value\");";
 
         controller.setTestScript(script1);
 
@@ -536,9 +542,9 @@ public class PreRequestScriptControllerTest {
         System.out.println("[DEBUG_LOG] Variables after first execution: " + controller.getVariables());
 
         // Second execution: Try to get the variable (this simulates the user's scenario)
-        String script2 = 
-            "var value = pm.variables.get(\"111111111variable_name\");\n" +
-            "console.log(\"1111111111111Variable value: \" + value);";
+        String script2 =
+                "var value = pm.variables.get(\"111111111variable_name\");\n" +
+                        "console.log(\"1111111111111Variable value: \" + value);";
 
         controller.setTestScript(script2);
 
@@ -572,20 +578,22 @@ public class PreRequestScriptControllerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Set a script that uses sendRequest with a callback
-        String script = 
-            "// Set a variable to track if callback was called\n" +
-            "pm.variables.set('callbackCalled', false);\n" +
-            "\n" +
-            "// Use sendRequest with a callback\n" +
-            "pm.sendRequest('https://postman-echo.com/get', function(err, response) {\n" +
-            "    // Mark that callback was called\n" +
-            "    pm.variables.set('callbackCalled', true);\n" +
-            "    \n" +
-            "    // Set a header based on the response\n" +
-            "    if (!err) {\n" +
-            "        pm.request.headers['X-Response-Received'] = 'true';\n" +
-            "    }\n" +
-            "});\n";
+        String script =
+                """
+                        // Set a variable to track if callback was called
+                        pm.variables.set('callbackCalled', false);
+                        
+                        // Use sendRequest with a callback
+                        pm.sendRequest('https://postman-echo.com/get', function(err, response) {
+                            // Mark that callback was called
+                            pm.variables.set('callbackCalled', true);
+                           \s
+                            // Set a header based on the response
+                            if (!err) {
+                                pm.request.headers['X-Response-Received'] = 'true';
+                            }
+                        });
+                        """;
 
         controller.setTestScript(script);
 
@@ -612,8 +620,8 @@ public class PreRequestScriptControllerTest {
     }
 
     /**
-     * A testable version of PreRequestScriptController that doesn't depend on UI components
-     * and mocks JavaScript execution for testing purposes
+     * A testable version of PreRequestScriptController that doesn't depend on UI components and mocks JavaScript execution for
+     * testing purposes
      */
     private static class TestablePreRequestScriptController extends PreRequestScriptController {
         private String testScript;
@@ -674,13 +682,13 @@ public class PreRequestScriptControllerTest {
             }
 
             if (testScript.contains("pm.variables.set('111111111variable_name', 'test_value')") ||
-                testScript.contains("pm.variables.set(\"111111111variable_name\", \"test_value\")")) {
+                    testScript.contains("pm.variables.set(\"111111111variable_name\", \"test_value\")")) {
                 getVariables().put("111111111variable_name", "test_value");
                 System.out.println("[DEBUG_LOG] Mock: Set variable 111111111variable_name = test_value");
             }
 
             if (testScript.contains("pm.variables.set('111111111variable_name', 'persistent_value')") ||
-                testScript.contains("pm.variables.set(\"111111111variable_name\", \"persistent_value\")")) {
+                    testScript.contains("pm.variables.set(\"111111111variable_name\", \"persistent_value\")")) {
                 getVariables().put("111111111variable_name", "persistent_value");
                 System.out.println("[DEBUG_LOG] Mock: Set variable 111111111variable_name = persistent_value");
             }
@@ -694,7 +702,7 @@ public class PreRequestScriptControllerTest {
             if (testScript.contains("pm.variables.set('enhancedVarsTestExecuted', true)")) {
                 getVariables().put("enhancedVarsTestExecuted", true);
                 System.out.println("[DEBUG_LOG] Mock: Set variable enhancedVarsTestExecuted = true");
-                
+
                 // Mock the variables that would be set in the test
                 getVariables().put("var1", "value1");
                 getVariables().put("var2", "value2");
@@ -728,7 +736,8 @@ public class PreRequestScriptControllerTest {
             }
 
             // Mock enhanced console methods test
-            if (testScript.contains("console.trace") || testScript.contains("console.assert") || testScript.contains("console.table")) {
+            if (testScript.contains("console.trace") || testScript.contains("console.assert") || testScript.contains(
+                    "console.table")) {
                 getVariables().put("consoleTestExecuted", true);
                 System.out.println("[DEBUG_LOG] Mock: Set variable consoleTestExecuted = true for enhanced console test");
             }

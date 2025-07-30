@@ -40,10 +40,12 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with basic assertions
-        String script = "// Test basic assertions\n" +
-                "pm.test.assertTrue(\"True assertion\", true);\n" +
-                "pm.test.assertFalse(\"False assertion\", false);\n" +
-                "pm.test.assertEquals(\"Equal assertion\", 1, 1);\n";
+        String script = """
+                // Test basic assertions
+                pm.test.assertTrue("True assertion", true);
+                pm.test.assertFalse("False assertion", false);
+                pm.test.assertEquals("Equal assertion", 1, 1);
+                """;
 
         controller.setTestScript(script);
 
@@ -74,10 +76,12 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with failing assertions
-        String script = "// Test failing assertions\n" +
-                "pm.test.assertTrue(\"Should fail\", false);\n" +
-                "pm.test.assertFalse(\"Should fail too\", true);\n" +
-                "pm.test.assertEquals(\"Not equal\", 1, 2);\n";
+        String script = """
+                // Test failing assertions
+                pm.test.assertTrue("Should fail", false);
+                pm.test.assertFalse("Should fail too", true);
+                pm.test.assertEquals("Not equal", 1, 2);
+                """;
 
         controller.setTestScript(script);
 
@@ -104,10 +108,12 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with status code assertions
-        String script = "// Test status code assertions\n" +
-                "pm.test.assertStatusCode(\"Status should be 200\", 200);\n" +
-                "pm.test.assertTrue(\"Status should be in 2xx range\", \n" +
-                "    pm.response.status >= 200 && pm.response.status < 300);\n";
+        String script = """
+                // Test status code assertions
+                pm.test.assertStatusCode("Status should be 200", 200);
+                pm.test.assertTrue("Status should be in 2xx range",\s
+                    pm.response.status >= 200 && pm.response.status < 300);
+                """;
 
         controller.setTestScript(script);
 
@@ -153,13 +159,15 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with header assertions
-        String script = "// Test header assertions\n" +
-                "pm.test.assertHeader(\"Should have Content-Type header\", \"Content-Type\");\n" +
-                "pm.test.assertHeader(\"Should have X-Custom-Header\", \"X-Custom-Header\");\n" +
-                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                "    \"Content-Type\", \"application/json\");\n" +
-                "pm.test.assertHeaderValue(\"X-Custom-Header should be test-value\", \n" +
-                "    \"X-Custom-Header\", \"test-value\");\n";
+        String script = """
+                // Test header assertions
+                pm.test.assertHeader("Should have Content-Type header", "Content-Type");
+                pm.test.assertHeader("Should have X-Custom-Header", "X-Custom-Header");
+                pm.test.assertHeaderValue("Content-Type should be application/json",\s
+                    "Content-Type", "application/json");
+                pm.test.assertHeaderValue("X-Custom-Header should be test-value",\s
+                    "X-Custom-Header", "test-value");
+                """;
 
         controller.setTestScript(script);
 
@@ -208,12 +216,14 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with JSON body assertions
-        String script = "// Test JSON body assertions\n" +
-                "const jsonData = pm.response.json();\n" +
-                "pm.test.assertEquals(\"ID should be 123\", jsonData.id, 123);\n" +
-                "pm.test.assertEquals(\"Name should be Test\", jsonData.name, \"Test\");\n" +
-                "pm.test.assertEquals(\"Items array should have length 3\", jsonData.items.length, 3);\n" +
-                "pm.test.assertTrue(\"Items array should contain 2\", jsonData.items.includes(2));\n";
+        String script = """
+                // Test JSON body assertions
+                const jsonData = pm.response.json();
+                pm.test.assertEquals("ID should be 123", jsonData.id, 123);
+                pm.test.assertEquals("Name should be Test", jsonData.name, "Test");
+                pm.test.assertEquals("Items array should have length 3", jsonData.items.length, 3);
+                pm.test.assertTrue("Items array should contain 2", jsonData.items.includes(2));
+                """;
 
         controller.setTestScript(script);
 
@@ -241,10 +251,12 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with body contains assertions
-        String script = "// Test body contains assertions\n" +
-                "pm.test.assertContains(\"Body should contain 'test'\", pm.response.body, \"test\");\n" +
-                "pm.test.assertContains(\"Body should contain 'specific'\", pm.response.body, \"specific\");\n" +
-                "pm.test.assertContains(\"Body should contain 'not found'\", pm.response.body, \"not found\");\n";
+        String script = """
+                // Test body contains assertions
+                pm.test.assertContains("Body should contain 'test'", pm.response.body, "test");
+                pm.test.assertContains("Body should contain 'specific'", pm.response.body, "specific");
+                pm.test.assertContains("Body should contain 'not found'", pm.response.body, "not found");
+                """;
 
         controller.setTestScript(script);
 
@@ -271,14 +283,16 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script that sets and gets variables
-        String script = "// Test variable handling\n" +
-                "const jsonData = pm.response.json();\n" +
-                "pm.variables.set(\"id\", jsonData.id);\n" +
-                "pm.variables.set(\"token\", jsonData.token);\n" +
-                "const retrievedId = pm.variables.get(\"id\");\n" +
-                "const retrievedToken = pm.variables.get(\"token\");\n" +
-                "pm.test.assertEquals(\"Retrieved ID should match\", retrievedId, 123);\n" +
-                "pm.test.assertEquals(\"Retrieved token should match\", retrievedToken, \"abc-xyz\");\n";
+        String script = """
+                // Test variable handling
+                const jsonData = pm.response.json();
+                pm.variables.set("id", jsonData.id);
+                pm.variables.set("token", jsonData.token);
+                const retrievedId = pm.variables.get("id");
+                const retrievedToken = pm.variables.get("token");
+                pm.test.assertEquals("Retrieved ID should match", retrievedId, 123);
+                pm.test.assertEquals("Retrieved token should match", retrievedToken, "abc-xyz");
+                """;
 
         controller.setTestScript(script);
 
@@ -308,12 +322,14 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a script with console logging
-        String script = "// Test console logging\n" +
-                "console.log(\"Regular log message\");\n" +
-                "console.info(\"Info message\");\n" +
-                "console.warn(\"Warning message\");\n" +
-                "console.error(\"Error message\");\n" +
-                "console.debug(\"Debug message\");\n";
+        String script = """
+                // Test console logging
+                console.log("Regular log message");
+                console.info("Info message");
+                console.warn("Warning message");
+                console.error("Error message");
+                console.debug("Debug message");
+                """;
 
         controller.setTestScript(script);
 
@@ -342,39 +358,41 @@ public class ResponseTestScriptControllerTest {
                 .build();
 
         // Set up a complete test script
-        String script = "// Complete test example\n" +
-                "\n" +
-                "// Test status code\n" +
-                "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n" +
-                "\n" +
-                "// Test headers\n" +
-                "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n" +
-                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                "    \"Content-Type\", \"application/json\");\n" +
-                "pm.test.assertHeader(\"Response should have X-Rate-Limit header\", \"X-Rate-Limit\");\n" +
-                "\n" +
-                "// Parse JSON response\n" +
-                "const jsonData = pm.response.json();\n" +
-                "\n" +
-                "// Test JSON properties\n" +
-                "pm.test.assertTrue(\"Response should have id property\", \n" +
-                "    jsonData.hasOwnProperty(\"id\"));\n" +
-                "pm.test.assertEquals(\"ID should be 123\", jsonData.id, 123);\n" +
-                "pm.test.assertEquals(\"Name should be Test Product\", jsonData.name, \"Test Product\");\n" +
-                "pm.test.assertEquals(\"Price should be 99.99\", jsonData.price, 99.99);\n" +
-                "pm.test.assertEquals(\"Tags array should have length 2\", jsonData.tags.length, 2);\n" +
-                "pm.test.assertTrue(\"Tags should include 'featured'\", jsonData.tags.includes(\"featured\"));\n" +
-                "\n" +
-                "// Store a value from the response in a variable\n" +
-                "pm.variables.set(\"productId\", jsonData.id);\n" +
-                "pm.variables.set(\"productName\", jsonData.name);\n" +
-                "\n" +
-                "// Verify stored variables\n" +
-                "const storedId = pm.variables.get(\"productId\");\n" +
-                "pm.test.assertEquals(\"Stored ID should match\", storedId, 123);\n" +
-                "\n" +
-                "// Log the response\n" +
-                "console.log(\"Response received:\", jsonData);\n";
+        String script = """
+                // Complete test example
+                
+                // Test status code
+                pm.test.assertStatusCode("Status code should be 200", 200);
+                
+                // Test headers
+                pm.test.assertHeader("Response should have Content-Type header", "Content-Type");
+                pm.test.assertHeaderValue("Content-Type should be application/json",\s
+                    "Content-Type", "application/json");
+                pm.test.assertHeader("Response should have X-Rate-Limit header", "X-Rate-Limit");
+                
+                // Parse JSON response
+                const jsonData = pm.response.json();
+                
+                // Test JSON properties
+                pm.test.assertTrue("Response should have id property",\s
+                    jsonData.hasOwnProperty("id"));
+                pm.test.assertEquals("ID should be 123", jsonData.id, 123);
+                pm.test.assertEquals("Name should be Test Product", jsonData.name, "Test Product");
+                pm.test.assertEquals("Price should be 99.99", jsonData.price, 99.99);
+                pm.test.assertEquals("Tags array should have length 2", jsonData.tags.length, 2);
+                pm.test.assertTrue("Tags should include 'featured'", jsonData.tags.includes("featured"));
+                
+                // Store a value from the response in a variable
+                pm.variables.set("productId", jsonData.id);
+                pm.variables.set("productName", jsonData.name);
+                
+                // Verify stored variables
+                const storedId = pm.variables.get("productId");
+                pm.test.assertEquals("Stored ID should match", storedId, 123);
+                
+                // Log the response
+                console.log("Response received:", jsonData);
+                """;
 
         controller.setTestScript(script);
 
@@ -626,9 +644,7 @@ public class ResponseTestScriptControllerTest {
                 Map<String, Object> variablesMap = new HashMap<>();
 
                 // Add variable getter and setter
-                variablesMap.put("get", (java.util.function.Function<String, Object>) name -> {
-                    return variables.get(name);
-                });
+                variablesMap.put("get", (java.util.function.Function<String, Object>) variables::get);
 
                 variablesMap.put("set", (java.util.function.Function<Object[], Void>) args -> {
                     if (args.length >= 2) {

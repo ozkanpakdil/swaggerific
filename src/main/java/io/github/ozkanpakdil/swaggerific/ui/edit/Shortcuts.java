@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
@@ -244,7 +245,7 @@ public class Shortcuts implements Initializable {
             File dir = new File(directoryUrl.toURI());
             if (dir.isDirectory()) {
                 // Process all files in the directory
-                for (File file : dir.listFiles()) {
+                for (File file : Objects.requireNonNull(dir.listFiles())) {
                     if (file.isDirectory()) {
                         // Recursively scan subdirectories
                         scanForFxmlFiles(directory + "/" + file.getName());
@@ -283,7 +284,7 @@ public class Shortcuts implements Initializable {
 
                 // Check if it has an onAction attribute and an accelerator child
                 String onAction = menuItem.getAttribute("onAction");
-                if (onAction != null && !onAction.isEmpty()) {
+                if (!onAction.isEmpty()) {
                     if (onAction.startsWith("#")) {
                         onAction = onAction.substring(1);
                     }
@@ -319,7 +320,7 @@ public class Shortcuts implements Initializable {
                 String onAction = button.getAttribute("onAction");
                 String text = button.getAttribute("text");
 
-                if (onAction != null && !onAction.isEmpty() && text != null && text.contains("_")) {
+                if (!onAction.isEmpty() && text.contains("_")) {
                     if (onAction.startsWith("#")) {
                         onAction = onAction.substring(1);
                     }

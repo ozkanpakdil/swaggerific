@@ -1,6 +1,8 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
+import io.github.ozkanpakdil.swaggerific.data.Environment;
 import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
+import io.github.ozkanpakdil.swaggerific.data.EnvironmentVariable;
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.JavaScriptColorize;
 import io.swagger.v3.core.util.Json;
@@ -146,18 +148,17 @@ public class PreRequestScriptController implements Initializable {
         String activeEnvironmentName = "";
         String jsEnvironmentVariables = "{}";
         if (environmentManager != null) {
-            environmentManager.getActiveEnvironment().ifPresent(env -> {
-                log.info("Active environment: {}", env.getName());
-            });
+            environmentManager.getActiveEnvironment().ifPresent(env -> log.info("Active environment: {}", env.getName()));
 
             // Convert environment variables to JSON
             try {
                 jsEnvironmentVariables = Json.mapper().writeValueAsString(environmentManager.getActiveEnvironment()
                         .map(env -> env.getAllVariables().stream()
-                                .collect(java.util.stream.Collectors.toMap(var -> var.getKey(), var -> var.getValue())))
+                                .collect(java.util.stream.Collectors.toMap(EnvironmentVariable::getKey,
+                                        EnvironmentVariable::getValue)))
                         .orElse(new java.util.HashMap<>()));
 
-                activeEnvironmentName = environmentManager.getActiveEnvironment().map(env -> env.getName()).orElse("");
+                activeEnvironmentName = environmentManager.getActiveEnvironment().map(Environment::getName).orElse("");
             } catch (Exception e) {
                 log.error("Error converting environment variables to JSON", e);
             }

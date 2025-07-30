@@ -21,15 +21,15 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Manages multiple environments and provides functionality to switch between them.
- * Also handles persistence of environments.
+ * Manages multiple environments and provides functionality to switch between them. Also handles persistence of environments.
  */
 public class EnvironmentManager implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private static final Logger log = (Logger) LoggerFactory.getLogger(EnvironmentManager.class);
 
-    public static final String ENV_SETTINGS = System.getProperty("user.home") + File.separator + ".swaggerific" + File.separator + "env_settings.ser";
+    public static final String ENV_SETTINGS = System.getProperty(
+            "user.home") + File.separator + ".swaggerific" + File.separator + "env_settings.ser";
 
     private final Map<String, Environment> environments = new HashMap<>();
     private String activeEnvironmentName;
@@ -125,7 +125,7 @@ public class EnvironmentManager implements Serializable {
     /**
      * Updates an existing environment.
      *
-     * @param oldName     the current name of the environment
+     * @param oldName the current name of the environment
      * @param environment the updated environment
      * @return true if the environment was updated, false if it wasn't found
      */
@@ -206,7 +206,7 @@ public class EnvironmentManager implements Serializable {
             File settingsFile = new File(ENV_SETTINGS);
             settingsFile.getParentFile().mkdirs();
             try (FileOutputStream out = new FileOutputStream(settingsFile);
-                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                    ObjectOutputStream oos = new ObjectOutputStream(out)) {
                 oos.writeObject(this);
                 oos.flush();
                 log.info("Saved environment settings with {} environments", environments.size());
@@ -222,16 +222,17 @@ public class EnvironmentManager implements Serializable {
      * @return the loaded EnvironmentManager, or a new instance if loading fails
      */
     public static EnvironmentManager loadSettings() {
-        if (Paths.get(ENV_SETTINGS).toFile().isFile()) {
+        Path path = Paths.get(ENV_SETTINGS);
+        if (path.toFile().isFile()) {
             try (ObjectInputStream ois = new ObjectInputStream(
-                    new ByteArrayInputStream(Files.readAllBytes(Path.of(ENV_SETTINGS))))) {
+                    new ByteArrayInputStream(Files.readAllBytes(path)))) {
                 EnvironmentManager manager = (EnvironmentManager) ois.readObject();
                 log.info("Loaded environment settings with {} environments", manager.size());
                 return manager;
             } catch (Exception e) {
                 log.error("Problem deserializing environment settings", e);
                 try {
-                    Files.delete(Paths.get(ENV_SETTINGS));
+                    Files.delete(path);
                 } catch (IOException ex) {
                     log.error("Failed to delete corrupted environment settings file", ex);
                 }
@@ -241,8 +242,8 @@ public class EnvironmentManager implements Serializable {
     }
 
     /**
-     * Resolves a string by replacing environment variable references with their values.
-     * Environment variables are referenced using the syntax {{variable_name}}.
+     * Resolves a string by replacing environment variable references with their values. Environment variables are referenced
+     * using the syntax {{variable_name}}.
      *
      * @param input the input string to resolve
      * @return the resolved string with environment variables replaced

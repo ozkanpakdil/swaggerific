@@ -15,8 +15,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**
- * A simple HTTP server for serving JSON responses in tests.
- * This is a lightweight alternative to MockServer that starts faster
+ * A simple HTTP server for serving JSON responses in tests. This is a lightweight alternative to MockServer that starts faster
  * and has minimal overhead.
  */
 public class SimpleHttpServer {
@@ -90,16 +89,7 @@ public class SimpleHttpServer {
     /**
      * Configuration for a response.
      */
-    private static class ResponseConfig {
-        private final String body;
-        private final String contentType;
-        private final int statusCode;
-
-        public ResponseConfig(String body, String contentType, int statusCode) {
-            this.body = body;
-            this.contentType = contentType;
-            this.statusCode = statusCode;
-        }
+    private record ResponseConfig(String body, String contentType, int statusCode) {
     }
 
     /**
@@ -111,14 +101,14 @@ public class SimpleHttpServer {
             exchange.getResponseHeaders().set("Content-Type", config.contentType);
             exchange.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
             exchange.sendResponseHeaders(config.statusCode, responseBytes.length);
-            
+
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(responseBytes);
             }
-            log.info("Sent response for path: {} (status: {}, size: {} bytes)", 
+            log.info("Sent response for path: {} (status: {}, size: {} bytes)",
                     path, config.statusCode, responseBytes.length);
         }
-        
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
