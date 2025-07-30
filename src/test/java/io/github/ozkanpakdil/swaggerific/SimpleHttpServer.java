@@ -106,10 +106,39 @@ public class SimpleHttpServer {
      * Default handler for all requests.
      */
     private class DefaultHandler implements HttpHandler {
+        private void sendResponse(HttpExchange exchange, ResponseConfig config, String path) throws IOException {
+            byte[] responseBytes = config.body.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", config.contentType);
+            exchange.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
+            exchange.sendResponseHeaders(config.statusCode, responseBytes.length);
+            
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(responseBytes);
+            }
+            log.info("Sent response for path: {} (status: {}, size: {} bytes)", 
+                    path, config.statusCode, responseBytes.length);
+        }
+        
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
-            log.info("Received request for path: {}", path);
+            String query = exchange.getRequestURI().getQuery();
+            log.info("Received request for path: {}, query: {}", path, query);
+            log.info("Full URI: {}", exchange.getRequestURI());
+
+            // Special handling for pet/findByStatus endpoint
+            if (path.endsWith("/pet/findByStatus")) {
+                log.info("Handling pet/findByStatus endpoint");
+                // This handles both /pet/findByStatus and /v2/pet/findByStatus
+                ResponseConfig config = pathResponses.get("/pet/findByStatus");
+                if (config != null) {
+                    log.info("Found response config for /pet/findByStatus");
+                    sendResponse(exchange, config, path);
+                    return;
+                } else {
+                    log.warn("No response config found for /pet/findByStatus");
+                }
+            }
 
             ResponseConfig config = pathResponses.get(path);
             if (config == null) {
@@ -124,16 +153,7 @@ public class SimpleHttpServer {
             }
 
             // Send the configured response
-            byte[] responseBytes = config.body.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", config.contentType);
-            exchange.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
-            exchange.sendResponseHeaders(config.statusCode, responseBytes.length);
-            
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(responseBytes);
-            }
-            log.info("Sent response for path: {} (status: {}, size: {} bytes)", 
-                    path, config.statusCode, responseBytes.length);
+            sendResponse(exchange, config, path);
         }
     }
 }

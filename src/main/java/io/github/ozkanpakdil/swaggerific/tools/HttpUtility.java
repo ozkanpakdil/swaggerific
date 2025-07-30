@@ -134,6 +134,45 @@ public class HttpUtility {
             finalAddress.set(finalAddress.get() + "?" + queryParamsString);
         }
 
+        // Special handling for localhost without port
+        try {
+            URI parsedUri = URI.create(finalAddress.get());
+            String host = parsedUri.getHost();
+            int port = parsedUri.getPort();
+            
+            // If this is localhost or 127.0.0.1 without a port, check if we need to add one
+            if ((host != null && (host.equals("localhost") || host.equals("127.0.0.1"))) && port == -1) {
+                log.info("Detected localhost without port in URI: {}", finalAddress.get());
+                
+                // Try to extract port from the original URI if it exists
+                URI originalUri = URI.create(uri);
+                int originalPort = originalUri.getPort();
+                
+                if (originalPort != -1) {
+                    // Reconstruct the URI with the port
+                    String scheme = parsedUri.getScheme();
+                    String path = parsedUri.getPath();
+                    String query = parsedUri.getQuery();
+                    
+                    StringBuilder uriWithPort = new StringBuilder();
+                    uriWithPort.append(scheme).append("://").append(host).append(":").append(originalPort);
+                    
+                    if (path != null) {
+                        uriWithPort.append(path);
+                    }
+                    
+                    if (query != null) {
+                        uriWithPort.append("?").append(query);
+                    }
+                    
+                    log.info("Fixed URI with port: {}", uriWithPort);
+                    return URI.create(uriWithPort.toString());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error parsing URI: {}", e.getMessage());
+        }
+
         return URI.create(finalAddress.get());
     }
 

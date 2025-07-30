@@ -59,18 +59,28 @@ class SwaggerGuiTest {
         String findByStatusResponse = new String(
                 Objects.requireNonNull(SwaggerGuiTest.class.getResourceAsStream("/findbystatus-response-optimized.json")).readAllBytes());
         
-        // Create and configure the SimpleHttpServer
-        httpServer = new SimpleHttpServer();
+        // Create and configure the SimpleHttpServer with a fixed port
+        // Using a fixed port to avoid issues with port resolution
+        httpServer = new SimpleHttpServer(8765);
+        
+        // Store the server port for later use
+        final int serverPort = httpServer.getPort();
         
         // Configure responses
+        // Modify the Swagger JSON to use the correct host and port
+        String modifiedJson = jsonBody
+                .replace("\"host\": \"petstore.swagger.io\"", "\"host\": \"127.0.0.1:" + serverPort + "\"")
+                .replace("\"basePath\": \"/v2\"", "\"basePath\": \"\"");
+                
         httpServer.addResponse(
                 "/petstore-swagger.json", 
-                jsonBody, 
+                modifiedJson, 
                 "application/json; charset=utf-8", 
                 200);
         
+        // Add response for the pet/findByStatus endpoint with the correct path
         httpServer.addResponse(
-                "/petstore-pet/findByStatus", 
+                "/pet/findByStatus", 
                 findByStatusResponse, 
                 "application/json", 
                 200);
@@ -91,16 +101,25 @@ class SwaggerGuiTest {
 
     @Test
     void click_treeview_call_get(FxRobot robot) {
+        // Disable proxy for this test to ensure direct connection to local server
+        System.setProperty("http.proxyHost", "");
+        System.setProperty("http.proxyPort", "");
+        System.setProperty("https.proxyHost", "");
+        System.setProperty("https.proxyPort", "");
+        
+        // Store the server port for later use
+        final int serverPort = httpServer.getPort();
+        
         // set up http request to send to http server and receive response
         HttpService httpService = new HttpServiceImpl();
         HttpResponse httpResponse = httpService.get(
-                URI.create("http://127.0.0.1:" + httpServer.getPort() + "/petstore-swagger.json"),
+                URI.create("http://127.0.0.1:" + serverPort + "/petstore-swagger.json"),
                 Map.of("Content-Type", "application/json; charset=utf-8"));
         assert httpResponse.statusCode() == 200;
 
         log.info("Pressing CTRL+O to open the Swagger file in the GUI");
         robot.push(KeyCode.CONTROL, KeyCode.O);
-        robot.write("http://127.0.0.1:" + httpServer.getPort() + "/petstore-swagger.json");
+        robot.write("http://127.0.0.1:" + serverPort + "/petstore-swagger.json");
         robot.push(KeyCode.ENTER);
         robot.sleep(1000); // Give time for the file to load
         robot.clickOn("#treePaths");

@@ -8,10 +8,12 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
+import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @ExtendWith(ApplicationExtension.class)
 @EnabledOnOs({ OS.WINDOWS })
@@ -23,17 +25,21 @@ class SwaggerGuiMenuTest {
      * @param stage - Will be injected by the test runner.
      */
     @Start
-    private void start(Stage stage) throws IOException {
+    private void start(Stage stage) throws IOException, TimeoutException {
         Platform.isNestedLoopRunning();
         SwaggerApplication swaggerApplication = new SwaggerApplication();
         swaggerApplication.start(stage);
         stage.show();
         stage.toFront();
         stage.requestFocus();
+        FxToolkit.registerStage(() -> stage);
+        FxToolkit.registerPrimaryStage();
     }
 
     @Test
-    void openViewAndHelpMenu(FxRobot robot) {
+    void openViewAndHelpMenu(FxRobot robot) throws TimeoutException {
+        FxToolkit.showStage();
+        robot.targetWindow("Swaggerific");
         robot.push(KeyCode.ALT, KeyCode.V, KeyCode.D);
         robot.push(KeyCode.ALT, KeyCode.V, KeyCode.T);
         robot.push(KeyCode.ALT, KeyCode.V, KeyCode.F);
@@ -45,7 +51,9 @@ class SwaggerGuiMenuTest {
     }
 
     @Test
-    void openJson(FxRobot robot) {
+    void openJson(FxRobot robot) throws TimeoutException {
+        FxToolkit.showStage();
+
         robot.push(KeyCode.CONTROL, KeyCode.O);
         robot.push(KeyCode.ESCAPE);
         robot.push(KeyCode.CONTROL, KeyCode.O);
