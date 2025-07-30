@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.Authenticator;
+import java.net.ConnectException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -30,6 +31,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.channels.ClosedChannelException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -241,10 +243,23 @@ public class HttpServiceImpl implements HttpService {
                     .error("Request interrupted: " + e.getMessage())
                     .build();
         } catch (Exception e) {
-            log.error("Error in request: {}", e.getMessage(), e);
+            if (e.getCause() instanceof ConnectException &&
+                    e.getCause().getCause() instanceof ClosedChannelException) {
+                log.error("Closed channel error during request (target is not listening check ports and address)", e);
+                return new HttpResponse.Builder()
+                        .statusCode(500)
+                        .error("Closed channel error: " + e.getMessage())
+                        .build();
+            }
+
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) {
+                errorMessage = "Connection failed - " + e.getClass().getSimpleName();
+            }
+            log.error("Error in request: {}", errorMessage, e);
             return new HttpResponse.Builder()
                     .statusCode(500)
-                    .error(e.getMessage())
+                    .error(errorMessage)
                     .build();
         }
     }

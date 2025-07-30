@@ -694,8 +694,10 @@ public class MainController implements Initializable {
 
     public void openDebugConsole() {
         debugDockNode = storedDockNode;
-        debugDockNode.setVisible(true);
-        dockPaneMain.dock(debugDockNode, DockPosition.BOTTOM);
+        if (debugDockNode != null) {
+            debugDockNode.setVisible(true);
+            dockPaneMain.dock(debugDockNode, DockPosition.BOTTOM);
+        }
         storedDockNode = null;
     }
 
