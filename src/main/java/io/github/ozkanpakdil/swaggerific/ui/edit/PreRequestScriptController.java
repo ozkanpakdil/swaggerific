@@ -1,9 +1,6 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
 import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
-import io.github.ozkanpakdil.swaggerific.tools.HttpUtility;
-import io.github.ozkanpakdil.swaggerific.tools.http.HttpService;
-import io.github.ozkanpakdil.swaggerific.tools.http.HttpServiceImpl;
 import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.textfx.JavaScriptColorize;
 import io.swagger.v3.core.util.Json;
@@ -38,7 +35,7 @@ public class PreRequestScriptController implements Initializable {
     private CodeArea codePreRequestScript;
 
     private final ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-    private final ScriptEngine scriptEngine = initializeScriptEngine();
+    private ScriptEngine scriptEngine;
 
     private ScriptEngine initializeScriptEngine() {
         // Try different engine names that GraalVM might use
@@ -54,26 +51,22 @@ public class PreRequestScriptController implements Initializable {
 
         try {
             log.error("No JavaScript engine found! Available engines:");
-            scriptEngineManager.getEngineFactories().forEach(factory -> log.error(
-                    "  Engine: {} ({}), Language: {} ({}), Extensions: {}",
-                    factory.getEngineName(), factory.getEngineVersion(),
-                    factory.getLanguageName(), factory.getLanguageVersion(),
-                    factory.getExtensions()));
+            scriptEngineManager.getEngineFactories().forEach(
+                    factory -> log.error("  Engine: {} ({}), Language: {} ({}), Extensions: {}", factory.getEngineName(),
+                            factory.getEngineVersion(), factory.getLanguageName(), factory.getLanguageVersion(),
+                            factory.getExtensions()));
         } catch (Exception e) {
             log.error("Error initializing JavaScript engine: {}", e.getMessage(), e);
         }
         return null;
     }
 
-    private final HttpService httpService = new HttpServiceImpl();
-    private final HttpUtility httpUtility = new HttpUtility();
-
     // For syntax highlighting
     private final JavaScriptColorize javaScriptColorize = new JavaScriptColorize();
 
     // Store for variables that can be accessed across script executions
     private final Map<String, Object> variables = new ConcurrentHashMap<>();
-    
+
     // Environment manager for accessing environment variables
     private EnvironmentManager environmentManager;
 
@@ -84,6 +77,8 @@ public class PreRequestScriptController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Set up code editor with JavaScript syntax highlighting
         setupCodeEditor();
+        if (!getScript().isEmpty())
+            scriptEngine = initializeScriptEngine();
     }
 
     /**
@@ -106,8 +101,7 @@ public class PreRequestScriptController implements Initializable {
         codePreRequestScript.setLineHighlighterOn(true);
 
         // Apply JavaScript syntax highlighting
-        codePreRequestScript.textProperty().addListener(
-                (obs, oldText, newText) -> refreshSyntaxHighlighting());
+        codePreRequestScript.textProperty().addListener((obs, oldText, newText) -> refreshSyntaxHighlighting());
     }
 
     /**
@@ -147,7 +141,7 @@ public class PreRequestScriptController implements Initializable {
 
         // Convert Java headers to JavaScript object
         String jsHeaders = Json.mapper().writeValueAsString(headers);
-        
+
         // Get active environment name and variables
         String activeEnvironmentName = "";
         String jsEnvironmentVariables = "{}";
@@ -155,21 +149,15 @@ public class PreRequestScriptController implements Initializable {
             environmentManager.getActiveEnvironment().ifPresent(env -> {
                 log.info("Active environment: {}", env.getName());
             });
-            
+
             // Convert environment variables to JSON
             try {
-                jsEnvironmentVariables = Json.mapper().writeValueAsString(
-                    environmentManager.getActiveEnvironment()
+                jsEnvironmentVariables = Json.mapper().writeValueAsString(environmentManager.getActiveEnvironment()
                         .map(env -> env.getAllVariables().stream()
-                            .collect(java.util.stream.Collectors.toMap(
-                                var -> var.getKey(),
-                                var -> var.getValue())))
-                        .orElse(new java.util.HashMap<>())
-                );
-                
-                activeEnvironmentName = environmentManager.getActiveEnvironment()
-                    .map(env -> env.getName())
-                    .orElse("");
+                                .collect(java.util.stream.Collectors.toMap(var -> var.getKey(), var -> var.getValue())))
+                        .orElse(new java.util.HashMap<>()));
+
+                activeEnvironmentName = environmentManager.getActiveEnvironment().map(env -> env.getName()).orElse("");
             } catch (Exception e) {
                 log.error("Error converting environment variables to JSON", e);
             }
@@ -255,7 +243,7 @@ public class PreRequestScriptController implements Initializable {
                       return Object.assign({}, __jsVariables);
                     }
                   },
-                  
+                
                   // Enhanced environment API
                   environment: {
                     name: __activeEnvironmentName,
@@ -275,7 +263,7 @@ public class PreRequestScriptController implements Initializable {
                       return Object.assign({}, __jsEnvironmentVariables);
                     }
                   },
-                  
+                
                   // Enhanced request API
                   request: {
                     headers: __jsHeaders,
@@ -298,19 +286,19 @@ public class PreRequestScriptController implements Initializable {
                       return this.headers.hasOwnProperty(name);
                     }
                   },
-                  
+                
                   // Enhanced sendRequest with Promise support
                   sendRequest: function(url, options, callback) {
                     console.log('sendRequest called with URL: ' + url);
-                    
+                
                     // Handle different parameter combinations
                     if (typeof options === 'function') {
                       callback = options;
                       options = {};
                     }
-                    
+                
                     options = options || {};
-                    
+                
                     // Create a promise that will be resolved/rejected by the Java code
                     var promise = new Promise(function(resolve, reject) {
                       // Store the promise callbacks in the queue for later execution
@@ -320,10 +308,10 @@ public class PreRequestScriptController implements Initializable {
                         resolve: resolve,
                         reject: reject
                       });
-                      
+                
                       console.log('Added request to promise queue: ' + url);
                     });
-                    
+                
                     // If a callback was provided, attach it to the promise
                     if (typeof callback === 'function') {
                       promise.then(
@@ -331,10 +319,10 @@ public class PreRequestScriptController implements Initializable {
                         function(error) { callback(error, null); }
                       );
                     }
-                    
+                
                     return promise;
                   },
-                  
+                
                   // Utility methods
                   utils: {
                     // JSON utilities
@@ -356,7 +344,7 @@ public class PreRequestScriptController implements Initializable {
                         }
                       }
                     },
-                    
+                
                     // String utilities
                     string: {
                       isEmpty: function(str) {
@@ -369,7 +357,7 @@ public class PreRequestScriptController implements Initializable {
                         return str ? str.trim() : '';
                       }
                     },
-                    
+                
                     // Base64 encoding/decoding
                     base64: {
                       encode: function(text) {
@@ -383,17 +371,17 @@ public class PreRequestScriptController implements Initializable {
                           var output = '';
                           var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
                           var i = 0;
-                          
+                
                           while (i < text.length) {
                             chr1 = text.charCodeAt(i++);
                             chr2 = i < text.length ? text.charCodeAt(i++) : NaN;
                             chr3 = i < text.length ? text.charCodeAt(i++) : NaN;
-                            
+                
                             enc1 = chr1 >> 2;
                             enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
                             enc3 = isNaN(chr2) ? 64 : ((chr2 & 15) << 2) | (chr3 >> 6);
                             enc4 = isNaN(chr3) ? 64 : (chr3 & 63);
-                            
+                
                             output += keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
                           }
                           return output;
@@ -414,22 +402,22 @@ public class PreRequestScriptController implements Initializable {
                           var chr1, chr2, chr3;
                           var enc1, enc2, enc3, enc4;
                           var i = 0;
-                          
+                
                           // Remove all characters that are not A-Z, a-z, 0-9, +, /, or =
                           text = text.replace(/[^A-Za-z0-9\\+\\/\\=]/g, '');
-                          
+                
                           while (i < text.length) {
                             enc1 = keyStr.indexOf(text.charAt(i++));
                             enc2 = keyStr.indexOf(text.charAt(i++));
                             enc3 = keyStr.indexOf(text.charAt(i++));
                             enc4 = keyStr.indexOf(text.charAt(i++));
-                            
+                
                             chr1 = (enc1 << 2) | (enc2 >> 4);
                             chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
                             chr3 = ((enc3 & 3) << 6) | enc4;
-                            
+                
                             output += String.fromCharCode(chr1);
-                            
+                
                             if (enc3 !== 64) {
                               output += String.fromCharCode(chr2);
                             }
@@ -445,7 +433,7 @@ public class PreRequestScriptController implements Initializable {
                       }
                     }
                   },
-                  
+                
                   // Information about the current execution environment
                   info: {
                     version: '1.0.0',
@@ -480,8 +468,8 @@ public class PreRequestScriptController implements Initializable {
     }
 
     /**
-     * Executes the script with given bindings and processes console logs
-     * Also handles errors with line numbers and stack traces
+     * Executes the script with given bindings and processes console logs Also handles errors with line numbers and stack
+     * traces
      */
     @SuppressWarnings("null") // scriptEngine is validated before this method is called
     private void executeScriptWithBindings(String script, SimpleBindings bindings) throws ScriptException {
@@ -503,15 +491,15 @@ public class PreRequestScriptController implements Initializable {
                         throw e;
                     }
                     """.formatted(script);
-            
+
             scriptEngine.eval(wrappedScript, bindings);
-            
+
             // Process any promises in the queue
             processPromiseQueue(bindings);
-            
+
             // Process console logs
             processConsoleLogs(bindings);
-            
+
             // Check if there was an error
             Object lastError = scriptEngine.eval("__lastError", bindings);
             if (lastError != null && !"null".equals(lastError.toString())) {
@@ -521,25 +509,25 @@ public class PreRequestScriptController implements Initializable {
             // Extract line number and column information if available
             int lineNumber = e.getLineNumber();
             int columnNumber = e.getColumnNumber();
-            
+
             if (lineNumber > 0) {
                 // Adjust line number to account for the wrapper
                 lineNumber = Math.max(1, lineNumber - 1);
-                
+
                 // Get the line of code that caused the error
                 String[] lines = script.split("\n");
                 String errorLine = lineNumber <= lines.length ? lines[lineNumber - 1] : "unknown";
-                
+
                 log.error("Script error at line {}, column {}: {}", lineNumber, columnNumber, e.getMessage());
                 log.error("Error line: {}", errorLine);
             } else {
                 log.error("Script error: {}", e.getMessage());
             }
-            
+
             throw e;
         }
     }
-    
+
     /**
      * Processes any promises in the queue
      */
@@ -548,21 +536,19 @@ public class PreRequestScriptController implements Initializable {
             // Check if there are any promises in the queue
             Object queueResult = scriptEngine.eval("__promiseQueue", bindings);
             if (queueResult instanceof java.util.List<?>) {
-                @SuppressWarnings("unchecked")
-                java.util.List<Object> promiseQueue = (java.util.List<Object>) queueResult;
-                
+                @SuppressWarnings("unchecked") java.util.List<Object> promiseQueue = (java.util.List<Object>) queueResult;
+
                 if (!promiseQueue.isEmpty()) {
                     log.info("Processing {} promises in queue", promiseQueue.size());
-                    
+
                     // Process each promise in the queue
                     for (Object promiseObj : promiseQueue) {
                         if (promiseObj instanceof java.util.Map<?, ?>) {
-                            @SuppressWarnings("unchecked")
-                            java.util.Map<String, Object> promise = (java.util.Map<String, Object>) promiseObj;
-                            
+                            @SuppressWarnings("unchecked") java.util.Map<String, Object> promise = (java.util.Map<String, Object>) promiseObj;
+
                             String url = promise.get("url").toString();
                             log.info("Processing promise for URL: {}", url);
-                            
+
                             try {
                                 // Here we would actually make the HTTP request
                                 // For now, we'll just simulate a successful response
@@ -575,26 +561,25 @@ public class PreRequestScriptController implements Initializable {
                                             "json": function() { return {"success": true, "message": "Request successful"}; }
                                         }
                                         """;
-                                
+
                                 // Resolve the promise
-                                String resolveScript = String.format(
-                                        "var response = %s; __promiseQueue[0].resolve(response);", 
+                                String resolveScript = String.format("var response = %s; __promiseQueue[0].resolve(response);",
                                         responseJson);
                                 scriptEngine.eval(resolveScript, bindings);
-                                
+
                                 log.info("Resolved promise for URL: {}", url);
                             } catch (Exception e) {
                                 // Reject the promise
                                 String rejectScript = String.format(
-                                        "var error = {message: '%s'}; __promiseQueue[0].reject(error);", 
+                                        "var error = {message: '%s'}; __promiseQueue[0].reject(error);",
                                         e.getMessage().replace("'", "\\'"));
                                 scriptEngine.eval(rejectScript, bindings);
-                                
+
                                 log.error("Rejected promise for URL: {}: {}", url, e.getMessage());
                             }
                         }
                     }
-                    
+
                     // Clear the promise queue
                     scriptEngine.eval("__promiseQueue = [];", bindings);
                 }
@@ -611,8 +596,7 @@ public class PreRequestScriptController implements Initializable {
         try {
             Object consoleLogsResult = scriptEngine.eval("__consoleLogs", bindings);
             if (consoleLogsResult instanceof java.util.List<?>) {
-                @SuppressWarnings("unchecked")
-                java.util.List<Object> consoleLogs = (java.util.List<Object>) consoleLogsResult;
+                @SuppressWarnings("unchecked") java.util.List<Object> consoleLogs = (java.util.List<Object>) consoleLogsResult;
                 processConsoleLogsList(consoleLogs);
             } else {
                 processConsoleLogsArray(bindings);
@@ -657,15 +641,13 @@ public class PreRequestScriptController implements Initializable {
     }
 
     /**
-     * Syncs JavaScript objects back to Java maps
-     * Enhanced to handle new JavaScript objects and properties
+     * Syncs JavaScript objects back to Java maps Enhanced to handle new JavaScript objects and properties
      */
     @SuppressWarnings("null") // scriptEngine is validated before this method is called
     private void syncJavaScriptObjects(SimpleBindings bindings, Map<String, String> headers) {
         try {
             // Sync variables from JavaScript
-            syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsVariables", variables,
-                    value -> value);
+            syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsVariables", variables, value -> value);
 
             // Sync headers from JavaScript
             syncJavaScriptObjectToMap(scriptEngine, bindings, "__jsHeaders", headers,
@@ -718,12 +700,11 @@ public class PreRequestScriptController implements Initializable {
     public CompletableFuture<Void> executeScript(Map<String, String> headers) {
         return CompletableFuture.runAsync(() -> {
             try {
-                validateScriptEngine();
-
                 String script = getScript();
                 if (script == null || script.trim().isEmpty()) {
                     return;
                 }
+                validateScriptEngine();
 
                 SimpleBindings bindings = createScriptBindings(headers);
                 executeScriptWithBindings(script, bindings);
@@ -741,9 +722,7 @@ public class PreRequestScriptController implements Initializable {
      * Shows an error dialog for script execution errors
      */
     private void showScriptError(Exception e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR,
-                "Error executing pre-request script: " + e.getMessage(),
-                ButtonType.OK);
+        Alert alert = new Alert(Alert.AlertType.ERROR, "Error executing pre-request script: " + e.getMessage(), ButtonType.OK);
         alert.setTitle("Script Error");
         alert.setHeaderText("JavaScript Error");
         alert.showAndWait();
@@ -769,20 +748,19 @@ public class PreRequestScriptController implements Initializable {
     public Map<String, Object> getVariables() {
         return variables;
     }
-    
+
     /**
      * Sets the environment manager
-     * 
+     *
      * @param environmentManager the environment manager to use
      */
     public void setEnvironmentManager(EnvironmentManager environmentManager) {
         this.environmentManager = environmentManager;
     }
-    
+
     /**
-     * Resolves environment variables in a string.
-     * Environment variables are referenced using the syntax {{variable_name}}.
-     * 
+     * Resolves environment variables in a string. Environment variables are referenced using the syntax {{variable_name}}.
+     *
      * @param input the input string to resolve
      * @return the resolved string with environment variables replaced
      */
@@ -790,7 +768,7 @@ public class PreRequestScriptController implements Initializable {
         if (input == null || input.isEmpty() || environmentManager == null) {
             return input;
         }
-        
+
         return environmentManager.resolveVariables(input);
     }
 
@@ -920,20 +898,15 @@ public class PreRequestScriptController implements Initializable {
      * Syncs a JavaScript object to a Java Map
      */
     @SuppressWarnings("unchecked")
-    private void syncJavaScriptObjectToMap(ScriptEngine scriptEngine,
-            SimpleBindings bindings,
-            String jsObjectName,
-            Map<String, ?> targetMap,
-            Function<Object, Object> valueConverter) throws ScriptException {
+    private void syncJavaScriptObjectToMap(ScriptEngine scriptEngine, SimpleBindings bindings, String jsObjectName,
+            Map<String, ?> targetMap, Function<Object, Object> valueConverter) throws ScriptException {
         Object jsResult = scriptEngine.eval(jsObjectName, bindings);
-        log.info("JavaScript {} result type: {}, value: {}", jsObjectName,
-                jsResult.getClass().getName(), jsResult);
+        log.info("JavaScript {} result type: {}, value: {}", jsObjectName, jsResult.getClass().getName(), jsResult);
 
         Map<String, Object> typedMap = (Map<String, Object>) targetMap;
 
         if (jsResult instanceof java.util.Map) {
-            @SuppressWarnings("unchecked")
-            java.util.Map<String, Object> jsMap = (java.util.Map<String, Object>) jsResult;
+            @SuppressWarnings("unchecked") java.util.Map<String, Object> jsMap = (java.util.Map<String, Object>) jsResult;
             typedMap.clear();
             for (Map.Entry<String, Object> entry : jsMap.entrySet()) {
                 if (entry.getValue() != null) {

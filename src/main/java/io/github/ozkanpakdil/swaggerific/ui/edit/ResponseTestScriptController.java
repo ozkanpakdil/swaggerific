@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * Controller for the response test script editor.
- * This controller handles the execution of JavaScript test scripts for validating API responses.
+ * Controller for the response test script editor. This controller handles the execution of JavaScript test scripts for
+ * validating API responses.
  */
 public class ResponseTestScriptController implements Initializable {
     private static final Logger log = LoggerFactory.getLogger(ResponseTestScriptController.class);
@@ -46,8 +46,8 @@ public class ResponseTestScriptController implements Initializable {
     private final List<AssertionResult> assertionResults = new ArrayList<>();
 
     /**
-     * Initializes the JavaScript engine for executing test scripts.
-     * Tries multiple engine names that GraalVM might use, falls back to other JavaScript engines if needed.
+     * Initializes the JavaScript engine for executing test scripts. Tries multiple engine names that GraalVM might use, falls
+     * back to other JavaScript engines if needed.
      *
      * @return the initialized script engine
      */
@@ -73,12 +73,6 @@ public class ResponseTestScriptController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize the script engine if not already initialized
-        if (scriptEngine == null) {
-            scriptEngine = initializeScriptEngine();
-            log.info("Script engine initialized in initialize(): {}", 
-                    scriptEngine != null ? scriptEngine.getClass().getName() : "null");
-        }
         setupCodeEditor();
     }
 
@@ -87,17 +81,17 @@ public class ResponseTestScriptController implements Initializable {
      */
     private void setupCodeEditor() {
         codeResponseTestScript.setParagraphGraphicFactory(LineNumberFactory.get(codeResponseTestScript));
-        
+
         // Apply syntax highlighting CSS
         URL cssUrl = getClass().getResource("/css/javascript-highlighting.css");
         if (cssUrl != null) {
             codeResponseTestScript.getStylesheets().add(cssUrl.toString());
         }
-        
+
         // Enable word wrapping and line highlighting
         codeResponseTestScript.setWrapText(true);
         codeResponseTestScript.setLineHighlighterOn(true);
-        
+
         // Add listener for syntax highlighting
         codeResponseTestScript.textProperty().addListener(
                 (obs, oldText, newText) -> refreshSyntaxHighlighting());
@@ -129,58 +123,57 @@ public class ResponseTestScriptController implements Initializable {
     }
 
     /**
-     * Creates bindings for the script execution context.
-     * This makes variables and functions available to the script.
+     * Creates bindings for the script execution context. This makes variables and functions available to the script.
      *
      * @param response the HTTP response to test
      * @return the script bindings
      */
     private SimpleBindings createScriptBindings(HttpResponse response) {
         SimpleBindings bindings = new SimpleBindings();
-        
+
         // Add console object for logging
         Map<String, Object> console = new HashMap<>();
         List<Object> consoleLogs = new ArrayList<>();
         console.put("logs", consoleLogs);
-        
+
         // Console logging methods
         console.put("log", (Function<Object, Void>) message -> {
             consoleLogs.add(message);
             return null;
         });
-        
+
         console.put("info", (Function<Object, Void>) message -> {
             consoleLogs.add("INFO: " + message);
             return null;
         });
-        
+
         console.put("warn", (Function<Object, Void>) message -> {
             consoleLogs.add("WARNING: " + message);
             return null;
         });
-        
+
         console.put("error", (Function<Object, Void>) message -> {
             consoleLogs.add("ERROR: " + message);
             return null;
         });
-        
+
         console.put("debug", (Function<Object, Void>) message -> {
             consoleLogs.add("DEBUG: " + message);
             return null;
         });
-        
+
         bindings.put("console", console);
-        
+
         // Add pm object for Postman-like API
         Map<String, Object> pm = new HashMap<>();
-        
+
         // Add response object
         Map<String, Object> responseObj = new HashMap<>();
         responseObj.put("status", response.statusCode());
         responseObj.put("body", response.body());
         responseObj.put("headers", response.headers());
         responseObj.put("contentType", response.contentType());
-        
+
         // Add JSON parsing utility
         responseObj.put("json", (Function<Void, Object>) v -> {
             try {
@@ -190,12 +183,12 @@ public class ResponseTestScriptController implements Initializable {
                 return null;
             }
         });
-        
+
         pm.put("response", responseObj);
-        
+
         // Add test object for assertions
         Map<String, Object> test = new HashMap<>();
-        
+
         // Add assertion methods
         test.put("assertEquals", (Function<Object[], Boolean>) args -> {
             if (args.length < 3) {
@@ -203,127 +196,127 @@ public class ResponseTestScriptController implements Initializable {
                 addAssertionResult(false, message + ": Not enough arguments for assertEquals");
                 return false;
             }
-            
+
             String message = args[0].toString();
             Object actual = args[1];
             Object expected = args[2];
-            
-            boolean result = (actual == null && expected == null) || 
-                             (actual != null && actual.equals(expected));
-            
+
+            boolean result = (actual == null && expected == null) ||
+                    (actual != null && actual.equals(expected));
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertTrue", (Function<Object[], Boolean>) args -> {
             if (args.length < 2) {
                 String message = args.length > 0 ? args[0].toString() : "Assertion failed";
                 addAssertionResult(false, message + ": Not enough arguments for assertTrue");
                 return false;
             }
-            
+
             String message = args[0].toString();
             Object condition = args[1];
-            
+
             boolean result = condition instanceof Boolean && (Boolean) condition;
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertFalse", (Function<Object[], Boolean>) args -> {
             if (args.length < 2) {
                 String message = args.length > 0 ? args[0].toString() : "Assertion failed";
                 addAssertionResult(false, message + ": Not enough arguments for assertFalse");
                 return false;
             }
-            
+
             String message = args[0].toString();
             Object condition = args[1];
-            
+
             boolean result = condition instanceof Boolean && !(Boolean) condition;
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertContains", (Function<Object[], Boolean>) args -> {
             if (args.length < 3) {
                 String message = args.length > 0 ? args[0].toString() : "Assertion failed";
                 addAssertionResult(false, message + ": Not enough arguments for assertContains");
                 return false;
             }
-            
+
             String message = args[0].toString();
             String haystack = args[1] != null ? args[1].toString() : "";
             String needle = args[2] != null ? args[2].toString() : "";
-            
+
             boolean result = haystack.contains(needle);
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertStatusCode", (Function<Object[], Boolean>) args -> {
             if (args.length < 2) {
                 String message = "Status code assertion failed: Not enough arguments";
                 addAssertionResult(false, message);
                 return false;
             }
-            
-            String message = args.length > 2 ? args[0].toString() : 
-                             "Status code should be " + args[args.length - 1];
-            int expectedStatus = args[args.length - 1] instanceof Number ? 
-                                ((Number) args[args.length - 1]).intValue() : -1;
-            
+
+            String message = args.length > 2 ? args[0].toString() :
+                    "Status code should be " + args[args.length - 1];
+            int expectedStatus = args[args.length - 1] instanceof Number ?
+                    ((Number) args[args.length - 1]).intValue() : -1;
+
             boolean result = response.statusCode() == expectedStatus;
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertHeader", (Function<Object[], Boolean>) args -> {
             if (args.length < 2) {
                 String message = "Header assertion failed: Not enough arguments";
                 addAssertionResult(false, message);
                 return false;
             }
-            
+
             String headerName = args[args.length - 1].toString();
-            String message = args.length > 2 ? args[0].toString() : 
-                             "Response should have header '" + headerName + "'";
-            
+            String message = args.length > 2 ? args[0].toString() :
+                    "Response should have header '" + headerName + "'";
+
             boolean result = response.headers().containsKey(headerName);
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         test.put("assertHeaderValue", (Function<Object[], Boolean>) args -> {
             if (args.length < 3) {
                 String message = "Header value assertion failed: Not enough arguments";
                 addAssertionResult(false, message);
                 return false;
             }
-            
+
             String headerName = args[args.length - 2].toString();
             String expectedValue = args[args.length - 1].toString();
-            String message = args.length > 3 ? args[0].toString() : 
-                             "Header '" + headerName + "' should have value '" + expectedValue + "'";
-            
+            String message = args.length > 3 ? args[0].toString() :
+                    "Header '" + headerName + "' should have value '" + expectedValue + "'";
+
             String actualValue = response.headers().get(headerName);
             boolean result = actualValue != null && actualValue.equals(expectedValue);
-            
+
             addAssertionResult(result, message);
             return result;
         });
-        
+
         pm.put("test", test);
-        
+
         // Add environment variables
         Map<String, Object> environment = new HashMap<>();
         Map<String, Object> variables = new HashMap<>();
-        
+
         // Add variable getter and setter
         variables.put("get", (Function<String, Object>) name -> {
             if (this.variables.containsKey(name)) {
@@ -333,7 +326,7 @@ public class ResponseTestScriptController implements Initializable {
             }
             return null;
         });
-        
+
         variables.put("set", (Function<Object[], Void>) args -> {
             if (args.length >= 2) {
                 String name = args[0].toString();
@@ -342,12 +335,12 @@ public class ResponseTestScriptController implements Initializable {
             }
             return null;
         });
-        
+
         pm.put("environment", environment);
         pm.put("variables", variables);
-        
+
         bindings.put("pm", pm);
-        
+
         return bindings;
     }
 
@@ -363,22 +356,6 @@ public class ResponseTestScriptController implements Initializable {
     }
 
     /**
-     * Verifies that the pm object is properly initialized in the script bindings.
-     *
-     * @param bindings the script bindings
-     */
-    private void verifyPmObject(SimpleBindings bindings) {
-        if (!bindings.containsKey("pm")) {
-            throw new RuntimeException("pm object not found in script bindings");
-        }
-        
-        Object pm = bindings.get("pm");
-        if (!(pm instanceof Map)) {
-            throw new RuntimeException("pm object is not a Map");
-        }
-    }
-
-    /**
      * Executes a script with the given bindings.
      *
      * @param script the script to execute
@@ -388,17 +365,17 @@ public class ResponseTestScriptController implements Initializable {
         try {
             // Clear previous assertion results
             assertionResults.clear();
-            
+
             // Execute the script
             scriptEngine.eval(script, bindings);
-            
+
             // Process console logs
             processConsoleLogs(bindings);
-            
+
             // Log assertion results
             int passedCount = 0;
             int failedCount = 0;
-            
+
             for (AssertionResult result : assertionResults) {
                 if (result.passed()) {
                     passedCount++;
@@ -406,9 +383,9 @@ public class ResponseTestScriptController implements Initializable {
                     failedCount++;
                 }
             }
-            
+
             log.info("Test results: {} passed, {} failed", passedCount, failedCount);
-            
+
             // If there are failed assertions, log them
             if (failedCount > 0) {
                 log.warn("Failed assertions:");
@@ -418,7 +395,7 @@ public class ResponseTestScriptController implements Initializable {
                     }
                 }
             }
-            
+
         } catch (ScriptException e) {
             throw handleScriptError(e, "Error executing response test script");
         }
@@ -432,10 +409,9 @@ public class ResponseTestScriptController implements Initializable {
     private void processConsoleLogs(SimpleBindings bindings) {
         try {
             Object console = bindings.get("console");
-            if (console instanceof Map) {
-                Map<?, ?> consoleMap = (Map<?, ?>) console;
+            if (console instanceof Map<?, ?> consoleMap) {
                 Object logs = consoleMap.get("logs");
-                
+
                 if (logs instanceof List) {
                     processConsoleLogsList((List<Object>) logs);
                 }
@@ -507,27 +483,33 @@ public class ResponseTestScriptController implements Initializable {
      * @return a future that completes when the script execution is complete
      */
     public CompletableFuture<List<AssertionResult>> executeScript(HttpResponse response) {
+        if (getScript() != null || !getScript().trim().isEmpty()) {
+            scriptEngine = initializeScriptEngine();
+            log.info("Script engine initialized in initialize(): {}",
+                    scriptEngine != null ? scriptEngine.getClass().getName() : "null");
+        }
+
         CompletableFuture<List<AssertionResult>> future = new CompletableFuture<>();
-        
+
         try {
             validateScriptEngine();
-            
+
             String script = getScript();
             if (script == null || script.trim().isEmpty()) {
                 log.info("No response test script to execute");
                 future.complete(assertionResults);
                 return future;
             }
-            
+
             // Create bindings with the response
             SimpleBindings bindings = createScriptBindings(response);
-            
+
             // Execute the script
             executeScriptWithBindings(script, bindings);
-            
+
             // Complete the future with the assertion results
             future.complete(new ArrayList<>(assertionResults));
-            
+
         } catch (Exception e) {
             log.error("Error executing response test script: {}", e.getMessage());
             showScriptError(e);
@@ -535,7 +517,7 @@ public class ResponseTestScriptController implements Initializable {
         } finally {
             notifyScriptComplete();
         }
-        
+
         return future;
     }
 
@@ -545,8 +527,8 @@ public class ResponseTestScriptController implements Initializable {
      * @param e the exception
      */
     private void showScriptError(Exception e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, 
-                "Error executing response test script: " + e.getMessage(), 
+        Alert alert = new Alert(Alert.AlertType.ERROR,
+                "Error executing response test script: " + e.getMessage(),
                 ButtonType.OK);
         alert.setTitle("Script Error");
         alert.setHeaderText("Response Test Script Error");
@@ -587,7 +569,7 @@ public class ResponseTestScriptController implements Initializable {
      */
     public void setEnvironmentManager(EnvironmentManager environmentManager) {
         this.environmentManager = environmentManager;
-        log.info("Environment manager set in response test script controller");
+        log.trace("Environment manager set in response test script controller");
     }
 
     /**
@@ -600,7 +582,7 @@ public class ResponseTestScriptController implements Initializable {
         if (input == null || input.isEmpty() || environmentManager == null) {
             return input;
         }
-        
+
         return environmentManager.resolveVariables(input);
     }
 
@@ -619,7 +601,7 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertStatusCodeSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that the status code is 200\n" +
-                         "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n";
+                "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -630,8 +612,8 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertStatusCodeRangeSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that the status code is in the 2xx range\n" +
-                         "pm.test.assertTrue(\"Status code should be in 2xx range\", \n" +
-                         "    pm.response.status >= 200 && pm.response.status < 300);\n";
+                "pm.test.assertTrue(\"Status code should be in 2xx range\", \n" +
+                "    pm.response.status >= 200 && pm.response.status < 300);\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -642,7 +624,7 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertHeaderExistsSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that a specific header exists\n" +
-                         "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n";
+                "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -653,8 +635,8 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertHeaderValueSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that a header has a specific value\n" +
-                         "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                         "    \"Content-Type\", \"application/json\");\n";
+                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
+                "    \"Content-Type\", \"application/json\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -665,9 +647,9 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertJsonPropertySnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that a JSON property has a specific value\n" +
-                         "const jsonData = pm.response.json();\n" +
-                         "pm.test.assertEquals(\"Property should have expected value\", \n" +
-                         "    jsonData.propertyName, \"expectedValue\");\n";
+                "const jsonData = pm.response.json();\n" +
+                "pm.test.assertEquals(\"Property should have expected value\", \n" +
+                "    jsonData.propertyName, \"expectedValue\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -678,9 +660,9 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertJsonArrayLengthSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that a JSON array has a specific length\n" +
-                         "const jsonData = pm.response.json();\n" +
-                         "pm.test.assertEquals(\"Array should have expected length\", \n" +
-                         "    jsonData.arrayProperty.length, 3);\n";
+                "const jsonData = pm.response.json();\n" +
+                "pm.test.assertEquals(\"Array should have expected length\", \n" +
+                "    jsonData.arrayProperty.length, 3);\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -691,8 +673,8 @@ public class ResponseTestScriptController implements Initializable {
     public void insertAssertBodyContainsSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Assert that the response body contains a specific string\n" +
-                         "pm.test.assertContains(\"Response should contain expected text\", \n" +
-                         "    pm.response.body, \"expected text\");\n";
+                "pm.test.assertContains(\"Response should contain expected text\", \n" +
+                "    pm.response.body, \"expected text\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -703,8 +685,8 @@ public class ResponseTestScriptController implements Initializable {
     public void insertGetVariableSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Get a variable\n" +
-                         "const myVar = pm.variables.get(\"variableName\");\n" +
-                         "console.log(\"Variable value:\", myVar);\n";
+                "const myVar = pm.variables.get(\"variableName\");\n" +
+                "console.log(\"Variable value:\", myVar);\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -715,8 +697,8 @@ public class ResponseTestScriptController implements Initializable {
     public void insertSetVariableSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Set a variable\n" +
-                         "pm.variables.set(\"variableName\", \"variableValue\");\n" +
-                         "console.log(\"Variable set\");\n";
+                "pm.variables.set(\"variableName\", \"variableValue\");\n" +
+                "console.log(\"Variable set\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -727,7 +709,7 @@ public class ResponseTestScriptController implements Initializable {
     public void insertLogSnippet() {
         int position = codeResponseTestScript.getCaretPosition();
         String snippet = "// Log a message\n" +
-                         "console.log(\"Log message\");\n";
+                "console.log(\"Log message\");\n";
         codeResponseTestScript.insertText(position, snippet);
     }
 
@@ -737,25 +719,25 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     public void insertCompleteExampleSnippet() {
         String snippet = "// Complete response test example\n\n" +
-                         "// Test status code\n" +
-                         "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n\n" +
-                         "// Test headers\n" +
-                         "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n" +
-                         "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
-                         "    \"Content-Type\", \"application/json\");\n\n" +
-                         "// Parse JSON response\n" +
-                         "const jsonData = pm.response.json();\n\n" +
-                         "// Test JSON properties\n" +
-                         "pm.test.assertTrue(\"Response should have id property\", \n" +
-                         "    jsonData.hasOwnProperty(\"id\"));\n\n" +
-                         "// Store a value from the response in a variable\n" +
-                         "if (jsonData.id) {\n" +
-                         "    pm.variables.set(\"lastId\", jsonData.id);\n" +
-                         "    console.log(\"Saved ID:\", jsonData.id);\n" +
-                         "}\n\n" +
-                         "// Log the response\n" +
-                         "console.log(\"Response received:\", jsonData);\n";
-        
+                "// Test status code\n" +
+                "pm.test.assertStatusCode(\"Status code should be 200\", 200);\n\n" +
+                "// Test headers\n" +
+                "pm.test.assertHeader(\"Response should have Content-Type header\", \"Content-Type\");\n" +
+                "pm.test.assertHeaderValue(\"Content-Type should be application/json\", \n" +
+                "    \"Content-Type\", \"application/json\");\n\n" +
+                "// Parse JSON response\n" +
+                "const jsonData = pm.response.json();\n\n" +
+                "// Test JSON properties\n" +
+                "pm.test.assertTrue(\"Response should have id property\", \n" +
+                "    jsonData.hasOwnProperty(\"id\"));\n\n" +
+                "// Store a value from the response in a variable\n" +
+                "if (jsonData.id) {\n" +
+                "    pm.variables.set(\"lastId\", jsonData.id);\n" +
+                "    console.log(\"Saved ID:\", jsonData.id);\n" +
+                "}\n\n" +
+                "// Log the response\n" +
+                "console.log(\"Response received:\", jsonData);\n";
+
         codeResponseTestScript.replaceText(snippet);
     }
 

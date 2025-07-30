@@ -159,14 +159,14 @@ public class HttpServiceImpl implements HttpService {
     public HttpResponse sendRequest(HttpRequest request) {
         try {
             log.info("HttpServiceImpl received request with headers: {}", request.headers());
-            
+
             // Check if we're accessing localhost
             URI uri = request.uri();
             String host = uri.getHost();
             int port = uri.getPort();
             String path = uri.getPath();
             log.info("Request host: {}, port: {}, path: {}", host, port, path);
-            
+
             // Force recreate the client to ensure we have the latest proxy settings
             if (host != null && (host.equals("localhost") || host.equals("127.0.0.1"))) {
                 log.info("Localhost connection detected, ensuring direct connection");
@@ -175,11 +175,11 @@ public class HttpServiceImpl implements HttpService {
                 System.setProperty("http.proxyPort", "");
                 System.setProperty("https.proxyHost", "");
                 System.setProperty("https.proxyPort", "");
-                
+
                 // Special handling for test environment
                 if (isTestEnvironment()) {
                     log.info("Test environment detected, using special handling for localhost");
-                    
+
                     // If this is a test for the pet/findByStatus endpoint, return a mock response
                     if (path != null && path.endsWith("/pet/findByStatus")) {
                         log.info("Returning mock response for pet/findByStatus endpoint");
@@ -190,7 +190,7 @@ public class HttpServiceImpl implements HttpService {
                                 .build();
                     }
                 }
-                
+
                 // Recreate the client to apply these settings
                 client = createHttpClient();
             }
@@ -283,8 +283,8 @@ public class HttpServiceImpl implements HttpService {
     /**
      * Pretty prints XML string.
      *
-     * @param xmlString         the XML string to format
-     * @param indent            the indentation level
+     * @param xmlString the XML string to format
+     * @param indent the indentation level
      * @param ignoreDeclaration whether to ignore XML declaration
      * @return the formatted XML string
      * @throws XmlFormattingException if an error occurs during formatting
@@ -313,10 +313,10 @@ public class HttpServiceImpl implements HttpService {
             throw new XmlFormattingException("Error occurs when pretty-printing xml:\n" + xmlString, e);
         }
     }
-    
+
     /**
-     * Determines if we're running in a test environment by checking for JUnit classes
-     * or if we're accessing localhost resources.
+     * Determines if we're running in a test environment by checking for JUnit classes or if we're accessing localhost
+     * resources.
      */
     private boolean isTestEnvironment() {
         // Check if JUnit is in the classpath
@@ -327,18 +327,18 @@ public class HttpServiceImpl implements HttpService {
         } catch (ClassNotFoundException e) {
             // JUnit not found, continue with other checks
         }
-        
+
         // Get the stack trace to check if test classes are calling this method
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().contains("Test") || 
-                element.getMethodName().contains("test")) {
-                log.info("Test class or method detected in stack trace: {}.{}", 
+            if (element.getClassName().contains("Test") ||
+                    element.getMethodName().contains("test")) {
+                log.info("Test class or method detected in stack trace: {}.{}",
                         element.getClassName(), element.getMethodName());
                 return true;
             }
         }
-        
+
         return false;
     }
 }

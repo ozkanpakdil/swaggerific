@@ -257,25 +257,25 @@ public class TabRequestController extends TabPane {
                     } catch (Exception e) {
                         log.warn("Error parsing original URI: {}", e.getMessage());
                     }
-                    
+
                     // Resolve environment variables in the request URL
                     String resolvedUri = targetUri;
                     if (preRequestScriptController != null) {
                         resolvedUri = preRequestScriptController.resolveEnvironmentVariables(targetUri);
                         log.info("Resolved URI: {}", resolvedUri);
                     }
-                    
+
                     // Force the port for localhost URIs
                     if (resolvedUri.contains("127.0.0.1") || resolvedUri.contains("localhost")) {
                         // First try to use the port from the original URI
                         int portToUse = serverPort;
-                        
+
                         // If no port was found, use a fixed port for testing
                         if (portToUse == -1) {
                             portToUse = 8765; // Fixed port used in the test
                             log.info("Using fixed port 8765 for localhost");
                         }
-                        
+
                         // Replace any occurrence of localhost or 127.0.0.1 without port
                         if (resolvedUri.contains("127.0.0.1/")) {
                             resolvedUri = resolvedUri.replace("127.0.0.1/", "127.0.0.1:" + portToUse + "/");
@@ -408,35 +408,35 @@ public class TabRequestController extends TabPane {
                                     tableTestResults.getItems().clear();
                                 }
 
-                                // Execute the test script and get results
-                                responseTestScriptController.executeScript(response)
-                                        .thenAccept(results -> {
-                                            // Update test results table
-                                            if (tableTestResults != null && results != null) {
-                                                // Convert assertion results to TestResult objects
-                                                ObservableList<TestResult> testResults = FXCollections.observableArrayList();
-                                                results.forEach(result ->
-                                                        testResults.add(new TestResult(result.passed(), result.message()))
-                                                );
+                                if (!responseTestScriptController.getScript().isEmpty())
+                                    responseTestScriptController.executeScript(response)
+                                            .thenAccept(results -> {
+                                                // Update test results table
+                                                if (tableTestResults != null && results != null) {
+                                                    // Convert assertion results to TestResult objects
+                                                    ObservableList<TestResult> testResults = FXCollections.observableArrayList();
+                                                    results.forEach(result ->
+                                                            testResults.add(new TestResult(result.passed(), result.message()))
+                                                    );
 
-                                                // Update the table in the UI thread
-                                                Platform.runLater(() -> {
-                                                    tableTestResults.setItems(testResults);
+                                                    // Update the table in the UI thread
+                                                    Platform.runLater(() -> {
+                                                        tableTestResults.setItems(testResults);
 
-                                                    // Count passed and failed tests
-                                                    long passedCount = testResults.stream()
-                                                            .filter(TestResult::isPassed)
-                                                            .count();
+                                                        // Count passed and failed tests
+                                                        long passedCount = testResults.stream()
+                                                                .filter(TestResult::isPassed)
+                                                                .count();
 
-                                                    log.info("Test results: {} passed, {} failed",
-                                                            passedCount, testResults.size() - passedCount);
-                                                });
-                                            }
-                                        })
-                                        .exceptionally(e -> {
-                                            log.error("Error executing response test script: {}", e.getMessage());
-                                            return null;
-                                        });
+                                                        log.info("Test results: {} passed, {} failed",
+                                                                passedCount, testResults.size() - passedCount);
+                                                    });
+                                                }
+                                            })
+                                            .exceptionally(e -> {
+                                                log.error("Error executing response test script: {}", e.getMessage());
+                                                return null;
+                                            });
                             } catch (Exception e) {
                                 log.error("Error executing response test script: {}", e.getMessage());
                             }
