@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import io.github.ozkanpakdil.swaggerific.data.Environment;
 import io.github.ozkanpakdil.swaggerific.data.EnvironmentManager;
 import io.github.ozkanpakdil.swaggerific.data.EnvironmentVariable;
-import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -78,31 +77,29 @@ public class EnvironmentController implements Initializable {
 
     @FXML
     private Button btnClose;
-    
+
     @FXML
     private Button btnNewEnvironment;
-    
+
     @FXML
     private Button btnEditEnvironment;
-    
+
     @FXML
     private Button btnDeleteEnvironment;
-    
+
     @FXML
     private Button btnAddVariable;
-    
+
     @FXML
     private Button btnEditVariable;
-    
+
     @FXML
     private Button btnDeleteVariable;
 
-    private MainController mainController;
     private EnvironmentManager environmentManager;
     private ObservableList<EnvironmentVariable> variablesList;
     private Environment currentEnvironment;
     private EnvironmentVariable currentVariable;
-    private boolean isEditingEnvironment = false;
     private boolean isEditingVariable = false;
     private String originalEnvironmentName;
 
@@ -139,15 +136,6 @@ public class EnvironmentController implements Initializable {
     }
 
     /**
-     * Sets the main controller reference.
-     *
-     * @param mainController the main controller
-     */
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
-    }
-
-    /**
      * Sets up the variables table with columns and cell factories.
      */
     private void setupVariablesTable() {
@@ -155,8 +143,8 @@ public class EnvironmentController implements Initializable {
         tableVariables.setItems(variablesList);
 
         // Set up the key column
-        colVariableKey.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getKey()));
+        colVariableKey.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getKey()));
 
         // Set up the value column to mask secret values
         colVariableValue.setCellValueFactory(cellData -> {
@@ -166,8 +154,8 @@ public class EnvironmentController implements Initializable {
         });
 
         // Set up the secret column
-        colVariableSecret.setCellValueFactory(cellData -> 
-            new SimpleBooleanProperty(cellData.getValue().isSecret()));
+        colVariableSecret.setCellValueFactory(cellData ->
+                new SimpleBooleanProperty(cellData.getValue().isSecret()));
         colVariableSecret.setCellFactory(CheckBoxTableCell.forTableColumn(colVariableSecret));
 
         // Add listener for variable selection
@@ -206,7 +194,6 @@ public class EnvironmentController implements Initializable {
      * @param editing true to enable editing, false to disable
      */
     private void setEnvironmentEditMode(boolean editing) {
-        isEditingEnvironment = editing;
         txtEnvironmentName.setDisable(!editing);
         txtEnvironmentDescription.setDisable(!editing);
         btnSaveEnvironment.setDisable(!editing);
@@ -271,7 +258,7 @@ public class EnvironmentController implements Initializable {
             originalEnvironmentName = selectedEnvironment.getName();
             setEnvironmentEditMode(true);
         } else {
-            showAlert(Alert.AlertType.WARNING, "No Environment Selected", 
+            showAlert(Alert.AlertType.WARNING, "No Environment Selected",
                     "Please select an environment to edit.");
         }
     }
@@ -295,7 +282,7 @@ public class EnvironmentController implements Initializable {
                 if (environmentManager.removeEnvironment(selectedEnvironment.getName())) {
                     refreshEnvironmentSelector();
                     environmentManager.saveSettings();
-                    
+
                     // Select another environment if available
                     if (!environmentManager.getAllEnvironments().isEmpty()) {
                         environmentSelector.getSelectionModel().selectFirst();
@@ -304,12 +291,12 @@ public class EnvironmentController implements Initializable {
                         updateVariablesList();
                     }
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Cannot Delete Environment", 
+                    showAlert(Alert.AlertType.ERROR, "Cannot Delete Environment",
                             "Cannot delete the active environment. Please select another environment as active first.");
                 }
             }
         } else {
-            showAlert(Alert.AlertType.WARNING, "No Environment Selected", 
+            showAlert(Alert.AlertType.WARNING, "No Environment Selected",
                     "Please select an environment to delete.");
         }
     }
@@ -325,7 +312,7 @@ public class EnvironmentController implements Initializable {
         String description = txtEnvironmentDescription.getText().trim();
 
         if (name.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Environment Name", 
+            showAlert(Alert.AlertType.ERROR, "Invalid Environment Name",
                     "Environment name cannot be empty.");
             return;
         }
@@ -334,7 +321,7 @@ public class EnvironmentController implements Initializable {
         if (originalEnvironmentName == null || !originalEnvironmentName.equals(name)) {
             Optional<Environment> existingEnv = environmentManager.getEnvironment(name);
             if (existingEnv.isPresent()) {
-                showAlert(Alert.AlertType.ERROR, "Duplicate Environment Name", 
+                showAlert(Alert.AlertType.ERROR, "Duplicate Environment Name",
                         "An environment with this name already exists.");
                 return;
             }
@@ -378,7 +365,7 @@ public class EnvironmentController implements Initializable {
     @FXML
     private void handleAddVariable(ActionEvent event) {
         if (currentEnvironment == null) {
-            showAlert(Alert.AlertType.WARNING, "No Environment Selected", 
+            showAlert(Alert.AlertType.WARNING, "No Environment Selected",
                     "Please select an environment first.");
             return;
         }
@@ -402,7 +389,7 @@ public class EnvironmentController implements Initializable {
             chkVariableSecret.setSelected(selectedVariable.isSecret());
             setVariableEditMode(true);
         } else {
-            showAlert(Alert.AlertType.WARNING, "No Variable Selected", 
+            showAlert(Alert.AlertType.WARNING, "No Variable Selected",
                     "Please select a variable to edit.");
         }
     }
@@ -432,7 +419,7 @@ public class EnvironmentController implements Initializable {
                 environmentManager.saveSettings();
             }
         } else {
-            showAlert(Alert.AlertType.WARNING, "No Variable Selected", 
+            showAlert(Alert.AlertType.WARNING, "No Variable Selected",
                     "Please select a variable to delete.");
         }
     }
@@ -453,7 +440,7 @@ public class EnvironmentController implements Initializable {
         boolean isSecret = chkVariableSecret.isSelected();
 
         if (key.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Variable Key", 
+            showAlert(Alert.AlertType.ERROR, "Invalid Variable Key",
                     "Variable key cannot be empty.");
             return;
         }
@@ -493,8 +480,8 @@ public class EnvironmentController implements Initializable {
     /**
      * Shows an alert dialog.
      *
-     * @param type    the alert type
-     * @param title   the alert title
+     * @param type the alert type
+     * @param title the alert title
      * @param content the alert content
      */
     private void showAlert(Alert.AlertType type, String title, String content) {

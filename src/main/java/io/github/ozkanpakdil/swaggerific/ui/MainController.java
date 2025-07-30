@@ -388,8 +388,8 @@ public class MainController implements Initializable {
     }
 
     /**
-     * Enables detailed proxy debugging by setting system properties and configuring loggers.
-     * This should be called before any proxy operations to get detailed logs.
+     * Enables detailed proxy debugging by setting system properties and configuring loggers. This should be called before any
+     * proxy operations to get detailed logs.
      */
     public void enableProxyDebugging() {
         // Enable detailed proxy debugging in ProxySettings
@@ -405,8 +405,8 @@ public class MainController implements Initializable {
     }
 
     /**
-     * Logs the current proxy settings to help diagnose proxy authentication issues.
-     * This method is safe to call as it doesn't log sensitive information like passwords.
+     * Logs the current proxy settings to help diagnose proxy authentication issues. This method is safe to call as it doesn't
+     * log sensitive information like passwords.
      */
     public void logProxySettings() {
         log.info("Current proxy settings:");
@@ -523,7 +523,7 @@ public class MainController implements Initializable {
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-                                             String parentVal) {
+            String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
                     .uri(urlTarget + "/" + parentVal.substring(1))
@@ -565,7 +565,7 @@ public class MainController implements Initializable {
             File sessionFile = new File(SESSION);
             sessionFile.getParentFile().mkdirs();
             try (FileOutputStream out = new FileOutputStream(sessionFile);
-                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                    ObjectOutputStream oos = new ObjectOutputStream(out)) {
                 oos.writeObject(new TreeItemSerialisationWrapper<>(treeItemRoot));
                 oos.flush();
             }
@@ -574,12 +574,12 @@ public class MainController implements Initializable {
             File authSettingsFile = new File(AUTH_SETTINGS);
             authSettingsFile.getParentFile().mkdirs();
             try (FileOutputStream out = new FileOutputStream(authSettingsFile);
-                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                    ObjectOutputStream oos = new ObjectOutputStream(out)) {
                 oos.writeObject(authorizationSettings);
                 oos.flush();
                 log.info("Saved authorization settings with {} entries", authorizationSettings.size());
             }
-            
+
             // Save environment settings
             environmentManager.saveSettings();
             log.info("Saved environment settings with {} environments", environmentManager.size());
@@ -643,7 +643,6 @@ public class MainController implements Initializable {
                 settingsScene.getWindow().hide();
             }
         });
-        controller.setMainWindow(this);
         stage.setScene(settingsScene);
         stage.show();
 
@@ -707,7 +706,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Opens the Environment Variables management window.
      *
@@ -722,21 +721,20 @@ public class MainController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         io.github.ozkanpakdil.swaggerific.ui.edit.EnvironmentController controller = environmentsFxmlLoader.getController();
         Stage stage = new Stage();
         stage.initOwner(mainBox.getScene().getWindow());
         stage.initModality(Modality.WINDOW_MODAL); // make the environments window focused only.
         stage.setTitle("Environment Variables");
-        
+
         Scene environmentsScene = new Scene(root);
         environmentsScene.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
             if (t.getCode() == KeyCode.ESCAPE) {
                 environmentsScene.getWindow().hide();
             }
         });
-        
-        controller.setMainController(this);
+
         stage.setScene(environmentsScene);
         stage.show();
     }

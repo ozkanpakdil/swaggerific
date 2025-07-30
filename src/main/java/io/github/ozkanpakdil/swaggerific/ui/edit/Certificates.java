@@ -30,6 +30,6 @@ public class Certificates {
     }
 
     public void addCertificate(ActionEvent actionEvent) {
-        // Handle adding a new certificate
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

@@ -1,6 +1,9 @@
 package io.github.ozkanpakdil.swaggerific.security;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
@@ -8,6 +11,9 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Base64;
@@ -37,29 +43,37 @@ public class CredentialEncryption {
     }
 
     public static String encrypt(String value) {
-        if (value == null) return null;
+        if (value == null)
+            return null;
         try {
             byte[] iv = new byte[GCM_IV_LENGTH];
             new SecureRandom().nextBytes(iv);
 
-            GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
-
-            byte[] encryptedData = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
-
-            ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + encryptedData.length);
-            byteBuffer.put(iv);
-            byteBuffer.put(encryptedData);
-
-            return Base64.getEncoder().encodeToString(byteBuffer.array());
+            return getParameterSpec(value, iv, GCM_TAG_LENGTH, ALGORITHM, secretKey);
         } catch (Exception e) {
             throw new RuntimeException("Encryption failed", e);
         }
     }
 
+    public static String getParameterSpec(String value, byte[] iv, int gcmTagLength, String algorithm, SecretKey secretKey)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
+            IllegalBlockSizeException, BadPaddingException {
+        GCMParameterSpec parameterSpec = new GCMParameterSpec(gcmTagLength, iv);
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
+
+        byte[] encryptedData = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + encryptedData.length);
+        byteBuffer.put(iv);
+        byteBuffer.put(encryptedData);
+
+        return Base64.getEncoder().encodeToString(byteBuffer.array());
+    }
+
     public static String decrypt(String encrypted) {
-        if (encrypted == null) return null;
+        if (encrypted == null)
+            return null;
         try {
             byte[] decodedData = Base64.getDecoder().decode(encrypted);
 

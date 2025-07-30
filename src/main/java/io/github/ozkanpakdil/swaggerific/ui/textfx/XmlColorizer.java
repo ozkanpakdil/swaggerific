@@ -13,7 +13,6 @@ public class XmlColorizer {
             + "|(?<COMMENT><!--[^<>]+-->)");
 
     private final Pattern attributes = Pattern.compile("(\\w+\\h*)(=)(\\h*\"[^\"]+\")");
-    private final String tagmark = "tagmark";
 
     public StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = XML_TAG.matcher(text);
@@ -30,6 +29,7 @@ public class XmlColorizer {
                     String attributesText = matcher.group(groupAttributesSection);
 
                     int groupOpenBracket = 2;
+                    String tagmark = "tagmark";
                     spansBuilder.add(Collections.singleton(tagmark),
                             matcher.end(groupOpenBracket) - matcher.start(groupOpenBracket));
                     int groupElementName = 3;

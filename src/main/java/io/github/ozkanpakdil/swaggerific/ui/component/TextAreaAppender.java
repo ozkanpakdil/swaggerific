@@ -20,7 +20,6 @@ public class TextAreaAppender extends OutputStreamAppender<ILoggingEvent> {
     private boolean notify = true;
 
     private final TextArea textArea;
-    private final boolean open = true;
 
     public TextAreaAppender(TextArea textArea) {
         this.textArea = textArea;
@@ -29,16 +28,14 @@ public class TextAreaAppender extends OutputStreamAppender<ILoggingEvent> {
 
     @Override
     protected void append(ILoggingEvent event) {
-        if (open) {
-            if (Platform.isFxApplicationThread()) {
-                appendEvent(event);
-            } else {
-                synchronized (eventQueue) {
-                    eventQueue.add(event);
-                    if (notify) {
-                        notify = false;
-                        notifyFxThread();
-                    }
+        if (Platform.isFxApplicationThread()) {
+            appendEvent(event);
+        } else {
+            synchronized (eventQueue) {
+                eventQueue.add(event);
+                if (notify) {
+                    notify = false;
+                    notifyFxThread();
                 }
             }
         }

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
+import static io.github.ozkanpakdil.swaggerific.security.CredentialEncryption.getParameterSpec;
 import static io.github.ozkanpakdil.swaggerific.ui.MainController.APP_SETTINGS_HOME;
 
 /**
@@ -299,7 +300,9 @@ public class ProxySettings {
         }
     }
 
-    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort, boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass, boolean disableSslValidation) {
+    public static void saveSettings(boolean useSystemProxy, String proxyType, String proxyServer, int proxyPort,
+            boolean proxyAuth, String proxyAuthUsername, String proxyAuthPassword, String proxyBypass,
+            boolean disableSslValidation) {
         try {
             // Validate inputs before saving
             if (!useSystemProxy && (proxyServer == null || proxyServer.trim().isEmpty())) {
@@ -425,7 +428,8 @@ public class ProxySettings {
                 Arrays.fill(passwordChars, '\0');
             }
         } else {
-            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}", useSystemProxy(), useProxyAuth());
+            log.debug("Proxy authorization header not generated - Using system proxy: {}, Proxy auth enabled: {}",
+                    useSystemProxy(), useProxyAuth());
         }
 
         return null;
@@ -435,7 +439,7 @@ public class ProxySettings {
         if (host == null || host.isEmpty()) {
             return false;
         }
-        
+
         // Always bypass localhost and 127.0.0.1
         if (host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1")) {
             log.debug("Bypassing proxy for localhost connection: {}", host);
@@ -493,7 +497,7 @@ public class ProxySettings {
                 if (Authenticator.getDefault() == null) {
                     Authenticator.setDefault(createProxyAuthenticator());
                 }
-                
+
                 // Check if we're in a test environment or accessing localhost
                 boolean isTestEnvironment = isTestEnvironment();
                 if (isTestEnvironment) {
@@ -517,10 +521,10 @@ public class ProxySettings {
 
         log.info("Proxy configuration completed");
     }
-    
+
     /**
-     * Determines if we're running in a test environment by checking for JUnit classes
-     * or if we're accessing localhost resources.
+     * Determines if we're running in a test environment by checking for JUnit classes or if we're accessing localhost
+     * resources.
      */
     private static boolean isTestEnvironment() {
         // Check if JUnit is in the classpath
@@ -530,16 +534,16 @@ public class ProxySettings {
         } catch (ClassNotFoundException e) {
             // JUnit not found, continue with other checks
         }
-        
+
         // Get the stack trace to check if test classes are calling this method
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().contains("Test") || 
-                element.getMethodName().contains("test")) {
+            if (element.getClassName().contains("Test") ||
+                    element.getMethodName().contains("test")) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -549,7 +553,7 @@ public class ProxySettings {
         Authenticator.setDefault(null);
     }
 
-    public static TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+    public static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
         public X509Certificate[] getAcceptedIssuers() {
             return null;
         }
@@ -559,7 +563,7 @@ public class ProxySettings {
 
         public void checkServerTrusted(X509Certificate[] certs, String authType) {
         }
-    }};
+    } };
 
     private static boolean testProxyConnection() {
         try {
@@ -626,17 +630,7 @@ public class ProxySettings {
                 SecretKey key = getOrCreateSecretKey();
                 byte[] iv = generateIv();
 
-                GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-                Cipher cipher = Cipher.getInstance(ALGORITHM);
-                cipher.init(Cipher.ENCRYPT_MODE, key, gcmSpec);
-
-                byte[] encryptedData = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
-
-                ByteBuffer combined = ByteBuffer.allocate(iv.length + encryptedData.length);
-                combined.put(iv);
-                combined.put(encryptedData);
-
-                return Base64.getEncoder().encodeToString(combined.array());
+                return getParameterSpec(value, iv, GCM_TAG_LENGTH, ALGORITHM, key);
             } catch (Exception e) {
                 log.error("Encryption failed", e);
                 return "";
@@ -731,7 +725,8 @@ public class ProxySettings {
                     // Save password with restricted permissions
                     Files.writeString(passwordFile, keystorePassword, StandardCharsets.UTF_8);
                     try {
-                        Files.setPosixFilePermissions(passwordFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
+                        Files.setPosixFilePermissions(passwordFile,
+                                java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
                     } catch (UnsupportedOperationException e) {
                         // Windows systems don't support POSIX permissions
                         log.debug("POSIX file permissions not supported on this system");

@@ -1,6 +1,5 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
-import io.github.ozkanpakdil.swaggerific.ui.MainController;
 import io.github.ozkanpakdil.swaggerific.ui.exception.LoadFxmlRuntimeException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,12 +40,6 @@ public class SettingsController implements Initializable {
     Button btnAbout;
     @FXML
     Pane rightPane;
-
-    public void setMainWindow(MainController mainController) {
-        this.mainController = mainController;
-    }
-
-    private MainController mainController;
 
     public void changeSelectedSetting(ActionEvent actionEvent) {
         Button source = (Button) actionEvent.getSource();

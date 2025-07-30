@@ -14,16 +14,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
- * Controller for the Authorization tab in the request panel.
- * Handles different authentication methods:
- * - No Auth
- * - API Key
- * - Basic Authentication
- * - Bearer Token
+ * Controller for the Authorization tab in the request panel. Handles different authentication methods: - No Auth - API Key -
+ * Basic Authentication - Bearer Token
  */
 public class AuthorizationController implements Initializable {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthorizationController.class);
@@ -68,7 +62,7 @@ public class AuthorizationController implements Initializable {
     private VBox bearerTokenContainer;
     @FXML
     private TextField tokenField;
-    
+
     // OAuth 2.0 UI components
     @FXML
     private VBox oauth2Container;
@@ -92,7 +86,7 @@ public class AuthorizationController implements Initializable {
     private TextField refreshTokenField;
 
     private AuthType currentAuthType = AuthType.NO_AUTH;
-    
+
     // OAuth 2.0 service
     private final OAuth2Service oauth2Service = new OAuth2Service();
 
@@ -101,7 +95,7 @@ public class AuthorizationController implements Initializable {
 
     /**
      * Sets a callback to be called when authorization settings change
-     * 
+     *
      * @param callback the callback to call
      */
     public void setOnSettingsChangeCallback(Runnable callback) {
@@ -151,63 +145,63 @@ public class AuthorizationController implements Initializable {
     public TextField getTokenField() {
         return tokenField;
     }
-    
+
     /**
      * Gets the client ID field
      */
     public TextField getClientIdField() {
         return clientIdField;
     }
-    
+
     /**
      * Gets the client secret field
      */
     public PasswordField getClientSecretField() {
         return clientSecretField;
     }
-    
+
     /**
      * Gets the token URL field
      */
     public TextField getTokenUrlField() {
         return tokenUrlField;
     }
-    
+
     /**
      * Gets the authorization URL field
      */
     public TextField getAuthUrlField() {
         return authUrlField;
     }
-    
+
     /**
      * Gets the redirect URI field
      */
     public TextField getRedirectUriField() {
         return redirectUriField;
     }
-    
+
     /**
      * Gets the scope field
      */
     public TextField getScopeField() {
         return scopeField;
     }
-    
+
     /**
      * Gets the access token field
      */
     public TextField getAccessTokenField() {
         return accessTokenField;
     }
-    
+
     /**
      * Gets the refresh token field
      */
     public TextField getRefreshTokenField() {
         return refreshTokenField;
     }
-    
+
     /**
      * Gets the grant type combo box
      */
@@ -246,20 +240,12 @@ public class AuthorizationController implements Initializable {
         });
 
         // Add listeners to text fields to notify when they change
-        apiKeyNameField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        apiKeyField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        usernameField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        passwordField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        tokenField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        
+        addListenersToTextFields(apiKeyNameField, apiKeyField, usernameField, passwordField, tokenField);
+
         // Add listeners to OAuth 2.0 fields
-        clientIdField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        clientSecretField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        tokenUrlField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        authUrlField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        redirectUriField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        addListenersToTextFields(clientIdField, clientSecretField, tokenUrlField, authUrlField, redirectUriField);
         scopeField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
-        
+
         // Add listener to grant type combo box
         grantTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -267,9 +253,18 @@ public class AuthorizationController implements Initializable {
                 notifySettingsChanged();
             }
         });
-        
+
         // Set default values for OAuth 2.0 fields
         redirectUriField.setText("http://localhost:8080/callback");
+    }
+
+    private void addListenersToTextFields(TextField apiKeyNameField, TextField apiKeyField, TextField usernameField,
+            TextField passwordField, TextField tokenField) {
+        apiKeyNameField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        apiKeyField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        usernameField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        passwordField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
+        tokenField.textProperty().addListener((observable, oldValue, newValue) -> notifySettingsChanged());
     }
 
     /**
@@ -312,7 +307,7 @@ public class AuthorizationController implements Initializable {
                 break;
         }
     }
-    
+
     /**
      * Updates the visibility of OAuth 2.0 fields based on the selected grant type
      */
@@ -320,7 +315,7 @@ public class AuthorizationController implements Initializable {
         if (grantType == null) {
             return;
         }
-        
+
         // Show/hide fields based on grant type
         switch (grantType) {
             case AUTHORIZATION_CODE:
@@ -363,7 +358,7 @@ public class AuthorizationController implements Initializable {
 
     /**
      * Applies the current authentication settings to the provided headers map
-     * 
+     *
      * @param headers The headers map to update with authentication headers
      */
     public void applyAuthHeaders(Map<String, String> headers) {
@@ -374,14 +369,14 @@ public class AuthorizationController implements Initializable {
         switch (currentAuthType) {
             case API_KEY:
                 if (apiKeyNameField.getText() != null && !apiKeyNameField.getText().isEmpty() &&
-                    apiKeyField.getText() != null && !apiKeyField.getText().isEmpty()) {
+                        apiKeyField.getText() != null && !apiKeyField.getText().isEmpty()) {
                     headers.put(apiKeyNameField.getText(), apiKeyField.getText());
                     log.info("Applied API Key authentication with key name: {}", apiKeyNameField.getText());
                 }
                 break;
             case BASIC_AUTH:
                 if (usernameField.getText() != null && !usernameField.getText().isEmpty() &&
-                    passwordField.getText() != null) {
+                        passwordField.getText() != null) {
                     String auth = usernameField.getText() + ":" + passwordField.getText();
                     String encodedAuth = java.util.Base64.getEncoder().encodeToString(auth.getBytes());
                     headers.put("Authorization", "Basic " + encodedAuth);
@@ -404,13 +399,13 @@ public class AuthorizationController implements Initializable {
                     // Get a new access token based on the grant type
                     OAuth2Service.GrantType grantType = grantTypeComboBox.getSelectionModel().getSelectedItem();
                     if (grantType != null && clientIdField.getText() != null && !clientIdField.getText().isEmpty() &&
-                        clientSecretField.getText() != null && !clientSecretField.getText().isEmpty() &&
-                        tokenUrlField.getText() != null && !tokenUrlField.getText().isEmpty()) {
-                        
+                            clientSecretField.getText() != null && !clientSecretField.getText().isEmpty() &&
+                            tokenUrlField.getText() != null && !tokenUrlField.getText().isEmpty()) {
+
                         try {
                             // Use a final variable for the access token to use in lambda
                             final String[] accessTokenHolder = new String[1];
-                            
+
                             switch (grantType) {
                                 case CLIENT_CREDENTIALS:
                                     accessTokenHolder[0] = oauth2Service.getClientCredentialsToken(
@@ -423,7 +418,7 @@ public class AuthorizationController implements Initializable {
                                 case PASSWORD:
                                     // For password grant, we use the username and password fields
                                     if (usernameField.getText() != null && !usernameField.getText().isEmpty() &&
-                                        passwordField.getText() != null) {
+                                            passwordField.getText() != null) {
                                         accessTokenHolder[0] = oauth2Service.getPasswordToken(
                                                 tokenUrlField.getText(),
                                                 clientIdField.getText(),
@@ -447,16 +442,17 @@ public class AuthorizationController implements Initializable {
                                     break;
                                 case AUTHORIZATION_CODE:
                                     // Authorization Code flow requires user interaction and is handled separately
-                                    log.warn("Authorization Code flow requires user interaction and cannot be applied automatically");
+                                    log.warn(
+                                            "Authorization Code flow requires user interaction and cannot be applied automatically");
                                     break;
                             }
-                            
+
                             if (accessTokenHolder[0] != null) {
                                 headers.put("Authorization", "Bearer " + accessTokenHolder[0]);
-                                
+
                                 // Update the access token field
                                 Platform.runLater(() -> accessTokenField.setText(accessTokenHolder[0]));
-                                
+
                                 log.info("Applied OAuth 2.0 authentication with new access token");
                             }
                         } catch (Exception e) {
