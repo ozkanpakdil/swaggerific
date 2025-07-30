@@ -2,6 +2,7 @@ package io.github.ozkanpakdil.swaggerific.ui.textfx;
 
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,29 +24,34 @@ public class JsonColorize {
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         while (matcher.find()) {
-            String styleClass = null;
-            if (matcher.group("JSONPROPERTY") != null) {
-                styleClass = "json_property";
-            } else if (matcher.group("JSONARRAY") != null) {
-                styleClass = "json_array";
-            } else if (matcher.group("JSONCURLY") != null) {
-                styleClass = "json_curly";
-            } else if (matcher.group("JSONBOOL") != null) {
-                styleClass = "json_bool";
-            } else if (matcher.group("JSONNULL") != null) {
-                styleClass = "json_null";
-            } else if (matcher.group("JSONNUMBER") != null) {
-                styleClass = "json_number";
-            } else if (matcher.group("JSONVALUE") != null) {
-                styleClass = "json_value";
-            } else if (matcher.group("TEXT") != null) {
-                styleClass = "text";
-            }
+            String styleClass = getStyleClass(matcher);
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
             lastKwEnd = matcher.end();
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();
+    }
+
+    private static @Nullable String getStyleClass(Matcher matcher) {
+        String styleClass = null;
+        if (matcher.group("JSONPROPERTY") != null) {
+            styleClass = "json_property";
+        } else if (matcher.group("JSONARRAY") != null) {
+            styleClass = "json_array";
+        } else if (matcher.group("JSONCURLY") != null) {
+            styleClass = "json_curly";
+        } else if (matcher.group("JSONBOOL") != null) {
+            styleClass = "json_bool";
+        } else if (matcher.group("JSONNULL") != null) {
+            styleClass = "json_null";
+        } else if (matcher.group("JSONNUMBER") != null) {
+            styleClass = "json_number";
+        } else if (matcher.group("JSONVALUE") != null) {
+            styleClass = "json_value";
+        } else if (matcher.group("TEXT") != null) {
+            styleClass = "text";
+        }
+        return styleClass;
     }
 }
