@@ -55,7 +55,7 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 
 1. Clone the repository
 2. Build with Maven: `mvn package`
-3. Unzip the generated `swaggerific.zip` file under target/dist
+3. Unzip the generated `swaggerific-X.Y.Z.zip` file under target/dist
 4. Run the application using the provided script:
     - Linux/macOS: `./run.sh`
     - Windows: `run.bat`
