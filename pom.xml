@@ -296,11 +296,11 @@
             <artifactId>graal-sdk</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>org.graalvm.truffle</groupId>
             <artifactId>truffle-api</artifactId>
             <version>${graalvm.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
@@ -715,15 +715,24 @@
                         </goals>
                         <configuration>
                             <artifactItems>
+                                <!-- SDK -->
                                 <artifactItem>
-                                    <groupId>org.graalvm.truffle</groupId>
-                                    <artifactId>truffle-api</artifactId>
+                                    <groupId>org.graalvm.sdk</groupId>
+                                    <artifactId>graal-sdk</artifactId>
                                     <version>${graalvm.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
+                                <!-- JS ScriptEngine -->
                                 <artifactItem>
                                     <groupId>org.graalvm.js</groupId>
                                     <artifactId>js-scriptengine</artifactId>
+                                    <version>${graalvm.version}</version>
+                                    <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+                                </artifactItem>
+                                <!-- Truffle API -->
+                                <artifactItem>
+                                    <groupId>org.graalvm.truffle</groupId>
+                                    <artifactId>truffle-api</artifactId>
                                     <version>${graalvm.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
