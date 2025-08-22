@@ -27,7 +27,7 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>22.1.0</graalvm.version>
+        <graalvm.version>23.1.4</graalvm.version>
     </properties>
 
     <dependencyManagement>
@@ -290,6 +290,14 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Rhino JSR-223 engine for tests to avoid Graal dependency in unit test runtime -->
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino-engine</artifactId>
+            <version>1.7.14</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JavaScript engine for script execution -->
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
@@ -306,11 +314,12 @@
             <artifactId>js-scriptengine</artifactId>
             <version>${graalvm.version}</version>
         </dependency>
+        <!-- GraalJS engine and dependencies for JSR-223 -->
+        <!-- Removed org.graalvm.js:js for GraalVM >=23 as coordinates changed; keep scriptengine + truffle/sdk -->
         <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-            <version>${graalvm.version}</version>
-            <type>pom</type>
+            <groupId>org.graalvm.regex</groupId>
+            <artifactId>regex</artifactId>
+            <version>22.3.3</version>
         </dependency>
 
     </dependencies>
@@ -356,6 +365,7 @@
                         <include>**/*Test.java</include>
                     </includes>
                     <argLine>
+                        -Dpolyglot.js.syntax-extensions=false
                         --add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
                         --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
                         --add-opens=java.base/java.nio=ALL-UNNAMED

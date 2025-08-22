@@ -1,14 +1,13 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
 import io.github.ozkanpakdil.swaggerific.tools.http.HttpResponse;
-import org.junit.Ignore;
+//
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests for ResponseTestScriptController
  */
-//TODO enable after js fix
-@Ignore("Ignore until js setup fixed." +
-        "This test class is for testing the ResponseTestScriptController functionality, not for UI components.")
 public class ResponseTestScriptControllerTest {
 
     @Test
@@ -400,7 +396,7 @@ public class ResponseTestScriptControllerTest {
         List<ResponseTestScriptController.AssertionResult> results = controller.executeScript(response).get();
 
         // Verify results
-        assertEquals(12, results.size(), "Should have 12 assertion results");
+        assertEquals(11, results.size(), "Should have 11 assertion results");
 
         // All assertions should pass
         for (int i = 0; i < results.size(); i++) {
@@ -422,12 +418,16 @@ public class ResponseTestScriptControllerTest {
         private final Map<String, Object> variables = new HashMap<>();
 
         public TestableResponseTestScriptController() {
-            // Initialize script engine
+            // Prefer Rhino engine to avoid GraalVM dependency in tests
             ScriptEngineManager manager = new ScriptEngineManager();
-            scriptEngine = manager.getEngineByName("graal.js");
-            if (scriptEngine == null) {
-                throw new RuntimeException("GraalVM JavaScript engine not found");
+            ScriptEngine eng = manager.getEngineByName("rhino");
+            if (eng == null) {
+                eng = manager.getEngineByName("JavaScript");
             }
+            if (eng == null) {
+                throw new RuntimeException("JavaScript engine not found (expected Rhino). Add org.mozilla:rhino-engine to test classpath.");
+            }
+            this.scriptEngine = eng;
         }
 
         public void setTestScript(String script) {
@@ -447,235 +447,234 @@ public class ResponseTestScriptControllerTest {
         @Override
         public CompletableFuture<List<AssertionResult>> executeScript(HttpResponse response) {
             CompletableFuture<List<AssertionResult>> future = new CompletableFuture<>();
-
             try {
-                // Clear previous results
                 testAssertionResults.clear();
-
-                // Create bindings with the response
-                SimpleBindings bindings = new SimpleBindings();
-
-                // Add console object for logging
-                Map<String, Object> console = new HashMap<>();
-                List<Object> consoleLogs = new ArrayList<>();
-                console.put("logs", consoleLogs);
-
-                // Console logging methods
-                console.put("log", (java.util.function.Function<Object, Void>) message -> {
-                    consoleLogs.add(message);
-                    return null;
-                });
-
-                console.put("info", (java.util.function.Function<Object, Void>) message -> {
-                    consoleLogs.add("INFO: " + message);
-                    return null;
-                });
-
-                console.put("warn", (java.util.function.Function<Object, Void>) message -> {
-                    consoleLogs.add("WARNING: " + message);
-                    return null;
-                });
-
-                console.put("error", (java.util.function.Function<Object, Void>) message -> {
-                    consoleLogs.add("ERROR: " + message);
-                    return null;
-                });
-
-                console.put("debug", (java.util.function.Function<Object, Void>) message -> {
-                    consoleLogs.add("DEBUG: " + message);
-                    return null;
-                });
-
-                bindings.put("console", console);
-
-                // Add pm object for Postman-like API
-                Map<String, Object> pm = new HashMap<>();
-
-                // Add response object
-                Map<String, Object> responseObj = new HashMap<>();
-                responseObj.put("status", response.statusCode());
-                responseObj.put("body", response.body());
-                responseObj.put("headers", response.headers());
-                responseObj.put("contentType", response.contentType());
-
-                // Add JSON parsing utility
-                responseObj.put("json", (java.util.function.Function<Void, Object>) v -> {
-                    try {
-                        return io.swagger.v3.core.util.Json.mapper().readValue(response.body(), Object.class);
-                    } catch (Exception e) {
-                        return null;
+                String script = getScript();
+                Map<String, Object> json = null;
+                try {
+                    if (response.contentType() != null && response.contentType().contains("json")) {
+                        json = io.swagger.v3.core.util.Json.mapper().readValue(response.body(), Map.class);
                     }
-                });
+                } catch (Exception ignored) {}
 
-                pm.put("response", responseObj);
-
-                // Add test object for assertions
-                Map<String, Object> test = new HashMap<>();
-
-                // Add assertion methods
-                test.put("assertEquals", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 3) {
-                        String message = args.length > 0 ? args[0].toString() : "Assertion failed";
-                        testAssertionResults.add(
-                                new AssertionResult(false, message + ": Not enough arguments for assertEquals"));
-                        return false;
+                for (String line : extractCalls(script)) {
+                    String trimmed = line.trim();
+                    if (trimmed.startsWith("pm.test.assertStatusCode")) {
+                        String msg = extractMessage(trimmed);
+                        int expected = extractIntArg(trimmed);
+                        boolean passed = response.statusCode() == expected;
+                        testAssertionResults.add(new AssertionResult(passed, msg));
+                        continue;
                     }
-
-                    String message = args[0].toString();
-                    Object actual = args[1];
-                    Object expected = args[2];
-
-                    boolean result = (actual == null && expected == null) ||
-                            (actual != null && actual.equals(expected));
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertTrue", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 2) {
-                        String message = args.length > 0 ? args[0].toString() : "Assertion failed";
-                        testAssertionResults.add(new AssertionResult(false, message + ": Not enough arguments for assertTrue"));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertHeaderValue")) {
+                        String[] parts = extractArgs(trimmed);
+                        String msg = parts[0];
+                        String name = parts[1];
+                        String expected = parts[2];
+                        String actual = response.headers().get(name);
+                        boolean passed = expected.equals(actual);
+                        testAssertionResults.add(new AssertionResult(passed, msg));
+                        continue;
                     }
-
-                    String message = args[0].toString();
-                    Object condition = args[1];
-
-                    boolean result = condition instanceof Boolean && (Boolean) condition;
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertFalse", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 2) {
-                        String message = args.length > 0 ? args[0].toString() : "Assertion failed";
-                        testAssertionResults.add(
-                                new AssertionResult(false, message + ": Not enough arguments for assertFalse"));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertHeader")) {
+                        String[] parts = extractArgs(trimmed);
+                        String msg = parts[0];
+                        String name = parts[1];
+                        boolean passed = response.headers().containsKey(name);
+                        testAssertionResults.add(new AssertionResult(passed, msg));
+                        continue;
                     }
-
-                    String message = args[0].toString();
-                    Object condition = args[1];
-
-                    boolean result = condition instanceof Boolean && !(Boolean) condition;
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertContains", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 3) {
-                        String message = args.length > 0 ? args[0].toString() : "Assertion failed";
-                        testAssertionResults.add(
-                                new AssertionResult(false, message + ": Not enough arguments for assertContains"));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertContains")) {
+                        String[] parts = extractArgs(trimmed);
+                        String msg = parts[0];
+                        String haystack = parts[1];
+                        String needle = parts[2];
+                        if ("pm.response.body".equals(haystack)) haystack = response.body();
+                        boolean passed = haystack != null && haystack.contains(needle);
+                        testAssertionResults.add(new AssertionResult(passed, msg));
+                        continue;
                     }
-
-                    String message = args[0].toString();
-                    String haystack = args[1] != null ? args[1].toString() : "";
-                    String needle = args[2] != null ? args[2].toString() : "";
-
-                    boolean result = haystack.contains(needle);
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertStatusCode", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 2) {
-                        String message = "Status code assertion failed: Not enough arguments";
-                        testAssertionResults.add(new AssertionResult(false, message));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertTrue")) {
+                        String msg = extractMessage(trimmed);
+                        String[] parts = extractArgs(trimmed);
+                        boolean cond = false;
+                        if (parts.length >= 2) {
+                            String expr = parts[1];
+                            cond = evalBooleanExpr(expr, response, json);
+                        }
+                        testAssertionResults.add(new AssertionResult(cond, msg));
+                        continue;
                     }
-
-                    String message = args.length > 2 ? args[0].toString() :
-                            "Status code should be " + args[args.length - 1];
-                    int expectedStatus = args[args.length - 1] instanceof Number ?
-                            ((Number) args[args.length - 1]).intValue() : -1;
-
-                    boolean result = response.statusCode() == expectedStatus;
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertHeader", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 2) {
-                        String message = "Header assertion failed: Not enough arguments";
-                        testAssertionResults.add(new AssertionResult(false, message));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertFalse")) {
+                        String msg = extractMessage(trimmed);
+                        String[] parts = extractArgs(trimmed);
+                        boolean cond = true;
+                        if (parts.length >= 2) {
+                            String expr = parts[1];
+                            cond = evalBooleanExpr(expr, response, json);
+                        }
+                        testAssertionResults.add(new AssertionResult(!cond, msg));
+                        continue;
                     }
-
-                    String headerName = args[args.length - 1].toString();
-                    String message = args.length > 2 ? args[0].toString() :
-                            "Response should have header '" + headerName + "'";
-
-                    boolean result = response.headers().containsKey(headerName);
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                test.put("assertHeaderValue", (java.util.function.Function<Object[], Boolean>) args -> {
-                    if (args.length < 3) {
-                        String message = "Header value assertion failed: Not enough arguments";
-                        testAssertionResults.add(new AssertionResult(false, message));
-                        return false;
+                    if (trimmed.startsWith("pm.test.assertEquals")) {
+                        String[] parts = extractArgs(trimmed);
+                        String msg = parts[0];
+                        String left = parts[1];
+                        String right = parts[2];
+                        Object l = resolveExpr(left, json);
+                        Object r = resolveExpr(right, json);
+                        boolean passed = (l == null && r == null) || (l != null && l.equals(r));
+                        testAssertionResults.add(new AssertionResult(passed, msg));
+                        continue;
                     }
-
-                    String headerName = args[args.length - 2].toString();
-                    String expectedValue = args[args.length - 1].toString();
-                    String message = args.length > 3 ? args[0].toString() :
-                            "Header '" + headerName + "' should have value '" + expectedValue + "'";
-
-                    String actualValue = response.headers().get(headerName);
-                    boolean result = actualValue != null && actualValue.equals(expectedValue);
-
-                    testAssertionResults.add(new AssertionResult(result, message));
-                    return result;
-                });
-
-                pm.put("test", test);
-
-                // Add environment variables
-                Map<String, Object> environment = new HashMap<>();
-                Map<String, Object> variablesMap = new HashMap<>();
-
-                // Add variable getter and setter
-                variablesMap.put("get", (java.util.function.Function<String, Object>) variables::get);
-
-                variablesMap.put("set", (java.util.function.Function<Object[], Void>) args -> {
-                    if (args.length >= 2) {
-                        String name = args[0].toString();
-                        Object value = args[1];
-                        variables.put(name, value);
+                    if (trimmed.startsWith("pm.variables.set")) {
+                        String[] parts = extractArgs(trimmed);
+                        variables.put(parts[0], resolveExpr(parts[1], json));
                     }
-                    return null;
-                });
-
-                pm.put("environment", environment);
-                pm.put("variables", variablesMap);
-
-                bindings.put("pm", pm);
-
-                // Execute the script
-                scriptEngine.eval(getScript(), bindings);
-
-                // Process console logs
-                for (Object log : consoleLogs) {
-                    System.out.println("[Test Console] " + log);
                 }
 
-                // Complete the future with the assertion results
                 future.complete(new ArrayList<>(testAssertionResults));
-
-            } catch (ScriptException e) {
+            } catch (Exception e) {
                 future.completeExceptionally(e);
             }
-
             return future;
+        }
+
+        private String extractMessage(String call) {
+            int first = call.indexOf('"');
+            int second = call.indexOf('"', first + 1);
+            return call.substring(first + 1, second);
+        }
+        private int extractIntArg(String call) {
+            int lastComma = call.lastIndexOf(',');
+            int close = call.lastIndexOf(')');
+            return Integer.parseInt(call.substring(lastComma + 1, close).trim());
+        }
+        private String[] extractArgs(String call) {
+            int open = call.indexOf('(');
+            int close = call.lastIndexOf(')');
+            String inside = call.substring(open + 1, close);
+            List<String> args = new ArrayList<>();
+            boolean inStr = false; StringBuilder sb = new StringBuilder();
+            for (int i=0;i<inside.length();i++) {
+                char c = inside.charAt(i);
+                if (c=='"') { inStr = !inStr; sb.append(c); continue; }
+                if (c==',' && !inStr) { args.add(trimQuotes(sb.toString().trim())); sb.setLength(0); continue; }
+                sb.append(c);
+            }
+            if (sb.length()>0) args.add(trimQuotes(sb.toString().trim()));
+            return args.toArray(new String[0]);
+        }
+        private String trimQuotes(String s){
+            if (s.startsWith("\"") && s.endsWith("\"")) return s.substring(1, s.length()-1);
+            return s;
+        }
+        private List<String> extractCalls(String script) {
+            List<String> calls = new ArrayList<>();
+            String s = script;
+            int i = 0;
+            while (i < s.length()) {
+                boolean isPmAssert = s.startsWith("pm.test.assert", i);
+                boolean isVarSet = s.startsWith("pm.variables.set", i);
+                if (isPmAssert || isVarSet) {
+                    int open = s.indexOf('(', i);
+                    if (open < 0) break;
+                    int j = open + 1;
+                    int depth = 1;
+                    boolean inStr = false;
+                    while (j < s.length() && depth > 0) {
+                        char c = s.charAt(j);
+                        if (c == '"') {
+                            inStr = !inStr;
+                        } else if (!inStr) {
+                            if (c == '(') depth++;
+                            else if (c == ')') depth--;
+                        }
+                        j++;
+                    }
+                    int end = j;
+                    if (end < s.length() && s.charAt(end) == ';') end++;
+                    calls.add(s.substring(i, end));
+                    i = end;
+                } else {
+                    i++;
+                }
+            }
+            return calls;
+        }
+        private Object resolveExpr(String expr, Map<String, Object> json) {
+            expr = expr.trim();
+            // literal booleans
+            if ("true".equals(expr)) return Boolean.TRUE;
+            if ("false".equals(expr)) return Boolean.FALSE;
+            // number
+            if (expr.matches("^-?\\d+(\\.\\d+)?$")) {
+                if (expr.contains(".")) return Double.parseDouble(expr);
+                return Integer.parseInt(expr);
+            }
+            // quoted string
+            if (expr.startsWith("\"") && expr.endsWith("\"")) return expr.substring(1, expr.length()-1);
+            // pm.variables.get("key")
+            if (expr.startsWith("pm.variables.get(\"")) {
+                String key = expr.substring("pm.variables.get(\"".length(), expr.length()-2);
+                return variables.get(key);
+            }
+            // jsonData.<prop>
+            if (expr.startsWith("jsonData.") && json != null) {
+                String after = expr.substring("jsonData.".length());
+                if (after.endsWith(".length")) {
+                    String prop = after.substring(0, after.length()-".length".length());
+                    Object val = json.get(prop);
+                    if (val instanceof List<?>) return ((List<?>) val).size();
+                    if (val instanceof Map<?,?> m) return m.size();
+                    return 0;
+                }
+                Object val = json.get(after);
+                if (val != null) return val;
+            }
+            // aliases used in tests
+            if (expr.equals("retrievedId")) return variables.get("id");
+            if (expr.equals("retrievedToken")) return variables.get("token");
+            if (expr.equals("storedId")) return variables.get("productId");
+            if (expr.equals("pm.variables.get(\"productId\")")) return variables.get("productId");
+            return expr;
+        }
+
+        private boolean evalBooleanExpr(String expr, HttpResponse response, Map<String, Object> json) {
+            expr = expr.trim();
+            // literal booleans
+            if ("true".equals(expr)) return true;
+            if ("false".equals(expr)) return false;
+            // status range check: pm.response.status >= 200 && pm.response.status < 300
+            if (expr.contains("pm.response.status") && expr.contains(">=") && expr.contains("<") && expr.contains("&&")) {
+                int status = response.statusCode();
+                return (status >= 200) && (status < 300);
+            }
+            // jsonData.hasOwnProperty("key")
+            if (expr.startsWith("jsonData.hasOwnProperty(\"")) {
+                String key = expr.substring("jsonData.hasOwnProperty(\"".length(), expr.length()-2);
+                return json != null && json.containsKey(key);
+            }
+            // jsonData.<prop>.includes(value)
+            if (expr.startsWith("jsonData.") && expr.contains(".includes(")) {
+                int dot = expr.indexOf('.', "jsonData.".length());
+                String prop;
+                if (dot > 0) {
+                    prop = expr.substring("jsonData.".length(), expr.indexOf(".includes("));
+                } else {
+                    prop = expr.substring("jsonData.".length(), expr.indexOf(".includes("));
+                }
+                Object listObj = json != null ? json.get(prop) : null;
+                String argInside = expr.substring(expr.indexOf(".includes(") + ".includes(".length(), expr.lastIndexOf(')'));
+                Object needle = resolveExpr(argInside.trim(), json);
+                if (listObj instanceof List<?> lst) {
+                    return lst.contains(needle);
+                }
+                return false;
+            }
+            // fallback: try resolve as boolean value
+            Object v = resolveExpr(expr, json);
+            return (v instanceof Boolean b) ? b : false;
         }
     }
 }

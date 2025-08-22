@@ -37,7 +37,7 @@ public class ResponseTestScriptController implements Initializable {
     @FXML
     private CodeArea codeResponseTestScript;
 
-    private final ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+    private ScriptEngineManager scriptEngineManager;
     private ScriptEngine scriptEngine;
     private final Map<String, Object> variables = new ConcurrentHashMap<>();
     private final JavaScriptColorize javaScriptColorize = new JavaScriptColorize();
@@ -55,6 +55,9 @@ public class ResponseTestScriptController implements Initializable {
         // Try different engine names that GraalVM might use
         String[] engineNames = { "graal.js", "js", "JavaScript", "javascript", "ECMAScript", "ecmascript" };
 
+        if (scriptEngineManager == null) {
+            scriptEngineManager = new ScriptEngineManager();
+        }
         for (String engineName : engineNames) {
             ScriptEngine engine = scriptEngineManager.getEngineByName(engineName);
             if (engine != null) {
