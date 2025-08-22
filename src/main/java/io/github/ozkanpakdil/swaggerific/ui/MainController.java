@@ -427,10 +427,7 @@ public class MainController implements Initializable {
     }
 
     private void openSwaggerUrl(String urlSwagger) throws Exception {
-        treeFilter = new TreeFilter();
-        txtFilterTree.setText("");
-        treeItemRoot.getChildren().clear();
-
+        // Prepare non-UI state
         log.info("Opening Swagger URL: {}", urlSwagger);
 
         if (log.isDebugEnabled())
@@ -438,9 +435,10 @@ public class MainController implements Initializable {
 
         ProxySettings.setupSystemWideProxy();
 
-        URL urlApi = new URI(urlSwagger)
-                .toURL();
-        treePaths.setRoot(treeItemRoot);
+        URL urlApi = new URI(urlSwagger).toURL();
+
+        // Build a new root off the FX thread
+        TreeItem<String> newRoot = new TreeItem<>("base root");
 
         try {
             if (urlApi.toString().trim().isEmpty()) {
@@ -474,7 +472,7 @@ public class MainController implements Initializable {
                             returnTreeItemsForTheMethod(pathItem, path.getChildren(), path1);
                         }
                     });
-                    treeItemRoot.getChildren().add(tag);
+                    newRoot.getChildren().add(tag);
                 });
             } else if (!jsonModal.getOpenapi().isEmpty()) { //open api latest json
                 urlTarget = urlApi.getProtocol() + "://" + urlApi.getHost();
@@ -482,7 +480,7 @@ public class MainController implements Initializable {
                     String[] pathParts = (!path.startsWith("/")) ?
                             path.split("/") :
                             path.substring(1).split("/");
-                    TreeItem<String> currentItem = treeItemRoot;
+                    TreeItem<String> currentItem = newRoot;
 
                     for (String part : pathParts) {
                         Optional<TreeItem<String>> existingItem = currentItem.getChildren().stream()
@@ -508,6 +506,14 @@ public class MainController implements Initializable {
                     });
                 });
             }
+
+            // Apply UI updates on the FX thread
+            Platform.runLater(() -> {
+                treeFilter = new TreeFilter();
+                txtFilterTree.setText("");
+                treeItemRoot = newRoot; // replace reference
+                treePaths.setRoot(treeItemRoot);
+            });
         } catch (java.io.IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("407")) {
                 log.error("Proxy authentication failed: {}", e.getMessage());
@@ -523,7 +529,7 @@ public class MainController implements Initializable {
     }
 
     private void returnTreeItemsForTheMethod(PathItem pathItem, ObservableList<TreeItem<String>> children,
-            String parentVal) {
+                                             String parentVal) {
         pathItem.readOperationsMap().forEach((k, v) -> {
             TreeItemOperationLeaf it = TreeItemOperationLeaf.builder()
                     .uri(urlTarget + "/" + parentVal.substring(1))
@@ -565,7 +571,7 @@ public class MainController implements Initializable {
             File sessionFile = new File(SESSION);
             sessionFile.getParentFile().mkdirs();
             try (FileOutputStream out = new FileOutputStream(sessionFile);
-                    ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
                 oos.writeObject(new TreeItemSerialisationWrapper<>(treeItemRoot));
                 oos.flush();
             }
@@ -574,7 +580,7 @@ public class MainController implements Initializable {
             File authSettingsFile = new File(AUTH_SETTINGS);
             authSettingsFile.getParentFile().mkdirs();
             try (FileOutputStream out = new FileOutputStream(authSettingsFile);
-                    ObjectOutputStream oos = new ObjectOutputStream(out)) {
+                 ObjectOutputStream oos = new ObjectOutputStream(out)) {
                 oos.writeObject(authorizationSettings);
                 oos.flush();
                 log.info("Saved authorization settings with {} entries", authorizationSettings.size());
