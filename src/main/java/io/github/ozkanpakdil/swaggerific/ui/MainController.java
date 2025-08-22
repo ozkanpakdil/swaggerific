@@ -513,6 +513,7 @@ public class MainController implements Initializable {
                 txtFilterTree.setText("");
                 treeItemRoot = newRoot; // replace reference
                 treePaths.setRoot(treeItemRoot);
+                treePaths.setShowRoot(false);
             });
         } catch (java.io.IOException e) {
             if (e.getMessage() != null && e.getMessage().contains("407")) {
