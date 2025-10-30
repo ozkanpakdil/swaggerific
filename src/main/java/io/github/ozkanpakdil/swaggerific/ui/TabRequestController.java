@@ -45,9 +45,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.Node;
+import javafx.scene.Cursor;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tooltip;
 import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import java.util.function.IntFunction;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -511,6 +519,66 @@ public class TabRequestController extends TabPane {
 
         applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
         applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
+
+        // Add fold gutter caret next to line numbers for Pretty JSON area
+        IntFunction<Node> numberFactory = LineNumberFactory.get(codeJsonResponse);
+        IntFunction<Node> graphicFactory = paragraph -> {
+            Node lineNo = numberFactory.apply(paragraph);
+            Label caret = new Label();
+            caret.getStyleClass().add("fold-caret");
+            caret.setMinWidth(14);
+            caret.setAlignment(Pos.CENTER);
+            boolean foldable = codeJsonResponse.isParagraphFoldable(paragraph);
+            if (foldable) {
+                boolean folded = codeJsonResponse.isParagraphFolded(paragraph);
+                caret.setText(folded ? "▸" : "▾");
+                caret.setCursor(Cursor.HAND);
+                caret.setOnMouseClicked(e -> {
+                    codeJsonResponse.toggleFoldAtParagraph(paragraph);
+                    // text change triggers gutter recompute automatically
+                    e.consume();
+                });
+                caret.setTooltip(new Tooltip((folded ? "Unfold" : "Fold") + " JSON object on this line"));
+            } else {
+                caret.setText("");
+                caret.setMouseTransparent(true);
+            }
+            HBox box = new HBox(caret, lineNo);
+            box.setSpacing(4);
+            box.setAlignment(Pos.CENTER_LEFT);
+            return box;
+        };
+        codeJsonResponse.setParagraphGraphicFactory(graphicFactory);
+
+        // Folding shortcuts for JSON Pretty view
+        codeJsonResponse.setOnKeyPressed(ev -> {
+            if (ev.isControlDown() && ev.getCode() == KeyCode.MINUS) { // Ctrl + - to toggle fold at caret
+                codeJsonResponse.toggleFoldAtCaret();
+                ev.consume();
+            } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT0) { // Ctrl + 0 unfold all
+                codeJsonResponse.unfoldAll();
+                ev.consume();
+            } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT9) { // Ctrl + 9 fold all top-level
+                codeJsonResponse.foldAllTopLevel();
+                ev.consume();
+            }
+        });
+
+        // Context menu to make folding discoverable
+        ContextMenu foldingMenu = new ContextMenu();
+        MenuItem miToggle = new MenuItem("Toggle fold at caret	Ctrl+-");
+        miToggle.setOnAction(e -> codeJsonResponse.toggleFoldAtCaret());
+        MenuItem miFoldTop = new MenuItem("Fold all top-level {…}	Ctrl+9");
+        miFoldTop.setOnAction(e -> codeJsonResponse.foldAllTopLevel());
+        MenuItem miUnfold = new MenuItem("Unfold all	Ctrl+0");
+        miUnfold.setOnAction(e -> codeJsonResponse.unfoldAll());
+        foldingMenu.getItems().addAll(miToggle, new SeparatorMenuItem(), miFoldTop, miUnfold);
+        codeJsonResponse.setContextMenu(foldingMenu);
+
+        // Tooltip with quick help
+        Tooltip tip = new Tooltip("JSON folding:\n• Ctrl+- toggle at caret\n• Ctrl+9 fold all top-level\n• Ctrl+0 unfold all\nRight-click for menu.");
+        Tooltip.install(codeJsonResponse, tip);
+
         tableHeaders.setItems(FXCollections.observableArrayList(
                 RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
                         .build(),
