@@ -38,9 +38,9 @@
     <ComboBox fx:id="cmbFonts" onAction="#onChange" prefWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     <HBox fx:id="fontPreview" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     <Label fx:id="lblRequestTimeout" text="Request timeout (ms)" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-    <TextField fx:id="txtRequestTimeout" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    <TextField fx:id="txtRequestTimeout" onAction="#onTimeoutChanged" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
     <Label fx:id="maxResponseSize" text="Max response size (bytes)" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-    <TextField fx:id="txtMaxResponseSize" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+    <TextField fx:id="txtMaxResponseSize" onAction="#onMaxResponseSizeChanged" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
     <Separator GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="7" />
     <Label fx:id="lblSendNoCacheHeader" text="Send no-cache header" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
     <ToggleSwitch fx:id="chkSendNoCacheHeader" onMouseClicked="#onChangeSendNoCacheHeader" GridPane.columnIndex="1" GridPane.rowIndex="8"/>

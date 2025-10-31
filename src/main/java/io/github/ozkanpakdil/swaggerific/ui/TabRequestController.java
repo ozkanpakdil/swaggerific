@@ -65,6 +65,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TabRequestController extends TabPane {
+    private volatile boolean dirty = false;
+
+    public boolean isDirty() { return dirty; }
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TabRequestController.class);
     public ComboBox cmbHttpMethod;
     @FXML
@@ -391,6 +394,23 @@ public class TabRequestController extends TabPane {
                         body = preRequestScriptController.resolveEnvironmentVariables(body);
                         log.info("Resolved request body with environment variables");
                     }
+                    // Apply trimming preference for request body
+                    var prefs = java.util.prefs.Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class);
+                    if (prefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.General.KEY_TRIM_BODY, false)) {
+                        if (body != null) {
+                            body = body.trim();
+                        }
+                    }
+
+                    // Inject default headers based on preferences
+                    if (prefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.General.KEY_NO_CACHE, false)) {
+                        headers.putIfAbsent("Cache-Control", "no-cache, no-store, must-revalidate");
+                        headers.putIfAbsent("Pragma", "no-cache");
+                        headers.putIfAbsent("Expires", "0");
+                    }
+                    if (prefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.General.KEY_SWAGGER_TOKEN, false)) {
+                        headers.putIfAbsent("X-Swagger-Token", "true");
+                    }
 
                     // Get HTTP method
                     PathItem.HttpMethod httpMethod = PathItem.HttpMethod.valueOf(
@@ -404,6 +424,8 @@ public class TabRequestController extends TabPane {
                     Platform.runLater(() -> {
                         // First process the response in the UI
                         mainController.processResponse(response);
+                        // Mark as not dirty after a successful send
+                        dirty = false;
 
                         // Then execute response test script if available
                         if (responseTestScriptController != null && responseTestScriptController.getScript() != null &&
@@ -502,6 +524,7 @@ public class TabRequestController extends TabPane {
         txtAddress.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.equals(oldValue)) {
                 loadAuthorizationSettings(newValue);
+                dirty = true;
             }
         });
 
@@ -612,11 +635,17 @@ public class TabRequestController extends TabPane {
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
             evt.getRowValue().setName(evt.getNewValue());
             addTableRowIfFulfilled();
+            dirty = true;
         });
         tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader> forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
             evt.getRowValue().setValue(evt.getNewValue());
             addTableRowIfFulfilled();
+            dirty = true;
+        });
+        // Mark dirty when request body changes
+        codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
+            if (!Objects.equals(ov, nv)) dirty = true;
         });
         onTreeItemSelect(uri, leaf);
     }

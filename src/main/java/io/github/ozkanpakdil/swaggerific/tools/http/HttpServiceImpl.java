@@ -1,6 +1,7 @@
 package io.github.ozkanpakdil.swaggerific.tools.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.ozkanpakdil.swaggerific.SwaggerApplication;
 import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
 import io.github.ozkanpakdil.swaggerific.tools.exceptions.XmlFormattingException;
 import io.swagger.v3.core.util.Json;
@@ -89,10 +90,15 @@ public class HttpServiceImpl implements HttpService {
      * @return a configured HttpClient
      */
     private HttpClient createHttpClient() {
+        // Load preferences
+        var prefs = java.util.prefs.Preferences.userNodeForPackage(SwaggerApplication.class);
+        int timeoutMs = prefs.getInt("http.requestTimeoutMs", 30000);
+        boolean followRedirects = prefs.getBoolean("http.followRedirects", true);
+
         // Create HttpClient builder
         HttpClient.Builder builder = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(30))
-                .followRedirects(HttpClient.Redirect.NORMAL);
+                .connectTimeout(Duration.ofMillis(Math.max(1, timeoutMs)))
+                .followRedirects(followRedirects ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER);
 
         // If SSL certificate validation is disabled, use a trust-all SSLContext
         if (ProxySettings.disableSslValidation()) {
@@ -228,10 +234,37 @@ public class HttpServiceImpl implements HttpService {
                             e -> String.join(", ", e.getValue())
                     ));
 
+            // Enforce Max Response Size if configured
+            String body = httpResponse.body();
+            try {
+                int maxBytes = java.util.prefs.Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class)
+                        .getInt("http.maxResponseSizeBytes", 2_000_000);
+                if (body != null) {
+                    // Use UTF-8 byte length for enforcement
+                    byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                    if (bytes.length > maxBytes && maxBytes > 0) {
+                        // Truncate by bytes to avoid splitting multi-byte characters incorrectly
+                        byte[] truncated = java.util.Arrays.copyOf(bytes, maxBytes);
+                        String truncatedBody = new String(truncated, java.nio.charset.StandardCharsets.UTF_8);
+                        // Note: new String may end mid-character; best-effort fix by dropping last partial char
+                        // Find last valid boundary by re-encoding
+                        byte[] reencoded = truncatedBody.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                        if (reencoded.length > maxBytes) {
+                            // Drop last char
+                            truncatedBody = truncatedBody.substring(0, Math.max(0, truncatedBody.length() - 1));
+                        }
+                        body = truncatedBody + "\n\n[Response truncated to " + maxBytes + " bytes. Configure in Settings > General > Max response size]";
+                        responseHeaders.put("x-swaggerific-truncated", "true");
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Failed enforcing max response size: {}", ex.getMessage());
+            }
+
             return new HttpResponse.Builder()
                     .statusCode(httpResponse.statusCode())
                     .headers(responseHeaders)
-                    .body(httpResponse.body())
+                    .body(body)
                     .contentType(contentType)
                     .build();
 

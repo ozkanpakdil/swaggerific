@@ -201,8 +201,13 @@ public class MainController implements Initializable {
         rootLogger.addAppender(textAreaAppender);
     }
 
+    private int newTabCounter = 0;
     private void handleTreeViewItemClick(String tabName, TreeItemOperationLeaf leaf) {
-        if (tabRequests.getTabs().stream().filter(f -> f.getId().equals(tabName)).findAny().isEmpty()) {
+        var prefs = java.util.prefs.Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class);
+        boolean alwaysOpenNew = prefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.General.KEY_OPEN_SIDEBAR_IN_NEW_TAB, false);
+
+        boolean exists = tabRequests.getTabs().stream().anyMatch(f -> f.getId().equals(tabName));
+        if (!exists || alwaysOpenNew) {
             FXMLLoader tab = new FXMLLoader(getClass().getResource("/io/github/ozkanpakdil/swaggerific/tab-request.fxml"));
             Tab newTab = new Tab(tabName);
             try {
@@ -213,7 +218,28 @@ public class MainController implements Initializable {
             TabRequestController controller = tab.getController();
             controller.initializeController(this, tabName, leaf);
             newTab.setUserData(controller);
-            newTab.setId(tabName);
+            // Ensure unique id when opening duplicates
+            String tabId = alwaysOpenNew && exists ? tabName + "#" + (++newTabCounter) : tabName;
+            newTab.setId(tabId);
+            // Confirm on close if unsaved
+            newTab.setOnCloseRequest(evt -> {
+                try {
+                    boolean ask = prefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.General.KEY_ASK_WHEN_CLOSING_UNSAVED, true);
+                    if (ask && controller != null && controller.isDirty()) {
+                        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                        confirm.initOwner(mainBox.getScene().getWindow());
+                        confirm.setTitle("Unsaved changes");
+                        confirm.setHeaderText("This tab has unsaved changes");
+                        confirm.setContentText("Are you sure you want to close this tab?");
+                        var result = confirm.showAndWait();
+                        if (result.isEmpty() || result.get() != ButtonType.OK) {
+                            evt.consume();
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.warn("Error during close confirmation: {}", ex.getMessage());
+                }
+            });
             tabRequests.getTabs().add(newTab);
             tabRequests.getSelectionModel().select(newTab);
         } else {
@@ -651,9 +677,29 @@ public class MainController implements Initializable {
             }
         });
         stage.setScene(settingsScene);
-        stage.show();
 
-        //        stage.setOnHidden(e -> controller.onClose());
+        // Ensure settings are persisted and applied when the window closes
+        stage.setOnHidden(e -> {
+            try {
+                controller.onClose();
+            } catch (Exception ex) {
+                log.warn("Error while closing settings: {}", ex.getMessage());
+            }
+            // Live-apply font settings to the main scene
+            var prefs = java.util.prefs.Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class);
+            String fontSize = prefs.get("font.size", ".93em");
+            String selectedFont = prefs.get("selected.font", "Verdana");
+            try {
+                Node rootNode = mainBox.getScene().getRoot();
+                if (rootNode != null) {
+                    rootNode.setStyle("-fx-font-size:" + fontSize + "; -fx-font-family:'" + selectedFont + "';");
+                }
+            } catch (Exception ex) {
+                log.warn("Failed to live-apply font settings: {}", ex.getMessage());
+            }
+        });
+
+        stage.show();
     }
 
     public GridPane getBoxRequestParams() {

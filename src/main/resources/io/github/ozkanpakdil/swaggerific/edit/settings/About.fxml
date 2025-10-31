@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.web.WebView?>
-<GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-          AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.About">
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.About"
+            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
     <children>
-        <TextArea GridPane.rowIndex="0">Play with swagger. Thanks to jetbrains for the support.</TextArea>
-
-        <WebView GridPane.rowIndex="1" fx:id="view" layoutX="294.0" layoutY="85.0" prefHeight="200.0"
-                 prefWidth="200.0"/>
+        <VBox spacing="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" style="-fx-padding: 1em;">
+            <Label fx:id="lblTitle" text="About" style="-fx-font-size: 1.3em; -fx-font-weight: bold;" />
+            <Label fx:id="lblAppName" text="Swaggerific" />
+            <Label fx:id="lblVersion" text="" />
+            <Label text="An open-source REST client written in JavaFX." />
+            <Separator />
+            <Label text="Links" style="-fx-font-weight: bold;" />
+            <Hyperlink fx:id="lnkHomepage" text="Project Homepage" onAction="#openHomepage" />
+            <Hyperlink fx:id="lnkIssues" text="Report an Issue" onAction="#openIssues" />
+        </VBox>
     </children>
-</GridPane>
+</AnchorPane>

@@ -41,6 +41,9 @@ public class SettingsController implements Initializable {
     @FXML
     Pane rightPane;
 
+    // Keep reference of currently loaded settings pane controller (e.g., General)
+    private Object currentSubController;
+
     public void changeSelectedSetting(ActionEvent actionEvent) {
         Button source = (Button) actionEvent.getSource();
         loadSettingsPane("/io/github/ozkanpakdil/swaggerific/edit/settings/%s.fxml".formatted(source.getText()));
@@ -49,9 +52,21 @@ public class SettingsController implements Initializable {
     private void loadSettingsPane(String name) {
         rightPane.getChildren().clear();
         try {
-            rightPane.getChildren().add(new FXMLLoader(getClass().getResource(name)).load());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(name));
+            rightPane.getChildren().add(loader.load());
+            currentSubController = loader.getController();
         } catch (IOException e) {
             throw new LoadFxmlRuntimeException(e);
+        }
+    }
+
+    /**
+     * Called by the Settings window when it is being closed.
+     * Gives current sub-controller a chance to persist changes.
+     */
+    public void onClose() {
+        if (currentSubController instanceof General general) {
+            general.onClose();
         }
     }
 

@@ -1,0 +1,82 @@
+:root { /* keep empty for now */ }
+
+/* Dark theme readability fixes (applied only when Dark is active) */
+/* Backgrounds a tad lighter than PrimerDark defaults */
+.tree-view, .list-view, .table-view {
+  -fx-background-color: #0f1116 !important;
+  -fx-control-inner-background: #0f1116 !important;
+}
+
+/* Ensure text contrast inside tree/list/table cells */
+.tree-view .tree-cell,
+.list-view .list-cell,
+.table-view .table-row-cell {
+  -fx-text-fill: #eaeaea !important;
+}
+/* Also target inner Text nodes created by controls */
+.tree-view .tree-cell .text,
+.list-view .list-cell .text,
+.table-view .table-row-cell .text {
+  -fx-fill: #eaeaea !important;
+}
+
+/* Selected and hover states with higher contrast */
+.tree-view .tree-cell:hover,
+.list-view .list-cell:hover,
+.table-view .table-row-cell:hover {
+  -fx-background-color: rgba(90, 151, 230, 0.14) !important;
+}
+.tree-view .tree-cell:filled:selected,
+.list-view .list-cell:filled:selected,
+.table-view .table-row-cell:filled:selected {
+  -fx-background-color: #2b6cb0 !important; /* readable blue selection */
+  -fx-text-fill: #ffffff !important;
+}
+.tree-view .tree-cell:filled:selected .text,
+.list-view .list-cell:filled:selected .text,
+.table-view .table-row-cell:filled:selected .text {
+  -fx-fill: #ffffff !important;
+}
+
+/* Make disclosure arrows visible in dark mode */
+.tree-view .tree-disclosure-node > .arrow,
+.tree-table-view .tree-disclosure-node > .arrow {
+  -fx-background-color: #d0d6e1 !important;
+}
+
+/* Buttons in the left settings navigator should remain readable */
+.button {
+  -fx-text-fill: #e8e8e8 !important;
+}
+
+/* SplitPane divider slightly lighter for contrast */
+.split-pane:horizontal > .split-pane-divider,
+.split-pane:vertical > .split-pane-divider {
+  -fx-background-color: #1b1f2a !important;
+}
+
+/* ---- Editors (Pretty JSON CodeArea + Raw TextArea) ---- */
+/* Backgrounds */
+.code-area, .styled-text-area, .virtualized-scroll-pane, .text-area, .text-area .content {
+  -fx-background-color: #0f1116 !important;
+  -fx-control-inner-background: #0f1116 !important;
+}
+/* Generic text color inside editors */
+.code-area .paragraph-box .text, .text-area .content .text { 
+  -fx-fill: #e6edf3 !important; /* GitHub dark text */
+}
+/* Line numbers gutter override from json-highlighting.css */
+.code-area .lineno {
+  -fx-background-color: #161a22 !important;
+  -fx-text-fill: #9aa4b2 !important;
+}
+/* JSON token tweaks for dark mode (when using light stylesheet) */
+.json_curly { -fx-fill: #cdd9e5 !important; }
+.json_number { -fx-fill: #91cb6e !important; }
+
+/* Softer current-line highlight for dark theme (caret line) */
+.code-area .line-highlighter, .styled-text-area .line-highlighter, .text-area .line-highlighter {
+  /* subtle bluish tint similar to GitHub dark code line highlight */
+  -fx-highlight-fill: rgba(56, 139, 253, 0.10) !important;
+  -rtfx-background-color: rgba(56, 139, 253, 0.10) !important;
+}

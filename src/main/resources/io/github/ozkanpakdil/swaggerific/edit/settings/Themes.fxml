@@ -1,33 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane prefHeight="400.0" prefWidth="787.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+<GridPane style="-fx-padding: 1em;" xmlns="http://javafx.com/javafx/17.0.2-ea"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Themes"
           AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-    <children>
-        <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="50.0" layoutY="125.0" pickOnBounds="true"
-                   preserveRatio="true">
-            <image>
-                <Image url="https://149366088.v2.pressablecdn.com/wp-content/uploads/2019/09/new-ubuntu-theme.jpg"/>
-            </image>
-        </ImageView>
-        <CheckBox layoutX="60.0" layoutY="53.0" mnemonicParsing="false" text="CheckBox"/>
-        <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="560.0" layoutY="125.0" pickOnBounds="true"
-                   preserveRatio="true">
-            <image>
-                <Image url="https://149366088.v2.pressablecdn.com/wp-content/uploads/2019/09/new-ubuntu-theme.jpg"/>
-            </image>
-        </ImageView>
-        <CheckBox layoutX="631.0" layoutY="71.0" mnemonicParsing="false" text="CheckBox"/>
-        <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="318.0" layoutY="125.0" pickOnBounds="true"
-                   preserveRatio="true">
-            <image>
-                <Image url="https://149366088.v2.pressablecdn.com/wp-content/uploads/2019/09/new-ubuntu-theme.jpg"/>
-            </image>
-        </ImageView>
-        <CheckBox layoutX="357.0" layoutY="62.0" mnemonicParsing="false" text="CheckBox"/>
-    </children>
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="120.0" prefWidth="180.0"/>
+        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+    </rowConstraints>
+    <Label text="Theme" maxWidth="Infinity" wrapText="true" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <ComboBox fx:id="cmbTheme" promptText="Choose Light or Dark" onAction="#onThemeChanged" prefWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <Label text="Apply theme immediately when changed" maxWidth="Infinity" wrapText="true" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <CheckBox fx:id="chkApplyImmediately" text="Apply immediately" onAction="#onApplyImmediatelyChanged" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 </GridPane>

@@ -1,6 +1,8 @@
 package io.github.ozkanpakdil.swaggerific;
 
 import atlantafx.base.theme.PrimerLight;
+import atlantafx.base.theme.PrimerDark;
+import io.github.ozkanpakdil.swaggerific.ui.edit.Themes;
 import io.github.ozkanpakdil.swaggerific.animation.Preloader;
 import io.github.ozkanpakdil.swaggerific.model.ShortcutModel;
 import io.github.ozkanpakdil.swaggerific.tools.ProxySettings;
@@ -51,7 +53,13 @@ public class SwaggerApplication extends Application {
         // Initialize proxy settings
         initializeProxySettings();
 
-        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        // Apply saved theme preference (light/dark)
+        String savedTheme = userPrefs.get(Themes.KEY_UI_THEME, "light");
+        if ("dark".equalsIgnoreCase(savedTheme)) {
+            Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        } else {
+            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        }
         loadingWindowLookAndLocation();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main-view.fxml"));
         Parent root = fxmlLoader.load();
@@ -69,11 +77,41 @@ public class SwaggerApplication extends Application {
         stage.setScene(scene);
         stage.setOnHidden(e -> mainController.onClose());
         stage.show();
+        // Apply dark theme readability fixes if needed
+        applyDarkAccessibilityFixes("dark".equalsIgnoreCase(savedTheme));
         //TODO this size change is not working, investigate. // below font change is not working on application start :(
         root.setStyle("-fx-font-size:" + fontSize + ";");
         root.setStyle("-fx-font-family:'" + selectedFont + "';");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize + ";");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
+    }
+
+    public void applyDarkAccessibilityFixes(boolean enable) {
+        String css = Objects.requireNonNull(SwaggerApplication.class.getResource("/css/dark-fixes.css")).toExternalForm();
+        try {
+            // Apply to primary stage
+            if (primaryStage != null && primaryStage.getScene() != null) {
+                toggleStylesheet(primaryStage.getScene(), css, enable);
+            }
+            // Apply to other open windows
+            for (javafx.stage.Window window : javafx.stage.Window.getWindows()) {
+                if (window instanceof javafx.stage.Stage stage && stage != primaryStage && stage.getScene() != null) {
+                    toggleStylesheet(stage.getScene(), css, enable);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to toggle dark accessibility fixes: {}", e.getMessage());
+        }
+    }
+
+    private void toggleStylesheet(Scene scene, String css, boolean enable) {
+        if (scene == null) return;
+        var list = scene.getStylesheets();
+        if (enable) {
+            if (!list.contains(css)) list.add(css);
+        } else {
+            list.remove(css);
+        }
     }
 
     public static SwaggerApplication getInstance() {
