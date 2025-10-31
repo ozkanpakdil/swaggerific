@@ -1,35 +1,42 @@
 package io.github.ozkanpakdil.swaggerific.ui.edit;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.stage.FileChooser;
-import org.controlsfx.control.ToggleSwitch;
+import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 
-import java.io.File;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
-public class Certificates {
-    @FXML
-    private ToggleSwitch togglePEM;
-    @FXML
-    private Button choosePEMFile;
+public class Certificates implements Initializable {
+    public static final String KEY_CA_BUNDLE_ENABLED = "certs.caBundleEnabled";
+    public static final String KEY_CA_BUNDLE_PATH = "certs.caBundlePath";
 
-    @FXML
-    public void initialize() {
-        choosePEMFile.managedProperty().bind(togglePEM.selectedProperty());
+    @FXML private CheckBox chkEnableCaBundle;
+    @FXML private TextField txtCaBundlePath;
+
+    private final Preferences prefs = Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class);
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        chkEnableCaBundle.setSelected(prefs.getBoolean(KEY_CA_BUNDLE_ENABLED, false));
+        // Persist changes whenever selection toggles (more reliable than onAction timing)
+        chkEnableCaBundle.selectedProperty().addListener((obs, oldV, newV) -> {
+                prefs.putBoolean(KEY_CA_BUNDLE_ENABLED, newV);
+                try { prefs.flush(); } catch (Exception ignored) {}
+        });
+        txtCaBundlePath.setText(prefs.get(KEY_CA_BUNDLE_PATH, ""));
     }
 
-    public void choosePEMFileClick(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open PEM File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PEM Files", "*.pem"));
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            // Handle the selected file
-        }
+    @FXML
+    public void onEnableChanged() {
+        prefs.putBoolean(KEY_CA_BUNDLE_ENABLED, chkEnableCaBundle.isSelected());
     }
 
-    public void addCertificate(ActionEvent actionEvent) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    @FXML
+    public void onPathChanged() {
+        String path = txtCaBundlePath.getText() == null ? "" : txtCaBundlePath.getText().trim();
+        prefs.put(KEY_CA_BUNDLE_PATH, path);
     }
 }

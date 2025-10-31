@@ -149,14 +149,23 @@ Legend:
   - Persistence: Stored in Preferences under keys with `shortcut.` prefix.
   - Applies: SwaggerApplication scans scenes and applies custom shortcuts to MenuItems/Buttons. Live-apply via Settings Save.
 
-- [ ] Data
-  - UI: Placeholder. TBD.
+- [x] Data
+  - UI: Settings > Data
+  - Behavior: "Save request/response history" toggle and "History retention (days)" numeric field. Currently persists preferences; actual history management to be wired later.
+  - Persistence: Preferences keys `ui.data.saveHistory` (boolean), `ui.data.historyRetentionDays` (int, days)
+  - Applies: Stored for future use; no deletion logic yet.
 
-- [ ] Addons
-  - UI: Placeholder. TBD.
+- [x] Addons
+  - UI: Settings > Addons
+  - Behavior: "Enable experimental addons" toggle, currently persists preference only.
+  - Persistence: Preferences key `ui.addons.enabled` (boolean)
+  - Applies: Future integrations can check this flag to enable experimental features.
 
-- [ ] Certificates
-  - UI: Placeholder. TBD.
+- [x] Certificates
+  - UI: Settings > Certificates
+  - Behavior: "Enable custom CA bundle" toggle and path field for CA bundle (.pem). Currently persists preferences only; SSL integration is a future enhancement.
+  - Persistence: Preferences keys `certs.caBundleEnabled` (boolean), `certs.caBundlePath` (string)
+  - Applies: Future enhancement to have HttpServiceImpl use custom trust store when enabled.
 
 - [x] Proxy
   - UI: Settings > Proxy
@@ -169,8 +178,11 @@ Legend:
   - Persistence: Stored via ProxySettings using user Preferences or a file in app settings dir (depending on environment). Keys include `useSystemProxy`, `proxyType`, `proxyServer`, `proxyPort`, `proxyAuth`, `proxyAuthUsername`, encrypted password, `proxyBypass`, and `disableSslValidation`.
   - Applies: SwaggerApplication.initializeProxySettings() installs a ProxySelector and HttpServiceImpl clients are recreated. HttpServiceImpl also respects `disableSslValidation` to create a trust-all SSL context.
 
-- [ ] Update
-  - UI: Placeholder. TBD.
+- [x] Update
+  - UI: Settings > Update
+  - Behavior: "Check for updates on startup" toggle stores preference. "Update channel" selects Stable or Beta for future update checks.
+  - Persistence: Preferences keys `ui.update.checkOnStartup` (boolean), `ui.update.channel` ("stable"|"beta").
+  - Applies: On app startup, when enabled, application logs that it would check for updates (no network call yet).
 
 - [x] About
   - UI: Settings > About

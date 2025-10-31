@@ -84,6 +84,13 @@ public class SwaggerApplication extends Application {
         root.setStyle("-fx-font-family:'" + selectedFont + "';");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize + ";");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
+
+        // Optional: Check for updates on startup if user enabled it (no network call here)
+        boolean checkUpdates = userPrefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.Update.KEY_CHECK_ON_STARTUP, false);
+        String channel = userPrefs.get(io.github.ozkanpakdil.swaggerific.ui.edit.Update.KEY_UPDATE_CHANNEL, "stable");
+        if (checkUpdates) {
+            log.info("[Update] Would check for updates on startup (channel: {})", channel);
+        }
     }
 
     public void applyDarkAccessibilityFixes(boolean enable) {

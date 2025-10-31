@@ -2,18 +2,29 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.ToggleSwitch?>
-<GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-          AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Update">
-    <children>
-        <Label text="Swaggerific automatically downloads major updates" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <ToggleSwitch fx:id="toggleAutoUpdate" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Label text="Swaggerific automatically downloads minor updates and bug fixes." GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
-        <Label text="You are up to date!" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
-        <Label fx:id="versionLabel" text="Swaggerific v............ is the latest version." GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
-        <Button fx:id="checkUpdateButton" onAction="#checkUpdate" text="Check for updates" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <Label fx:id="updateStatusLabel" visible="false" text="Download the latest version from GitHub." GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2"/>
-        <Button fx:id="downloadUpdateButton" visible="false" onAction="#downloadUpdate" text="Download latest version" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-    </children>
+<GridPane style="-fx-padding: 1em;" xmlns="http://javafx.com/javafx/17.0.2-ea"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Update"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="140.0" prefWidth="220.0" />
+        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+    </rowConstraints>
+
+    <Label text="Check for updates on startup" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+    <CheckBox fx:id="chkCheckOnStartup" onAction="#onCheckOnStartupChanged"
+              text="Enable automatic check" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+    <Label text="Update channel" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+    <ComboBox fx:id="cmbChannel" promptText="Choose Stable or Beta" onAction="#onChannelChanged"
+              prefWidth="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+    <Label wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"
+           text="When enabled, Swaggerific will check for updates at startup. Channel controls whether to prefer Stable or Beta versions when checking. This setting does not auto-install updates."/>
 </GridPane>

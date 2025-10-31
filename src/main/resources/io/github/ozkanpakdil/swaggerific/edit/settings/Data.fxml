@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-          AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Data">
-    <children>
-        <Label>Data management should be here.</Label>
+<GridPane style="-fx-padding: 1em;" xmlns="http://javafx.com/javafx/17.0.2-ea"
+          xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Data"
+          AnchorPane.bottomAnchor="0.0"
+          AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="140.0" prefWidth="220.0" />
+        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+    </rowConstraints>
 
-    </children>
+    <Label text="Save request/response history" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+    <CheckBox fx:id="chkSaveHistory" text="Enable history" onAction="#onSaveHistoryChanged" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+    <Label text="History retention (days)" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+    <TextField fx:id="txtRetentionDays" promptText="e.g., 30" onAction="#onRetentionDaysChanged" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+    <Label wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"
+           text="Controls whether Swaggerific stores recent requests/responses locally, and how long to keep them. Currently affects stored preferences only."/>
 </GridPane>
