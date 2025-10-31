@@ -12,6 +12,7 @@ import org.xml.sax.InputSource;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManagerFactory;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -19,26 +20,20 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.Authenticator;
-import java.net.ConnectException;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
-import java.net.URI;
+import java.io.*;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.channels.ClosedChannelException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.github.ozkanpakdil.swaggerific.tools.ProxySettings.trustAllCerts;
 
@@ -100,8 +95,22 @@ public class HttpServiceImpl implements HttpService {
                 .connectTimeout(Duration.ofMillis(Math.max(1, timeoutMs)))
                 .followRedirects(followRedirects ? HttpClient.Redirect.NORMAL : HttpClient.Redirect.NEVER);
 
-        // If SSL certificate validation is disabled, use a trust-all SSLContext
-        if (ProxySettings.disableSslValidation()) {
+        // SSL configuration precedence:
+        // 1) If custom CA bundle is enabled and path provided, use it.
+        // 2) Else if SSL validation is disabled, trust all (dev/test only).
+        boolean caEnabled = prefs.getBoolean("certs.caBundleEnabled", false);
+        String caPath = prefs.get("certs.caBundlePath", "");
+        if (caEnabled && caPath != null && !caPath.isBlank()) {
+            try {
+                SSLContext sslContext = loadSslContextFromPem(caPath.trim());
+                if (sslContext != null) {
+                    builder.sslContext(sslContext);
+                    log.info("Applied custom CA bundle from {}", caPath);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to load custom CA bundle from {}: {}", caPath, e.getMessage());
+            }
+        } else if (ProxySettings.disableSslValidation()) {
             try {
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(null, trustAllCerts, new SecureRandom());
@@ -161,6 +170,45 @@ public class HttpServiceImpl implements HttpService {
         }
 
         return builder.build();
+    }
+
+    /**
+     * Loads an SSLContext that trusts certificates from a PEM bundle file.
+     * The PEM may contain one or more X.509 certificates (-----BEGIN CERTIFICATE----- blocks).
+     */
+    static SSLContext loadSslContextFromPem(String pemPath) throws Exception {
+        byte[] allBytes = Files.readAllBytes(Paths.get(pemPath));
+        String pem = new String(allBytes, java.nio.charset.StandardCharsets.US_ASCII);
+        List<Certificate> certs = new ArrayList<>();
+        String begin = "-----BEGIN CERTIFICATE-----";
+        String end = "-----END CERTIFICATE-----";
+        int idx = 0;
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        while ((idx = pem.indexOf(begin, idx)) != -1) {
+            int start = idx + begin.length();
+            int endIdx = pem.indexOf(end, start);
+            if (endIdx == -1) break;
+            String base64 = pem.substring(start, endIdx).replaceAll("\\s+", "");
+            byte[] der = Base64.getDecoder().decode(base64);
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(der)) {
+                certs.add(cf.generateCertificate(bais));
+            }
+            idx = endIdx + end.length();
+        }
+        if (certs.isEmpty()) {
+            throw new IOException("No certificates found in PEM: " + pemPath);
+        }
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        ks.load(null, null);
+        int i = 0;
+        for (Certificate c : certs) {
+            ks.setCertificateEntry("ca-" + (i++), c);
+        }
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(ks);
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, tmf.getTrustManagers(), new SecureRandom());
+        return ctx;
     }
 
     @Override

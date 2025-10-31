@@ -17,6 +17,9 @@
         <RowConstraints minHeight="30.0" vgrow="NEVER"/>
         <RowConstraints minHeight="30.0" vgrow="NEVER"/>
         <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
+        <RowConstraints minHeight="30.0" vgrow="NEVER"/>
     </rowConstraints>
 
     <Label text="Customize keyboard shortcuts" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3" />
@@ -31,7 +34,22 @@
                onMouseClicked="#beginCaptureDebug" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
     <Button text="Clear" onAction="#clearDebug" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
 
-    <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="3">
+    <Label text="JSON: Toggle fold at caret" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <TextField fx:id="txtJsonToggleFold" promptText="Press keys (e.g., Ctrl+-)" editable="false"
+               onMouseClicked="#beginCaptureJsonToggle" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <Button text="Clear" onAction="#clearJsonToggle" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+
+    <Label text="JSON: Fold all top-level" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <TextField fx:id="txtJsonFoldTop" promptText="Press keys (e.g., Ctrl+9)" editable="false"
+               onMouseClicked="#beginCaptureJsonFoldTop" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+    <Button text="Clear" onAction="#clearJsonFoldTop" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+
+    <Label text="JSON: Unfold all" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <TextField fx:id="txtJsonUnfoldAll" promptText="Press keys (e.g., Ctrl+0)" editable="false"
+               onMouseClicked="#beginCaptureJsonUnfoldAll" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    <Button text="Clear" onAction="#clearJsonUnfoldAll" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+
+    <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="3">
         <Button text="Save" onAction="#save" />
         <Button text="Reset to Defaults" onAction="#resetDefaults" />
     </HBox>

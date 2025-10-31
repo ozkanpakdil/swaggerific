@@ -14,13 +14,13 @@ Legend:
   - UI: General > Font Family (ComboBox)
   - Behavior: Preview shows selected font. On close/save, selected font is persisted.
   - Persistence: Preferences key `selected.font`
-  - Notes: Applied on next app startup; live application is a future enhancement.
+  - Notes: Applied live when closing the Settings window and persisted for next startup.
 
 - [x] Font Size
   - UI: General > Fontsize (TextField)
   - Behavior: On close/save, font size is persisted.
   - Persistence: Preferences key `font.size`
-  - Notes: Applied on next app startup; live application is a future enhancement.
+  - Notes: Applied live when closing the Settings window and persisted for next startup.
 
 - [x] Trim keys and values in request body
   - UI: ToggleSwitch `Trim keys and values in request body`
@@ -80,9 +80,10 @@ Legend:
 
 - [x] Send anonymous usage data
   - UI: ToggleSwitch `Send anonymous usage data`
-  - Behavior: Preference stored; telemetry pipeline not yet implemented.
-  - Persistence: Preferences key `analytics.sendAnonymousUsage`
-  - Applies: Future analytics.
+  - Behavior: Opt-in anonymous telemetry. When enabled, the app may send minimal, non-PII usage events (startup, request completed) with short timeouts. No request bodies, URLs, or headers are transmitted; only method and status code for requests.
+  - Persistence: Preferences keys `analytics.sendAnonymousUsage` (boolean), `analytics.anonymousId` (UUID generated on first use)
+  - Endpoint: Disabled by default; can be provided via system property `swaggerific.telemetry.endpoint` (e.g., http://example/telemetry). If not set, telemetry is a no-op.
+  - Applies: Runtime via TelemetryService (startup in SwaggerApplication; after responses in TabRequestController).
 
 - [x] Restore Defaults
   - UI: Button `Back to default`
@@ -146,14 +147,17 @@ Legend:
   - Actions supported in this increment:
     - Send Request (default: Ctrl+Enter) -> key `shortcut.btnSendRequest`
     - Toggle Debug Console (default: Ctrl+D) -> key `shortcut.flipDebugConsole`
+    - JSON: Toggle fold at caret (default: Ctrl+-) -> key `shortcut.json.toggleFoldAtCaret`
+    - JSON: Fold all top-level (default: Ctrl+9) -> key `shortcut.json.foldTop`
+    - JSON: Unfold all (default: Ctrl+0) -> key `shortcut.json.unfoldAll`
   - Persistence: Stored in Preferences under keys with `shortcut.` prefix.
-  - Applies: SwaggerApplication scans scenes and applies custom shortcuts to MenuItems/Buttons. Live-apply via Settings Save.
+  - Applies: SwaggerApplication scans scenes and applies custom shortcuts to MenuItems/Buttons; installs scene-level accelerators for JSON folding actions on the focused Pretty editor (CustomCodeArea). Live-apply via Settings Save.
 
 - [x] Data
   - UI: Settings > Data
-  - Behavior: "Save request/response history" toggle and "History retention (days)" numeric field. Currently persists preferences; actual history management to be wired later.
+  - Behavior: "Save request/response history" toggle and "History retention (days)" numeric field. When enabled, requests and responses are stored as JSON files under `~/.swaggerific/history`. On startup, entries older than the configured retention are purged automatically.
   - Persistence: Preferences keys `ui.data.saveHistory` (boolean), `ui.data.historyRetentionDays` (int, days)
-  - Applies: Stored for future use; no deletion logic yet.
+  - Applies: Runtime via HistoryService (save on each request completion; purge at startup).
 
 - [x] Addons
   - UI: Settings > Addons
@@ -163,9 +167,9 @@ Legend:
 
 - [x] Certificates
   - UI: Settings > Certificates
-  - Behavior: "Enable custom CA bundle" toggle and path field for CA bundle (.pem). Currently persists preferences only; SSL integration is a future enhancement.
+  - Behavior: "Enable custom CA bundle" toggle and path field for CA bundle (.pem). When enabled and a valid PEM is provided, HttpServiceImpl builds an SSLContext from the bundle and uses it for HTTPS requests. If disabled, default trust store applies. If "Disable SSL certificate validation" is enabled under Proxy, that takes precedence and uses trust-all (dev/test only).
   - Persistence: Preferences keys `certs.caBundleEnabled` (boolean), `certs.caBundlePath` (string)
-  - Applies: Future enhancement to have HttpServiceImpl use custom trust store when enabled.
+  - Applies: HttpServiceImpl client creation. PEMs with multiple certs are supported.
 
 - [x] Proxy
   - UI: Settings > Proxy
@@ -180,9 +184,10 @@ Legend:
 
 - [x] Update
   - UI: Settings > Update
-  - Behavior: "Check for updates on startup" toggle stores preference. "Update channel" selects Stable or Beta for future update checks.
+  - Behavior: "Check for updates on startup" toggle stores preference. "Update channel" selects Stable or Beta.
+  - Runtime: When enabled, the app performs a lightweight, privacy‑preserving check on startup against the GitHub Releases API (5s timeout). Channel controls whether to query the latest stable release or the releases feed (beta). Result is logged and can be surfaced in UI later.
   - Persistence: Preferences keys `ui.update.checkOnStartup` (boolean), `ui.update.channel` ("stable"|"beta").
-  - Applies: On app startup, when enabled, application logs that it would check for updates (no network call yet).
+  - Applies: On app startup via UpdateChecker.
 
 - [x] About
   - UI: Settings > About
@@ -212,9 +217,5 @@ Keys in use:
 ---
 
 #### Next Steps
-- Enforce `http.maxResponseSizeBytes` when receiving responses (truncate with a clear UI notice and offer to view raw/full).
-- Implement UI flows honoring `ui.sidebar.openInNewTab` and `ui.askWhenClosingUnsaved` in the tab navigation/close handlers.
-- Add dedicated Proxy settings UI and integration with ProxySettings storage.
-- Live-apply font family/size without requiring restart.
-- Implement opt-in anonymous telemetry respecting `analytics.sendAnonymousUsage`.
-- Fill out placeholders (Themes, Shortcuts, Data, Addons, Certificates, Update) incrementally.
+- Shortcuts: consider exposing additional actions (e.g., open Settings, open Debug Console dock) and add sensible defaults.
+- Theming: continue dark-mode polish for any remaining controls if reported by users.

@@ -85,11 +85,34 @@ public class SwaggerApplication extends Application {
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-size:" + fontSize + ";");
         mainController.getTopPane().getScene().getRoot().setStyle("-fx-font-family:'" + selectedFont + "';");
 
-        // Optional: Check for updates on startup if user enabled it (no network call here)
+        // Optional: Check for updates on startup if user enabled it (lightweight, privacy-preserving)
         boolean checkUpdates = userPrefs.getBoolean(io.github.ozkanpakdil.swaggerific.ui.edit.Update.KEY_CHECK_ON_STARTUP, false);
-        String channel = userPrefs.get(io.github.ozkanpakdil.swaggerific.ui.edit.Update.KEY_UPDATE_CHANNEL, "stable");
         if (checkUpdates) {
-            log.info("[Update] Would check for updates on startup (channel: {})", channel);
+            try {
+                new io.github.ozkanpakdil.swaggerific.tools.update.UpdateChecker(userPrefs)
+                        .checkAsync(msg -> log.info(msg));
+            } catch (Exception e) {
+                log.warn("Failed to initiate update check: {}", e.getMessage());
+            }
+        }
+
+        // Purge old request/response history according to retention
+        try {
+            int purged = io.github.ozkanpakdil.swaggerific.tools.history.HistoryService.purgeOld();
+            if (purged > 0) {
+                log.info("Purged {} old history entr(ies)", purged);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to purge history on startup: {}", e.getMessage());
+        }
+
+        // Fire opt-in anonymous telemetry (no PII, short timeout)
+        try {
+            io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService telemetry =
+                    new io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService(userPrefs);
+            telemetry.sendStartupAsync();
+        } catch (Exception e) {
+            log.debug("Telemetry startup send failed: {}", e.toString());
         }
     }
 
@@ -225,6 +248,8 @@ public class SwaggerApplication extends Application {
                 // Create a temporary instance to access non-static methods
                 SwaggerApplication tempInstance = new SwaggerApplication();
                 tempInstance.findAndApplyShortcuts(root);
+                // Also install editor accelerators based on preferences
+                tempInstance.installEditorAccelerators(scene);
             } catch (Exception e) {
                 log.error("Error applying custom shortcuts to scene", e);
             }
@@ -280,6 +305,67 @@ public class SwaggerApplication extends Application {
                 findAndApplyShortcuts(childParent);
             }
         }
+    }
+
+    // Install scene-level accelerators for editor actions (JSON folding)
+    private void installEditorAccelerators(Scene scene) {
+        try {
+            if (scene == null) return;
+
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(SwaggerApplication.class);
+            // Read shortcuts
+            String sToggle = prefs.get("shortcut." + io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts.ACTION_JSON_TOGGLE, io.github.ozkanpakdil.swaggerific.model.ShortcutModel.formatKeyCombination(new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.MINUS, javafx.scene.input.KeyCombination.CONTROL_DOWN)));
+            String sFoldTop = prefs.get("shortcut." + io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts.ACTION_JSON_FOLD_TOP, io.github.ozkanpakdil.swaggerific.model.ShortcutModel.formatKeyCombination(new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.DIGIT9, javafx.scene.input.KeyCombination.CONTROL_DOWN)));
+            String sUnfoldAll = prefs.get("shortcut." + io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts.ACTION_JSON_UNFOLD_ALL, io.github.ozkanpakdil.swaggerific.model.ShortcutModel.formatKeyCombination(new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.DIGIT0, javafx.scene.input.KeyCombination.CONTROL_DOWN)));
+
+            final javafx.scene.input.KeyCodeCombination kcToggle = io.github.ozkanpakdil.swaggerific.model.ShortcutModel.parseShortcut(sToggle);
+            final javafx.scene.input.KeyCodeCombination kcFoldTop = io.github.ozkanpakdil.swaggerific.model.ShortcutModel.parseShortcut(sFoldTop);
+            final javafx.scene.input.KeyCodeCombination kcUnfoldAll = io.github.ozkanpakdil.swaggerific.model.ShortcutModel.parseShortcut(sUnfoldAll);
+
+            // Fallback to accelerators map (kept, but not clearing others)
+            java.util.function.Consumer<javafx.scene.input.KeyCodeCombination> add = combo -> {
+                if (combo == null) return;
+                scene.getAccelerators().put(combo, () -> performEditorActionForCombo(scene, combo, kcToggle, kcFoldTop, kcUnfoldAll));
+            };
+            add.accept(kcToggle);
+            add.accept(kcFoldTop);
+            add.accept(kcUnfoldAll);
+
+            // Also install a key filter to capture events even if controls consume key presses
+            scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
+                try {
+                    if (kcToggle != null && kcToggle.match(ev)) {
+                        if (performEditorActionForCombo(scene, kcToggle, kcToggle, kcFoldTop, kcUnfoldAll)) ev.consume();
+                    } else if (kcFoldTop != null && kcFoldTop.match(ev)) {
+                        if (performEditorActionForCombo(scene, kcFoldTop, kcToggle, kcFoldTop, kcUnfoldAll)) ev.consume();
+                    } else if (kcUnfoldAll != null && kcUnfoldAll.match(ev)) {
+                        if (performEditorActionForCombo(scene, kcUnfoldAll, kcToggle, kcFoldTop, kcUnfoldAll)) ev.consume();
+                    }
+                } catch (Exception ignored) {}
+            });
+        } catch (Exception e) {
+            log.warn("Failed to install editor accelerators: {}", e.getMessage());
+        }
+    }
+
+    private boolean performEditorActionForCombo(Scene scene, javafx.scene.input.KeyCodeCombination fired,
+                                                javafx.scene.input.KeyCodeCombination kcToggle,
+                                                javafx.scene.input.KeyCodeCombination kcFoldTop,
+                                                javafx.scene.input.KeyCodeCombination kcUnfoldAll) {
+        javafx.scene.Node focusOwner = scene.getFocusOwner();
+        if (focusOwner instanceof io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea cca) {
+            if (fired.equals(kcToggle)) {
+                cca.toggleFoldAtCaret();
+                return true;
+            } else if (fired.equals(kcFoldTop)) {
+                cca.foldAllTopLevel();
+                return true;
+            } else if (fired.equals(kcUnfoldAll)) {
+                cca.unfoldAll();
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

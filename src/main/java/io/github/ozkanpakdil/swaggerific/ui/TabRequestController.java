@@ -420,12 +420,29 @@ public class TabRequestController extends TabPane {
                     HttpResponse response = httpUtility.sendRequest(
                             targetUri, httpMethod, headers, body, queryParams, pathParams);
 
+                    // Save history entry (if enabled) and then process response
+                    try {
+                        java.net.URI finalUri = mainController.getHttpUtility().buildUri(targetUri, queryParams, pathParams);
+                        io.github.ozkanpakdil.swaggerific.tools.history.HistoryService.save(
+                                httpMethod.name(), finalUri, headers, body, response);
+                    } catch (Exception ex) {
+                        log.warn("Failed to save history: {}", ex.getMessage());
+                    }
+
                     // Process response in the UI thread
                     Platform.runLater(() -> {
                         // First process the response in the UI
                         mainController.processResponse(response);
                         // Mark as not dirty after a successful send
                         dirty = false;
+
+                        // Fire anonymous telemetry for completed request (opt-in, no PII)
+                        try {
+                            var tprefs = java.util.prefs.Preferences.userNodeForPackage(io.github.ozkanpakdil.swaggerific.SwaggerApplication.class);
+                            io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService telemetry =
+                                    new io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService(tprefs);
+                            telemetry.sendRequestAsync(httpMethod.name(), response.statusCode());
+                        } catch (Exception ignored) {}
 
                         // Then execute response test script if available
                         if (responseTestScriptController != null && responseTestScriptController.getScript() != null &&
