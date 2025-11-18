@@ -14,11 +14,10 @@
         <junit.version>5.9.2</junit.version>
         <javafx.version>19.0.2.1</javafx.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
-        <gluonfx.plugin.version>1.0.26</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.28</gluonfx.plugin.version>
         <mainClass>swaggerific/io.github.ozkanpakdil.swaggerific.SwaggerApplication</mainClass>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <maven.version>${maven.version}</maven.version>
         <sonar.organization>ozkanpakdil-github</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <jackson-databind.version>2.18.2</jackson-databind.version>
@@ -27,7 +26,11 @@
         <controlsfx.version>11.2.1</controlsfx.version>
         <logback-classic.version>1.5.16</logback-classic.version>
         <dockfx.version>0.1.5</dockfx.version>
-        <graalvm.version>23.1.4</graalvm.version>
+        <!-- Align GraalVM libs with Gluon Substrate-supported Native Image.
+             Using 22.3.3 avoids unsupported truffle macro errors on macOS. -->
+        <graalvm.version>22.3.3</graalvm.version>
+        <!-- Some JS components have different available patch versions on Maven Central -->
+        <graalvm.js.version>22.3.1</graalvm.js.version>
     </properties>
 
     <dependencyManagement>
@@ -312,7 +315,7 @@
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
-            <version>${graalvm.version}</version>
+            <version>${graalvm.js.version}</version>
         </dependency>
         <!-- GraalJS engine and dependencies for JSR-223 -->
         <!-- Removed org.graalvm.js:js for GraalVM >=23 as coordinates changed; keep scriptengine + truffle/sdk -->
@@ -428,6 +431,8 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <target>${gluonfx.target}</target>
+                    <graalvmHome>${env.JAVA_HOME}</graalvmHome>
+                    <appIdentifier>${project.groupId}.${project.artifactId}</appIdentifier>
                     <mainClass>${mainClass}</mainClass>
                     <attachList>
                         <list>display</list>
@@ -443,13 +448,16 @@
                         <vendor>${project.groupId}</vendor>
                         <description>${project.description}</description>
                         <version>${project.version}</version>
+                        <macAppCategory>public.app-category.developer-tools</macAppCategory>
+                        <!-- Note: gluonfx-maven-plugin 1.0.26 ReleaseConfiguration doesn't expose
+                             an <icon> or <icons> parameter for the build goal. Leave icon unset to
+                             avoid configuration parsing errors during gluonfx:build. -->
                     </releaseConfiguration>
                     <nativeImageArgs>
                         <arg>--initialize-at-run-time=com.sun.glass.ui.Application</arg>
                         <arg>--initialize-at-run-time=com.sun.glass.ui.win.WinApplication</arg>
                         <arg>--initialize-at-run-time=com.sun.glass.ui.win.WinPlatformFactory</arg>
                         <arg>--initialize-at-run-time=com.sun.javafx.application.PlatformImpl</arg>
-                        <arg>--initialize-at-run-time=com.sun.javafx.tk.quantum.QuantumToolkit</arg>
                         <arg>--initialize-at-run-time=com.sun.glass.utils.NativeLibLoader</arg>
                         <arg>--initialize-at-run-time=com.sun.glass.ui.win</arg>
                         <arg>-H:EnableURLProtocols=http,https,file,jar</arg>
@@ -736,7 +744,7 @@
                                 <artifactItem>
                                     <groupId>org.graalvm.js</groupId>
                                     <artifactId>js-scriptengine</artifactId>
-                                    <version>${graalvm.version}</version>
+                                    <version>${graalvm.js.version}</version>
                                     <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
                                 </artifactItem>
                                 <!-- Truffle API -->
@@ -783,6 +791,10 @@
             <properties>
                 <gluonfx.target>linux</gluonfx.target>
             </properties>
+        </profile>
+        <!-- Add a no-op 'desktop' profile to avoid warnings when building with -Pdesktop -->
+        <profile>
+            <id>desktop</id>
         </profile>
     </profiles>
 </project>
