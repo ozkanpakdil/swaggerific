@@ -1,5 +1,15 @@
 .line-highlighter { -fx-highlight-fill: ghostwhite; }
 
+/* Ensure both selection and bracket match highlights are visible in dark theme */
+.code-area .paragraph-box .text.match {
+    -rtfx-background-color: #444a2b; /* dark yellowish background */
+    border-style: dotted;
+    border-color: #8f9d00;
+}
+.code-area .paragraph-box .text.loop {
+    -rtfx-background-color: #3b4130; /* slightly different tint */
+}
+
 .text {
     -fx-fill: white;
 }

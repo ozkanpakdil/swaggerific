@@ -855,46 +855,47 @@ public class MainController implements Initializable {
             if (response.isError()) {
                 log.warn("Error in HTTP response: {}", response.errorMessage());
                 openDebugConsole();
-                getCodeJsonResponse().replaceText("Error in request: " + response.errorMessage() +
+                String errTxt = "Error in request: " + response.errorMessage() +
                         "\n\nPlease check your request parameters and try again. If the problem persists, " +
-                        "check the server status or network connection.");
+                        "check the server status or network connection.";
+                // Use explicit start/end variant for RichTextFX compatibility across platforms
+                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errTxt);
                 return;
             }
 
             String responseBody = response.body();
             if (responseBody == null || responseBody.isEmpty()) {
                 log.warn("Empty response body received");
-                getCodeJsonResponse().replaceText(
-                        "The server returned an empty response with status code: " + response.statusCode() +
-                                "\n\nThis might be expected for some operations, or it could indicate an issue with the request."
-                );
+                String emptyTxt = "The server returned an empty response with status code: " + response.statusCode() +
+                        "\n\nThis might be expected for some operations, or it could indicate an issue with the request.";
+                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), emptyTxt);
             } else if (httpUtility.isJsonResponse(response)) {
                 try {
                     String formattedJson = httpUtility.formatJson(responseBody);
-                    getCodeJsonResponse().replaceText(formattedJson);
+                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), formattedJson);
                     log.info("Successfully processed JSON response with status code: {}", response.statusCode());
                 } catch (Exception e) {
                     log.warn("Failed to parse JSON response: {}", e.getMessage());
                     // If JSON parsing fails, show the raw response
                     final String errorMessage = "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody;
-                    getCodeJsonResponse().replaceText(errorMessage);
+                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errorMessage);
                 }
             } else if (httpUtility.isXmlResponse(response)) {
                 log.info("Processing XML response with status code: {}", response.statusCode());
                 try {
                     String formattedXml = httpUtility.formatXml(responseBody);
                     codeResponseXmlSettings(getCodeJsonResponse(), "/css/xml-highlighting.css");
-                    getCodeJsonResponse().replaceText(formattedXml);
+                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), formattedXml);
                 } catch (Exception e) {
                     log.warn("Failed to format XML response: {}", e.getMessage());
                     // If XML formatting fails, show the raw response
                     final String errorMessage = "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody;
-                    getCodeJsonResponse().replaceText(errorMessage);
+                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errorMessage);
                 }
             } else {
                 // Fallback to raw response
                 log.info("Processing raw response with status code: {}", response.statusCode());
-                getCodeJsonResponse().replaceText(responseBody);
+                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), responseBody);
             }
 
             // Always set the raw response
@@ -905,10 +906,9 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             log.error("Error processing response: {}", e.getMessage(), e);
             openDebugConsole();
-            getCodeJsonResponse().replaceText(
-                    "Error processing response: " + e.getMessage() +
-                            "\n\nThis is an application error. Please report this issue with the steps to reproduce it."
-            );
+            String appErrTxt = "Error processing response: " + e.getMessage() +
+                    "\n\nThis is an application error. Please report this issue with the steps to reproduce it.";
+            getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), appErrTxt);
         }
     }
 }

@@ -507,9 +507,17 @@ public class TabRequestController extends TabPane {
         cmbHttpMethodConfig(leaf);
         this.mainController = parent;
         txtAddress.setText(uri);
+        // Highlighters
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
+        // Trigger selection + bracket highlights on typing (cast for platform stability)
+        ((CodeArea) codeJsonResponse).setOnKeyTyped(keyEvent -> {
+            selectedHighlighter.highlightSelectedText();
+            bracketHighlighter.highlightBracket();
+        });
+        // Also trigger bracket highlight on key release and mouse click to catch caret-only moves
+        ((CodeArea) codeJsonResponse).setOnKeyReleased(ev -> bracketHighlighter.highlightBracket());
+        ((CodeArea) codeJsonResponse).setOnMouseClicked(ev -> bracketHighlighter.highlightBracket());
 
         // Set callback on authorization controller to save settings when they change
         if (authorizationController != null) {
@@ -558,10 +566,11 @@ public class TabRequestController extends TabPane {
         });
 
         applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
-        applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
+        // Cast to CodeArea to avoid any class hierarchy issues on some platforms
+        applyJsonLookSettings(((CodeArea) codeJsonResponse), "/css/json-highlighting.css");
 
         // Add fold gutter caret next to line numbers for Pretty JSON area
-        IntFunction<Node> numberFactory = LineNumberFactory.get(codeJsonResponse);
+        IntFunction<Node> numberFactory = LineNumberFactory.get(((CodeArea) codeJsonResponse));
         IntFunction<Node> graphicFactory = paragraph -> {
             Node lineNo = numberFactory.apply(paragraph);
             Label caret = new Label();
@@ -588,10 +597,10 @@ public class TabRequestController extends TabPane {
             box.setAlignment(Pos.CENTER_LEFT);
             return box;
         };
-        codeJsonResponse.setParagraphGraphicFactory(graphicFactory);
+        ((CodeArea) codeJsonResponse).setParagraphGraphicFactory(graphicFactory);
 
         // Folding shortcuts for JSON Pretty view
-        codeJsonResponse.setOnKeyPressed(ev -> {
+        ((CodeArea) codeJsonResponse).setOnKeyPressed(ev -> {
             if (ev.isControlDown() && ev.getCode() == KeyCode.MINUS) { // Ctrl + - to toggle fold at caret
                 codeJsonResponse.toggleFoldAtCaret();
                 ev.consume();
@@ -613,11 +622,14 @@ public class TabRequestController extends TabPane {
         MenuItem miUnfold = new MenuItem("Unfold all	Ctrl+0");
         miUnfold.setOnAction(e -> codeJsonResponse.unfoldAll());
         foldingMenu.getItems().addAll(miToggle, new SeparatorMenuItem(), miFoldTop, miUnfold);
-        codeJsonResponse.setContextMenu(foldingMenu);
+        ((CodeArea) codeJsonResponse).setContextMenu(foldingMenu);
 
         // Tooltip with quick help
         Tooltip tip = new Tooltip("JSON folding:\n• Ctrl+- toggle at caret\n• Ctrl+9 fold all top-level\n• Ctrl+0 unfold all\nRight-click for menu.");
-        Tooltip.install(codeJsonResponse, tip);
+        Tooltip.install((Node) codeJsonResponse, tip);
+
+        // Ensure initial bracket highlight reflects current caret position
+        Platform.runLater(bracketHighlighter::highlightBracket);
 
         tableHeaders.setItems(FXCollections.observableArrayList(
                 RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)

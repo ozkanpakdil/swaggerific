@@ -1,13 +1,15 @@
 package io.github.ozkanpakdil.swaggerific.ui.textfx;
 
 import javafx.application.Platform;
+import org.fxmisc.richtext.CodeArea;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class BracketHighlighter {
-    private final CustomCodeArea codeArea;
+    // Use CodeArea reference for all RichTextFX/JavaFX API calls (macOS compatibility)
+    private final CodeArea codeArea;
     private final List<BracketPair> bracketPairList = new ArrayList<>();
     private final List<String> matchStyle = List.of("match");
     private static final String BRACKET_PAIRS_REGEX = "[(){}\\[\\]<>]";
@@ -15,73 +17,83 @@ public class BracketHighlighter {
     /**
      * Parameterized constructor
      *
-     * @param codeArea the code area
+     * @param area the code area
      */
-    public BracketHighlighter(CustomCodeArea codeArea) {
-        this.codeArea = codeArea;
-        this.codeArea.addTextInsertionListener((start, end, text) -> clearBracket());
+    public BracketHighlighter(CustomCodeArea area) {
+        // Keep a reference to CustomCodeArea for custom hooks (insertion listener)
+        this.codeArea = area; // CustomCodeArea extends CodeArea
+        area.addTextInsertionListener((start, end, text) -> clearBracket());
         this.codeArea.caretPositionProperty()
                 .addListener((obs, oldVal, newVal) -> Platform.runLater(() -> highlightBracket(newVal)));
     }
 
     /**
-     * Highlight the matching bracket at new caret position
+     * Highlight the matching bracket around the given caret position. Works when the caret is directly
+     * after an opening/closing bracket or directly before one.
      *
-     * @param start the new caret position
+     * @param caret the caret position
      */
-    private void highlightBracket(int start) {
-        String prevChar = (start > 0) ? codeArea.getText(start - 1, start) : "";
-        if (prevChar.matches(BRACKET_PAIRS_REGEX))
-            --start;
-        Integer end = getMatchingBracket(start);
+    private void highlightBracket(int caret) {
+        // Decide which character index to examine: prefer the character just before the caret if it is a bracket,
+        // otherwise check the character at the caret (i.e., caret is before a bracket).
+        Integer index = null;
+        if (caret > 0) {
+            String prev = codeArea.getText(caret - 1, caret);
+            if (isBracket(prev)) index = caret - 1;
+        }
+        if (index == null && caret < codeArea.getLength()) {
+            String next = codeArea.getText(caret, caret + 1);
+            if (isBracket(next)) index = caret;
+        }
 
-        if (end != null) {
-            // NOTE - clearBracket() because bracket changed.
+        if (index == null) {
             clearBracket();
-            BracketPair pair = new BracketPair(start, end, List.copyOf(codeArea.getStyleAtPosition(end)));
+            return;
+        }
+
+        Integer matchIndex = getMatchingBracket(index);
+        if (matchIndex != null) {
+            // clear previously highlighted pair (if any) then apply new highlight
+            clearBracket();
+            BracketPair pair = new BracketPair(index, matchIndex, List.copyOf(codeArea.getStyleAtPosition(matchIndex)));
             styleBrackets(pair, matchStyle);
             bracketPairList.add(pair);
+        } else {
+            clearBracket();
         }
     }
 
+    private boolean isBracket(String ch) {
+        return ch != null && ch.length() == 1 && ch.matches(BRACKET_PAIRS_REGEX);
+    }
+
     /**
-     * Find the matching bracket location.
+     * Find the matching bracket location, starting from a known bracket at index.
      *
-     * @param index to start searching from
+     * @param index index of the known bracket
      * @return null or position of matching bracket
      */
     private Integer getMatchingBracket(int index) {
-        if (index == codeArea.getLength())
-            return null;
+        if (index < 0 || index >= codeArea.getLength()) return null;
 
         char initialBracket = codeArea.getText(index, index + 1).charAt(0);
         String bracketPairs = "(){}[]<>";
-        int bracketTypePosition = bracketPairs.indexOf(initialBracket); // "(){}[]<>"
-        if (bracketTypePosition < 0)
-            return null;
+        int pos = bracketPairs.indexOf(initialBracket); // "(){}[]<>"
+        if (pos < 0) return null;
 
-        // even numbered bracketTypePositions are opening brackets, and odd positions are closing
-        // if even (opening bracket) then step forwards, otherwise step backwards
-        int stepDirection = (bracketTypePosition % 2 == 0) ? +1 : -1;
+        // even positions are opening, odd are closing
+        int dir = (pos % 2 == 0) ? +1 : -1; // +1 search forward, -1 backward
+        char match = bracketPairs.charAt(pos + dir);
 
-        // the matching bracket to look for, the opposite of initialBracket
-        char match = bracketPairs.charAt(bracketTypePosition + stepDirection);
-
-        index += stepDirection;
-        int bracketCount = 1;
-
-        while (index > -1 && index < codeArea.getLength()) {
-            char code = codeArea.getText(index, index + 1).charAt(0);
-            if (code == initialBracket)
-                bracketCount++;
-            else if (code == match)
-                bracketCount--;
-            if (bracketCount == 0)
-                return index;
-            else
-                index += stepDirection;
+        int i = index + dir;
+        int count = 1;
+        while (i > -1 && i < codeArea.getLength()) {
+            char c = codeArea.getText(i, i + 1).charAt(0);
+            if (c == initialBracket) count++;
+            else if (c == match) count--;
+            if (count == 0) return i;
+            i += dir;
         }
-
         return null;
     }
 
@@ -112,7 +124,7 @@ public class BracketHighlighter {
     private void styleBracket(int pos, List<String> styles) {
         if (pos < codeArea.getLength()) {
             String text = codeArea.getText(pos, pos + 1);
-            if (text.matches(BRACKET_PAIRS_REGEX)) {
+            if (isBracket(text)) {
                 codeArea.setStyle(pos, pos + 1, styles);
             }
         }
