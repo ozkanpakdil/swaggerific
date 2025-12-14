@@ -610,9 +610,6 @@ public class TabRequestController extends TabPane implements TabRequestControlle
             }
         });
 
-        if (codeJsonRequest != null) {
-            applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
-        }
         if (codeJsonResponse != null) {
             // Cast to CodeArea to avoid any class hierarchy issues on some platforms
             applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
