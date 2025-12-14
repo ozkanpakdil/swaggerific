@@ -120,11 +120,6 @@ public class TabRequestController extends TabPane implements TabRequestControlle
 
     JsonColorize jsonColorize = new JsonColorize();
 
-    private static boolean isNativeImage() {
-        String v = System.getProperty("org.graalvm.nativeimage.imagecode");
-        return v != null;
-    }
-
     private String getRequestText() {
         if (codeJsonRequest != null) return codeJsonRequest.getText();
         if (codeJsonRequestText != null) return codeJsonRequestText.getText();
