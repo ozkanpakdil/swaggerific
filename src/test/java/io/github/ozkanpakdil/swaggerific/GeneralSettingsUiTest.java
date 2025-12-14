@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.util.WaitForAsyncUtils;
 import org.testfx.framework.junit5.Start;
 
 import java.util.prefs.Preferences;
@@ -43,19 +44,18 @@ public class GeneralSettingsUiTest {
         Button btnGeneral = robot.lookup("#btnGeneral").queryButton();
         robot.clickOn(btnGeneral);
 
-        // Default is true; programmatically toggle off and simulate handler
+        // Default is true; programmatically change selection to OFF and let listener persist
         ToggleSwitch toggle = robot.lookup("#chkAlwaysAskWhenClosingUnsavedTabs").queryAs(ToggleSwitch.class);
         robot.interact(() -> toggle.setSelected(false));
-        // Fire the controller handler by simulating a click (to persist preference)
-        robot.clickOn(toggle);
+        WaitForAsyncUtils.waitForFxEvents();
 
         boolean value = prefs.getBoolean(General.KEY_ASK_WHEN_CLOSING_UNSAVED, true);
         // After toggle once, it should be false
         Assertions.assertFalse(value, "Preference should be false after disabling toggle");
 
-        // Toggle again to true and persist
+        // Programmatically toggle back to true and persist
         robot.interact(() -> toggle.setSelected(true));
-        robot.clickOn(toggle);
+        WaitForAsyncUtils.waitForFxEvents();
         boolean value2 = prefs.getBoolean(General.KEY_ASK_WHEN_CLOSING_UNSAVED, false);
         Assertions.assertTrue(value2, "Preference should be true after enabling toggle again");
     }

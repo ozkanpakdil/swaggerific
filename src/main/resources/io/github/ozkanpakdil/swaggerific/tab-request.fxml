@@ -1,39 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.ozkanpakdil.swaggerific.ui.textfx.CustomCodeArea?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import org.fxmisc.flowless.VirtualizedScrollPane?>
-<?import org.fxmisc.richtext.CodeArea?>
+<?import javafx.scene.layout.*?>
+
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="io.github.ozkanpakdil.swaggerific.ui.TabRequestController"
-            stylesheets="@tab-request.css"
->
+            stylesheets="@tab-request.css">
 
-    <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0"
+               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane VBox.vgrow="ALWAYS">
             <VBox fx:id="boxParams" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                 <HBox>
-                    <ComboBox fx:id="cmbHttpMethod" minWidth="-Infinity" styleClass="cmbHttpMethod"
-                              maxWidth="10"
-                              />
+                    <ComboBox fx:id="cmbHttpMethod" minWidth="-Infinity" styleClass="cmbHttpMethod" maxWidth="10"/>
                     <AnchorPane HBox.hgrow="ALWAYS">
                         <TextField fx:id="txtAddress" minWidth="-Infinity" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
                     </AnchorPane>
@@ -48,8 +30,8 @@
                 <TabPane fx:id="tabRequestDetails" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                     <Tab fx:id="tabParams" text="Parameters">
                         <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                            <GridPane fx:id="boxRequestParams" minHeight="-Infinity" minWidth="-Infinity" styleClass="boxRequestParams" stylesheets="@main-view.css" AnchorPane.bottomAnchor="0.0"
-                                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
+                            <GridPane fx:id="boxRequestParams" minHeight="-Infinity" minWidth="-Infinity" styleClass="boxRequestParams" stylesheets="@main-view.css"
+                                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                                 <columnConstraints>
                                     <ColumnConstraints percentWidth="30"/>
                                     <ColumnConstraints percentWidth="70"/>
@@ -79,13 +61,8 @@
                         </TableView>
                     </Tab>
                     <Tab fx:id="tabBody" text="Body">
-                        <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-                                               VBox.vgrow="ALWAYS">
-                            <content>
-                                <CodeArea fx:id="codeJsonRequest" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                                          AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
-                            </content>
-                        </VirtualizedScrollPane>
+                        <!-- Placeholder: controller will insert CodeArea + VirtualizedScrollPane on JVM or TextArea on native -->
+                        <StackPane fx:id="codeRequestContainer" VBox.vgrow="ALWAYS"/>
                     </Tab>
                     <Tab text="Authorization">
                         <fx:include fx:id="authorization" source="edit/authorization.fxml"/>
@@ -102,16 +79,12 @@
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="260.0">
             <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <Tab text="Pretty">
-                    <VirtualizedScrollPane minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
-                        <content>
-                            <CustomCodeArea fx:id="codeJsonResponse" minHeight="-Infinity" minWidth="-Infinity" styleClass="code-area" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
-                        </content>
-                    </VirtualizedScrollPane>
+                    <!-- Placeholder: controller will insert CustomCodeArea or TextArea -->
+                    <StackPane fx:id="responsePrettyContainer" VBox.vgrow="ALWAYS"/>
                 </Tab>
                 <Tab fx:id="tabRaw" text="Raw">
-                    <TextArea fx:id="codeRawJsonResponse" minHeight="-Infinity" minWidth="-Infinity" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                              AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
+                    <TextArea fx:id="codeRawJsonResponse" minHeight="-Infinity" minWidth="-Infinity" wrapText="true"
+                              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS"/>
                 </Tab>
                 <Tab fx:id="tabTestResults" text="Test Results">
                     <VBox spacing="5">

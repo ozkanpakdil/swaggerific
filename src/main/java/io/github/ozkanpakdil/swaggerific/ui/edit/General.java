@@ -92,6 +92,11 @@ public class General implements Initializable {
         chkAutomaticallyFallowRedirects.setSelected(userPrefs.getBoolean(KEY_FOLLOW_REDIRECTS, true));
         chkAlwayOpenSideBarItemInNewTab.setSelected(userPrefs.getBoolean(KEY_OPEN_SIDEBAR_IN_NEW_TAB, false));
         chkAlwaysAskWhenClosingUnsavedTabs.setSelected(userPrefs.getBoolean(KEY_ASK_WHEN_CLOSING_UNSAVED, true));
+        // Persist after the toggle state actually changes (mouse event may fire before selected flips)
+        chkAlwaysAskWhenClosingUnsavedTabs.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            userPrefs.putBoolean(KEY_ASK_WHEN_CLOSING_UNSAVED, newVal);
+            log.info("Always ask when closing unsaved tabs set to {}", newVal);
+        });
         chkSendAnonymousUsageData.setSelected(userPrefs.getBoolean(KEY_SEND_ANONYMOUS_USAGE, false));
     }
 

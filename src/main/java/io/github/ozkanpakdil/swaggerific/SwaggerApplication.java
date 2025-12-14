@@ -39,6 +39,7 @@ import static io.github.ozkanpakdil.swaggerific.ui.edit.General.STAGE_Y;
 public class SwaggerApplication extends Application {
     static SwaggerApplication instance;
     private Stage primaryStage;
+    private MainController mainController;
     Preferences userPrefs = Preferences.userNodeForPackage(getClass());
     private static final Logger log = LoggerFactory.getLogger(SwaggerApplication.class);
     private static final String SHORTCUTS_PREFIX = "shortcut.";
@@ -66,6 +67,7 @@ public class SwaggerApplication extends Application {
         log.info("font size:" + fontSize);
         log.info("font family:" + selectedFont);
         MainController mainController = fxmlLoader.getController();
+        this.mainController = mainController;
         mainController.onOpening();
 
         // Apply custom shortcuts
@@ -75,6 +77,8 @@ public class SwaggerApplication extends Application {
         stage.setTitle("Swaggerific");
         stage.getIcons().add(new Image(Objects.requireNonNull(SwaggerApplication.class.getResourceAsStream("/applogo.png"))));
         stage.setScene(scene);
+        // Ensure scene-level accelerators (including Ctrl+O) are installed
+        applyCustomShortcutsToScene(scene);
         stage.setOnHidden(e -> mainController.onClose());
         stage.show();
         // Apply dark theme readability fixes if needed
@@ -146,6 +150,14 @@ public class SwaggerApplication extends Application {
 
     public static SwaggerApplication getInstance() {
         return instance;
+    }
+
+    public MainController getMainController() {
+        return mainController;
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     private void loadingWindowLookAndLocation() {
@@ -334,6 +346,15 @@ public class SwaggerApplication extends Application {
             // Also install a key filter to capture events even if controls consume key presses
             scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
                 try {
+                    // Handle Open (Ctrl+O) to show the URL input dialog
+                    if (ev.isControlDown() && ev.getCode() == javafx.scene.input.KeyCode.O) {
+                        if (mainController != null) {
+                            // We are already on the JavaFX Application Thread; show dialog immediately
+                            mainController.menuFileOpenSwagger(null);
+                            ev.consume();
+                            return;
+                        }
+                    }
                     if (kcToggle != null && kcToggle.match(ev)) {
                         if (performEditorActionForCombo(scene, kcToggle, kcToggle, kcFoldTop, kcUnfoldAll)) ev.consume();
                     } else if (kcFoldTop != null && kcFoldTop.match(ev)) {
@@ -342,6 +363,16 @@ public class SwaggerApplication extends Application {
                         if (performEditorActionForCombo(scene, kcUnfoldAll, kcToggle, kcFoldTop, kcUnfoldAll)) ev.consume();
                     }
                 } catch (Exception ignored) {}
+            });
+
+            // Also put accelerator map entry, so menus and general scene react even without the filter
+            javafx.scene.input.KeyCodeCombination openCombo = new javafx.scene.input.KeyCodeCombination(
+                    javafx.scene.input.KeyCode.O, javafx.scene.input.KeyCombination.CONTROL_DOWN);
+            scene.getAccelerators().put(openCombo, () -> {
+                if (mainController != null) {
+                    // This runs on FX thread; open synchronously so tests can type right away
+                    mainController.menuFileOpenSwagger(null);
+                }
             });
         } catch (Exception e) {
             log.warn("Failed to install editor accelerators: {}", e.getMessage());
@@ -615,6 +646,9 @@ public class SwaggerApplication extends Application {
         // Set system properties to enable HTTP tunneling and proxying
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+
+        // Disable accessibility features to improve performance
+        System.setProperty("glass.accessible.force", "false");
 
         System.setProperty("javafx.preloader", Preloader.class.getName());
         if (log.isDebugEnabled())

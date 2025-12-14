@@ -39,6 +39,10 @@
   "name":"[Lsun.security.pkcs.SignerInfo;"
 },
 {
+  "name":"apple.security.AppleProvider",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"atlantafx.base.controls.ToggleSwitch",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -147,7 +151,26 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.glass.ui.Application"
+},
+{
+  "name":"com.sun.glass.ui.Menu"
+},
+{
+  "name":"com.sun.glass.ui.MenuItem$Callback"
+},
+{
   "name":"com.sun.glass.ui.Screen"
+},
+{
+  "name":"com.sun.glass.ui.Size"
+},
+{
+  "name":"com.sun.glass.ui.View"
+},
+{
+  "name":"com.sun.javafx.font.coretext.CTFactory",
+  "methods":[{"name":"getFactory","parameterTypes":[] }]
 },
 {
   "name":"com.sun.javafx.font.directwrite.DWFactory",
@@ -824,6 +847,9 @@
 {
   "name":"java.lang.Object",
   "allDeclaredFields":true
+},
+{
+  "name":"java.lang.Runnable"
 },
 {
   "name":"java.lang.RuntimePermission"
@@ -1609,6 +1635,10 @@
 },
 {
   "name":"sun.security.provider.MD5",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

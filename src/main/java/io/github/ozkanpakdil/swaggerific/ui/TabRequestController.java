@@ -25,12 +25,17 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
@@ -38,24 +43,20 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.Node;
-import javafx.scene.Cursor;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-import java.util.function.IntFunction;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -63,20 +64,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 
-public class TabRequestController extends TabPane {
+public class TabRequestController extends TabPane implements TabRequestControllerBase {
     private volatile boolean dirty = false;
 
-    public boolean isDirty() { return dirty; }
+    public boolean isDirty() {
+        return dirty;
+    }
+
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TabRequestController.class);
     public ComboBox cmbHttpMethod;
     @FXML
     Button btnSend;
     MainController mainController;
-    @FXML
-    CodeArea codeJsonRequest;
-    @FXML
-    CustomCodeArea codeJsonResponse;
+    private CodeArea codeJsonRequest;
+    private CustomCodeArea codeJsonResponse;
     @FXML
     TextArea codeRawJsonResponse;
     @FXML
@@ -93,6 +96,10 @@ public class TabRequestController extends TabPane {
     Tab tabParams;
     @FXML
     TableView tableHeaders;
+    @FXML
+    StackPane codeRequestContainer;
+    @FXML
+    StackPane responsePrettyContainer;
 
     @FXML
     AuthorizationController authorizationController;
@@ -107,6 +114,33 @@ public class TabRequestController extends TabPane {
     TableView<TestResult> tableTestResults;
 
     JsonColorize jsonColorize = new JsonColorize();
+
+    private String getRequestText() {
+        if (codeJsonRequest != null) return codeJsonRequest.getText();
+        return "";
+    }
+
+    private void setRequestText(String text) {
+        if (codeJsonRequest != null) {
+            codeJsonRequest.replaceText(text);
+        }
+    }
+
+    public void setPrettyResponseText(String text) {
+        if (codeJsonResponse != null) {
+            codeJsonResponse.replaceText(text);
+        }
+    }
+
+    /**
+     * Apply XML styling to the Pretty response editor if RichTextFX is available.
+     * In native mode (TextArea), styling is skipped but content is still shown.
+     */
+    public void applyXmlStylingIfSupported(String cssPath) {
+        if (codeJsonResponse != null) {
+            codeResponseXmlSettings(codeJsonResponse, cssPath);
+        }
+    }
 
     /**
      * Saves the current authorization settings for the current URL. This method is called when the authorization settings
@@ -246,7 +280,7 @@ public class TabRequestController extends TabPane {
                                 }),
                         () -> log.info("Method parameters are null")
                 );
-        codeJsonRequest.replaceText(
+        setRequestText(
                 Json.pretty(leaf.getMethodParameters()));
     }
 
@@ -389,7 +423,7 @@ public class TabRequestController extends TabPane {
                     }
 
                     // Get request body and resolve environment variables
-                    String body = codeJsonRequest.getText();
+                    String body = getRequestText();
                     if (preRequestScriptController != null) {
                         body = preRequestScriptController.resolveEnvironmentVariables(body);
                         log.info("Resolved request body with environment variables");
@@ -442,7 +476,8 @@ public class TabRequestController extends TabPane {
                             io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService telemetry =
                                     new io.github.ozkanpakdil.swaggerific.tools.telemetry.TelemetryService(tprefs);
                             telemetry.sendRequestAsync(httpMethod.name(), response.statusCode());
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
 
                         // Then execute response test script if available
                         if (responseTestScriptController != null && responseTestScriptController.getScript() != null &&
@@ -507,9 +542,27 @@ public class TabRequestController extends TabPane {
         cmbHttpMethodConfig(leaf);
         this.mainController = parent;
         txtAddress.setText(uri);
+        // Initialize editors at runtime (RichTextFX on JVM, TextArea on native)
+        codeJsonRequest = new CodeArea();
+        codeJsonRequest.setWrapText(true);
+        codeJsonRequest.setId("codeJsonRequest");
+        codeRequestContainer.getChildren().setAll(new VirtualizedScrollPane<>(codeJsonRequest));
+        codeJsonResponse = new CustomCodeArea();
+        codeJsonResponse.setId("codeJsonResponse");
+        responsePrettyContainer.getChildren().setAll(new VirtualizedScrollPane<>(codeJsonResponse));
+
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
-        codeJsonResponse.setOnKeyTyped(keyEvent -> selectedHighlighter.highlightSelectedText());
+        // Trigger selection + bracket highlights on typing (cast for platform stability)
+        codeJsonResponse.setOnKeyTyped(keyEvent -> {
+            selectedHighlighter.highlightSelectedText();
+            bracketHighlighter.highlightBracket();
+        });
+        // Also trigger bracket highlight on key release and mouse click to catch caret-only moves
+        codeJsonResponse.setOnKeyReleased(ev -> bracketHighlighter.highlightBracket());
+        codeJsonResponse.setOnMouseClicked(ev -> bracketHighlighter.highlightBracket());
+        // Ensure initial bracket highlight reflects current caret position
+        Platform.runLater(bracketHighlighter::highlightBracket);
 
         // Set callback on authorization controller to save settings when they change
         if (authorizationController != null) {
@@ -557,67 +610,72 @@ public class TabRequestController extends TabPane {
             }
         });
 
-        applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
-        applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
+        if (codeJsonRequest != null) {
+            applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
+        }
+        if (codeJsonResponse != null) {
+            // Cast to CodeArea to avoid any class hierarchy issues on some platforms
+            applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
 
-        // Add fold gutter caret next to line numbers for Pretty JSON area
-        IntFunction<Node> numberFactory = LineNumberFactory.get(codeJsonResponse);
-        IntFunction<Node> graphicFactory = paragraph -> {
-            Node lineNo = numberFactory.apply(paragraph);
-            Label caret = new Label();
-            caret.getStyleClass().add("fold-caret");
-            caret.setMinWidth(14);
-            caret.setAlignment(Pos.CENTER);
-            boolean foldable = codeJsonResponse.isParagraphFoldable(paragraph);
-            if (foldable) {
-                boolean folded = codeJsonResponse.isParagraphFolded(paragraph);
-                caret.setText(folded ? "▸" : "▾");
-                caret.setCursor(Cursor.HAND);
-                caret.setOnMouseClicked(e -> {
-                    codeJsonResponse.toggleFoldAtParagraph(paragraph);
-                    // text change triggers gutter recompute automatically
-                    e.consume();
-                });
-                caret.setTooltip(new Tooltip((folded ? "Unfold" : "Fold") + " JSON object on this line"));
-            } else {
-                caret.setText("");
-                caret.setMouseTransparent(true);
-            }
-            HBox box = new HBox(caret, lineNo);
-            box.setSpacing(4);
-            box.setAlignment(Pos.CENTER_LEFT);
-            return box;
-        };
-        codeJsonResponse.setParagraphGraphicFactory(graphicFactory);
+            // Add fold gutter caret next to line numbers for Pretty JSON area
+            IntFunction<Node> numberFactory = LineNumberFactory.get(codeJsonResponse);
+            IntFunction<Node> graphicFactory = paragraph -> {
+                Node lineNo = numberFactory.apply(paragraph);
+                Label caret = new Label();
+                caret.getStyleClass().add("fold-caret");
+                caret.setMinWidth(14);
+                caret.setAlignment(Pos.CENTER);
+                boolean foldable = codeJsonResponse.isParagraphFoldable(paragraph);
+                if (foldable) {
+                    boolean folded = codeJsonResponse.isParagraphFolded(paragraph);
+                    caret.setText(folded ? "▸" : "▾");
+                    caret.setCursor(Cursor.HAND);
+                    caret.setOnMouseClicked(e -> {
+                        codeJsonResponse.toggleFoldAtParagraph(paragraph);
+                        // text change triggers gutter recompute automatically
+                        e.consume();
+                    });
+                    caret.setTooltip(new Tooltip((folded ? "Unfold" : "Fold") + " JSON object on this line"));
+                } else {
+                    caret.setText("");
+                    caret.setMouseTransparent(true);
+                }
+                HBox box = new HBox(caret, lineNo);
+                box.setSpacing(4);
+                box.setAlignment(Pos.CENTER_LEFT);
+                return box;
+            };
+            codeJsonResponse.setParagraphGraphicFactory(graphicFactory);
 
-        // Folding shortcuts for JSON Pretty view
-        codeJsonResponse.setOnKeyPressed(ev -> {
-            if (ev.isControlDown() && ev.getCode() == KeyCode.MINUS) { // Ctrl + - to toggle fold at caret
-                codeJsonResponse.toggleFoldAtCaret();
-                ev.consume();
-            } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT0) { // Ctrl + 0 unfold all
-                codeJsonResponse.unfoldAll();
-                ev.consume();
-            } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT9) { // Ctrl + 9 fold all top-level
-                codeJsonResponse.foldAllTopLevel();
-                ev.consume();
-            }
-        });
+            // Folding shortcuts for JSON Pretty view
+            codeJsonResponse.setOnKeyPressed(ev -> {
+                if (ev.isControlDown() && ev.getCode() == KeyCode.MINUS) { // Ctrl + - to toggle fold at caret
+                    codeJsonResponse.toggleFoldAtCaret();
+                    ev.consume();
+                } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT0) { // Ctrl + 0 unfold all
+                    codeJsonResponse.unfoldAll();
+                    ev.consume();
+                } else if (ev.isControlDown() && ev.getCode() == KeyCode.DIGIT9) { // Ctrl + 9 fold all top-level
+                    codeJsonResponse.foldAllTopLevel();
+                    ev.consume();
+                }
+            });
 
-        // Context menu to make folding discoverable
-        ContextMenu foldingMenu = new ContextMenu();
-        MenuItem miToggle = new MenuItem("Toggle fold at caret	Ctrl+-");
-        miToggle.setOnAction(e -> codeJsonResponse.toggleFoldAtCaret());
-        MenuItem miFoldTop = new MenuItem("Fold all top-level {…}	Ctrl+9");
-        miFoldTop.setOnAction(e -> codeJsonResponse.foldAllTopLevel());
-        MenuItem miUnfold = new MenuItem("Unfold all	Ctrl+0");
-        miUnfold.setOnAction(e -> codeJsonResponse.unfoldAll());
-        foldingMenu.getItems().addAll(miToggle, new SeparatorMenuItem(), miFoldTop, miUnfold);
-        codeJsonResponse.setContextMenu(foldingMenu);
+            // Context menu to make folding discoverable
+            ContextMenu foldingMenu = new ContextMenu();
+            MenuItem miToggle = new MenuItem("Toggle fold at caret	Ctrl+-");
+            miToggle.setOnAction(e -> codeJsonResponse.toggleFoldAtCaret());
+            MenuItem miFoldTop = new MenuItem("Fold all top-level {…}	Ctrl+9");
+            miFoldTop.setOnAction(e -> codeJsonResponse.foldAllTopLevel());
+            MenuItem miUnfold = new MenuItem("Unfold all	Ctrl+0");
+            miUnfold.setOnAction(e -> codeJsonResponse.unfoldAll());
+            foldingMenu.getItems().addAll(miToggle, new SeparatorMenuItem(), miFoldTop, miUnfold);
+            codeJsonResponse.setContextMenu(foldingMenu);
 
-        // Tooltip with quick help
-        Tooltip tip = new Tooltip("JSON folding:\n• Ctrl+- toggle at caret\n• Ctrl+9 fold all top-level\n• Ctrl+0 unfold all\nRight-click for menu.");
-        Tooltip.install(codeJsonResponse, tip);
+            // Tooltip with quick help
+            Tooltip tip = new Tooltip("JSON folding:\n• Ctrl+- toggle at caret\n• Ctrl+9 fold all top-level\n• Ctrl+0 unfold all\nRight-click for menu.");
+            Tooltip.install(codeJsonResponse, tip);
+        }
 
         tableHeaders.setItems(FXCollections.observableArrayList(
                 RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
@@ -648,22 +706,24 @@ public class TabRequestController extends TabPane {
             cell.setAlignment(Pos.CENTER);
             return cell;
         });
-        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader> forTableColumn());
+        tableHeaders.getVisibleLeafColumn(1).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(1)).setOnEditCommit(evt -> {
             evt.getRowValue().setName(evt.getNewValue());
             addTableRowIfFulfilled();
             dirty = true;
         });
-        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader> forTableColumn());
+        tableHeaders.getVisibleLeafColumn(2).setCellFactory(TextFieldTableCell.<RequestHeader>forTableColumn());
         ((TableColumn<RequestHeader, String>) tableHeaders.getVisibleLeafColumn(2)).setOnEditCommit(evt -> {
             evt.getRowValue().setValue(evt.getNewValue());
             addTableRowIfFulfilled();
             dirty = true;
         });
         // Mark dirty when request body changes
-        codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
-            if (!Objects.equals(ov, nv)) dirty = true;
-        });
+        if (codeJsonRequest != null) {
+            codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
+                if (!Objects.equals(ov, nv)) dirty = true;
+            });
+        }
         onTreeItemSelect(uri, leaf);
     }
 
@@ -689,6 +749,15 @@ public class TabRequestController extends TabPane {
             cmbHttpMethod.getStyleClass().add(newVal.toString());
         });
         cmbHttpMethod.getSelectionModel().select(leaf.getValue());
+    }
+
+    // Accessors used by MainController and others
+    public CodeArea getCodeJsonRequest() {
+        return codeJsonRequest;
+    }
+
+    public CustomCodeArea getCodeJsonResponse() {
+        return codeJsonResponse;
     }
 
 }

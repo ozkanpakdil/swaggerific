@@ -60,3 +60,15 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 4. Run the application using the provided script:
     - Linux/macOS: `./run.sh`
     - Windows: `run.bat`
+
+### Run tests in macOS
+
+```shell
+mvn -Djava.awt.headless=false -Dtestfx.robot=glass -Dsurefire.parallel=none test
+```
+
+### Run agent
+
+```shell
+mvn gluonfx:runAgent
+```

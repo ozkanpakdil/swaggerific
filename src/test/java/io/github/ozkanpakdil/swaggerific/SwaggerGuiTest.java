@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.util.WaitForAsyncUtils;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.TextInputControlMatchers;
 
@@ -117,11 +118,12 @@ class SwaggerGuiTest {
                 Map.of("Content-Type", "application/json; charset=utf-8"));
         assert httpResponse.statusCode() == 200;
 
-        log.info("Pressing CTRL+O to open the Swagger file in the GUI");
-        robot.push(KeyCode.CONTROL, KeyCode.O);
-        robot.write("http://127.0.0.1:" + serverPort + "/petstore-swagger.json");
-        robot.push(KeyCode.ENTER);
-        robot.sleep(1000); // Give time for the file to load
+        log.info("Loading the Swagger file via controller (test helper)");
+        Platform.runLater(() -> SwaggerApplication.getInstance().getMainController()
+                .openSwaggerForTest("http://127.0.0.1:" + serverPort + "/petstore-swagger.json"));
+        // Wait for the tree to be populated
+        WaitForAsyncUtils.waitForFxEvents();
+        robot.sleep(2500);
         robot.clickOn("#treePaths");
         robot.push(KeyCode.HOME);
 

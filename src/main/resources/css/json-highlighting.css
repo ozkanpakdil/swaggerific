@@ -2,10 +2,17 @@
     -fx-font-size: 18px;
 }*/
 .code-area .paragraph-box .text.match {
+    /* Highlight used for bracket match and selections */
     -rtfx-background-color: yellow;
     /* maybe do more coloring */
     border-style: dotted;
     border-color: blue;
+}
+
+/* Some highlighters also add an additional "loop" style along with "match".
+   Define it too so that themes consistently show the highlight. */
+.code-area .paragraph-box .text.loop {
+    -rtfx-background-color: #ffe87a; /* a slightly different yellow */
 }
 
 .line-highlighter { -fx-highlight-fill: ghostwhite; }

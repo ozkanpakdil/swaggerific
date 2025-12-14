@@ -1,10 +1,8 @@
 package io.github.ozkanpakdil.swaggerific.ui.textfx;
 
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.model.EditableStyledDocument;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -55,17 +53,7 @@ public class CustomCodeArea extends CodeArea {
         folds.add(new FoldRegion(idx + 1, inner));
     }
 
-    public CustomCodeArea(EditableStyledDocument<Collection<String>, String, Collection<String>> document) {
-        super(document);
-        this.insertionListeners = new ArrayList<>();
-    }
-
     public CustomCodeArea() {
-        this.insertionListeners = new ArrayList<>();
-    }
-
-    public CustomCodeArea(String text) {
-        super(text);
         this.insertionListeners = new ArrayList<>();
     }
 
