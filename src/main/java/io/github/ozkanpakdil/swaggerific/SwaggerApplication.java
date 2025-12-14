@@ -647,6 +647,9 @@ public class SwaggerApplication extends Application {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
         System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
 
+        // Disable accessibility features to improve performance
+        System.setProperty("glass.accessible.force", "false");
+
         System.setProperty("javafx.preloader", Preloader.class.getName());
         if (log.isDebugEnabled())
             System.setProperty("jdk.httpclient.HttpClient.log", "all");
