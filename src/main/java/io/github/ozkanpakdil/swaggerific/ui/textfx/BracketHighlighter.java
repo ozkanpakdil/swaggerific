@@ -55,7 +55,9 @@ public class BracketHighlighter {
         if (matchIndex != null) {
             // clear previously highlighted pair (if any) then apply new highlight
             clearBracket();
-            BracketPair pair = new BracketPair(index, matchIndex, List.copyOf(codeArea.getStyleAtPosition(matchIndex)));
+            List<String> startStyleAtPos = List.copyOf(codeArea.getStyleAtPosition(index));
+            List<String> endStyleAtPos = List.copyOf(codeArea.getStyleAtPosition(matchIndex));
+            BracketPair pair = new BracketPair(index, matchIndex, startStyleAtPos, endStyleAtPos);
             styleBrackets(pair, matchStyle);
             bracketPairList.add(pair);
         } else {
@@ -111,7 +113,9 @@ public class BracketHighlighter {
         Iterator<BracketPair> iterator = this.bracketPairList.iterator();
         while (iterator.hasNext()) {
             BracketPair pair = iterator.next();
-            styleBrackets(pair, pair.styleAtPosition());
+            // Restore each bracket's original styles individually
+            styleBracket(pair.start, pair.startStyleAtPosition());
+            styleBracket(pair.end, pair.endStyleAtPosition());
             iterator.remove();
         }
     }
@@ -130,6 +134,6 @@ public class BracketHighlighter {
         }
     }
 
-    record BracketPair(int start, int end, List<String> styleAtPosition) {
+    record BracketPair(int start, int end, List<String> startStyleAtPosition, List<String> endStyleAtPosition) {
     }
 }
