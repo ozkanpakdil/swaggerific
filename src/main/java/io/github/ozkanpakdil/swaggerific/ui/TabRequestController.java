@@ -25,12 +25,17 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
@@ -38,28 +43,20 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.Node;
-import javafx.scene.Cursor;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-
-import java.util.function.IntFunction;
-
-import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -67,6 +64,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 
 public class TabRequestController extends TabPane implements TabRequestControllerBase {
     private volatile boolean dirty = false;
@@ -80,11 +78,8 @@ public class TabRequestController extends TabPane implements TabRequestControlle
     @FXML
     Button btnSend;
     MainController mainController;
-    // Editors are created at runtime to avoid RichTextFX classes in FXML for native images
     private CodeArea codeJsonRequest;
     private CustomCodeArea codeJsonResponse;
-    private TextArea codeJsonRequestText; // native fallback
-    private TextArea codeJsonResponseText; // native fallback for Pretty tab
     @FXML
     TextArea codeRawJsonResponse;
     @FXML
@@ -122,23 +117,18 @@ public class TabRequestController extends TabPane implements TabRequestControlle
 
     private String getRequestText() {
         if (codeJsonRequest != null) return codeJsonRequest.getText();
-        if (codeJsonRequestText != null) return codeJsonRequestText.getText();
         return "";
     }
 
     private void setRequestText(String text) {
         if (codeJsonRequest != null) {
             codeJsonRequest.replaceText(text);
-        } else if (codeJsonRequestText != null) {
-            codeJsonRequestText.setText(text);
         }
     }
 
     public void setPrettyResponseText(String text) {
         if (codeJsonResponse != null) {
             codeJsonResponse.replaceText(text);
-        } else if (codeJsonResponseText != null) {
-            codeJsonResponseText.setText(text);
         }
     }
 
@@ -625,10 +615,10 @@ public class TabRequestController extends TabPane implements TabRequestControlle
         }
         if (codeJsonResponse != null) {
             // Cast to CodeArea to avoid any class hierarchy issues on some platforms
-            applyJsonLookSettings(((CodeArea) codeJsonResponse), "/css/json-highlighting.css");
+            applyJsonLookSettings(codeJsonResponse, "/css/json-highlighting.css");
 
             // Add fold gutter caret next to line numbers for Pretty JSON area
-            IntFunction<Node> numberFactory = LineNumberFactory.get(((CodeArea) codeJsonResponse));
+            IntFunction<Node> numberFactory = LineNumberFactory.get(codeJsonResponse);
             IntFunction<Node> graphicFactory = paragraph -> {
                 Node lineNo = numberFactory.apply(paragraph);
                 Label caret = new Label();
@@ -731,10 +721,6 @@ public class TabRequestController extends TabPane implements TabRequestControlle
         // Mark dirty when request body changes
         if (codeJsonRequest != null) {
             codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
-                if (!Objects.equals(ov, nv)) dirty = true;
-            });
-        } else if (codeJsonRequestText != null) {
-            codeJsonRequestText.textProperty().addListener((obs, ov, nv) -> {
                 if (!Objects.equals(ov, nv)) dirty = true;
             });
         }
