@@ -215,7 +215,7 @@ public class MainController implements Initializable {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            TabRequestController controller = tab.getController();
+            TabRequestControllerBase controller = tab.getController();
             controller.initializeController(this, tabName, leaf);
             newTab.setUserData(controller);
             // Ensure unique id when opening duplicates
@@ -352,6 +352,13 @@ public class MainController implements Initializable {
         dialog.getDialogPane().setPrefWidth(500);
         dialog.getEditor().setPrefWidth(400);
         dialog.getDialogPane().setMinWidth(Region.USE_PREF_SIZE);
+        dialog.getEditor().setId("dialogUrl");
+        // Ensure the editor gains focus so tests (and users) can type immediately
+        dialog.setOnShown(ev -> {
+            dialog.getDialogPane().requestFocus();
+            dialog.getEditor().requestFocus();
+            dialog.getEditor().selectAll();
+        });
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(urlSwaggerJson -> {
@@ -369,6 +376,23 @@ public class MainController implements Initializable {
                 }
             }).start();
         });
+    }
+
+    // Test helper: open swagger URL without UI dialog
+    public void openSwaggerForTest(String urlSwaggerJson) {
+        setIsOnloading();
+        new Thread(() -> {
+            try {
+                openSwaggerUrl(urlSwaggerJson);
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    log.error("Error loading swagger URL", e);
+                    showAlert("Error", "Failed to load Swagger URL", e.getMessage());
+                });
+            } finally {
+                Platform.runLater(this::setIsOffloading);
+            }
+        }).start();
     }
 
     void setIsOnloading() {
@@ -715,11 +739,11 @@ public class MainController implements Initializable {
     }
 
     public CodeArea getCodeJsonRequest() {
-        return getSelectedTab().codeJsonRequest;
+        return getSelectedTab().getCodeJsonRequest();
     }
 
     public CustomCodeArea getCodeJsonResponse() {
-        return getSelectedTab().codeJsonResponse;
+        return getSelectedTab().getCodeJsonResponse();
     }
 
     public TextArea getCodeRawJsonResponse() {

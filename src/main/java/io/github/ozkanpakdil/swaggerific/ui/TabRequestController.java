@@ -46,6 +46,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.Node;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
@@ -56,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import java.util.function.IntFunction;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -64,7 +66,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TabRequestController extends TabPane {
+public class TabRequestController extends TabPane implements TabRequestControllerBase {
     private volatile boolean dirty = false;
 
     public boolean isDirty() { return dirty; }
@@ -73,10 +75,11 @@ public class TabRequestController extends TabPane {
     @FXML
     Button btnSend;
     MainController mainController;
-    @FXML
-    CodeArea codeJsonRequest;
-    @FXML
-    CustomCodeArea codeJsonResponse;
+    // Editors are created at runtime to avoid RichTextFX classes in FXML for native images
+    private CodeArea codeJsonRequest;
+    private CustomCodeArea codeJsonResponse;
+    private TextArea codeJsonRequestText; // native fallback
+    private TextArea codeJsonResponseText; // native fallback for Pretty tab
     @FXML
     TextArea codeRawJsonResponse;
     @FXML
@@ -93,6 +96,10 @@ public class TabRequestController extends TabPane {
     Tab tabParams;
     @FXML
     TableView tableHeaders;
+    @FXML
+    StackPane codeRequestContainer;
+    @FXML
+    StackPane responsePrettyContainer;
 
     @FXML
     AuthorizationController authorizationController;
@@ -107,6 +114,33 @@ public class TabRequestController extends TabPane {
     TableView<TestResult> tableTestResults;
 
     JsonColorize jsonColorize = new JsonColorize();
+
+    private static boolean isNativeImage() {
+        String v = System.getProperty("org.graalvm.nativeimage.imagecode");
+        return v != null;
+    }
+
+    private String getRequestText() {
+        if (codeJsonRequest != null) return codeJsonRequest.getText();
+        if (codeJsonRequestText != null) return codeJsonRequestText.getText();
+        return "";
+    }
+
+    private void setRequestText(String text) {
+        if (codeJsonRequest != null) {
+            codeJsonRequest.replaceText(text);
+        } else if (codeJsonRequestText != null) {
+            codeJsonRequestText.setText(text);
+        }
+    }
+
+    private void setPrettyResponseText(String text) {
+        if (codeJsonResponse != null) {
+            codeJsonResponse.replaceText(text);
+        } else if (codeJsonResponseText != null) {
+            codeJsonResponseText.setText(text);
+        }
+    }
 
     /**
      * Saves the current authorization settings for the current URL. This method is called when the authorization settings
@@ -246,7 +280,7 @@ public class TabRequestController extends TabPane {
                                 }),
                         () -> log.info("Method parameters are null")
                 );
-        codeJsonRequest.replaceText(
+        setRequestText(
                 Json.pretty(leaf.getMethodParameters()));
     }
 
@@ -389,7 +423,7 @@ public class TabRequestController extends TabPane {
                     }
 
                     // Get request body and resolve environment variables
-                    String body = codeJsonRequest.getText();
+                    String body = getRequestText();
                     if (preRequestScriptController != null) {
                         body = preRequestScriptController.resolveEnvironmentVariables(body);
                         log.info("Resolved request body with environment variables");
@@ -507,6 +541,34 @@ public class TabRequestController extends TabPane {
         cmbHttpMethodConfig(leaf);
         this.mainController = parent;
         txtAddress.setText(uri);
+        // Initialize editors at runtime (RichTextFX on JVM, TextArea on native)
+        boolean nativeMode = isNativeImage();
+        if (codeRequestContainer != null && codeRequestContainer.getChildren().isEmpty()) {
+            if (!nativeMode) {
+                codeJsonRequest = new CodeArea();
+                codeJsonRequest.setWrapText(true);
+                codeJsonRequest.setId("codeJsonRequest");
+                codeRequestContainer.getChildren().setAll(new VirtualizedScrollPane<>(codeJsonRequest));
+            } else {
+                codeJsonRequestText = new TextArea();
+                codeJsonRequestText.setWrapText(true);
+                codeJsonRequestText.setId("codeJsonRequest");
+                codeRequestContainer.getChildren().setAll(codeJsonRequestText);
+            }
+        }
+        if (responsePrettyContainer != null && responsePrettyContainer.getChildren().isEmpty()) {
+            if (!nativeMode) {
+                codeJsonResponse = new CustomCodeArea();
+                codeJsonResponse.setId("codeJsonResponse");
+                responsePrettyContainer.getChildren().setAll(new VirtualizedScrollPane<>(codeJsonResponse));
+            } else {
+                codeJsonResponseText = new TextArea();
+                codeJsonResponseText.setEditable(false);
+                codeJsonResponseText.setWrapText(true);
+                codeJsonResponseText.setId("codeJsonResponse");
+                responsePrettyContainer.getChildren().setAll(codeJsonResponseText);
+            }
+        }
         // Highlighters
         BracketHighlighter bracketHighlighter = new BracketHighlighter(codeJsonResponse);
         SelectedHighlighter selectedHighlighter = new SelectedHighlighter(codeJsonResponse);
@@ -565,7 +627,10 @@ public class TabRequestController extends TabPane {
             }
         });
 
-        applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
+        if (codeJsonRequest != null) {
+            applyJsonLookSettings(codeJsonRequest, "/css/json-highlighting.css");
+        }
+        if (codeJsonResponse != null) {
         // Cast to CodeArea to avoid any class hierarchy issues on some platforms
         applyJsonLookSettings(((CodeArea) codeJsonResponse), "/css/json-highlighting.css");
 
@@ -630,6 +695,7 @@ public class TabRequestController extends TabPane {
 
         // Ensure initial bracket highlight reflects current caret position
         Platform.runLater(bracketHighlighter::highlightBracket);
+        }
 
         tableHeaders.setItems(FXCollections.observableArrayList(
                 RequestHeader.builder().checked(true).name(HttpHeaders.ACCEPT).value(MediaType.APPLICATION_JSON)
@@ -673,9 +739,15 @@ public class TabRequestController extends TabPane {
             dirty = true;
         });
         // Mark dirty when request body changes
-        codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
-            if (!Objects.equals(ov, nv)) dirty = true;
-        });
+        if (codeJsonRequest != null) {
+            codeJsonRequest.textProperty().addListener((obs, ov, nv) -> {
+                if (!Objects.equals(ov, nv)) dirty = true;
+            });
+        } else if (codeJsonRequestText != null) {
+            codeJsonRequestText.textProperty().addListener((obs, ov, nv) -> {
+                if (!Objects.equals(ov, nv)) dirty = true;
+            });
+        }
         onTreeItemSelect(uri, leaf);
     }
 
@@ -701,6 +773,15 @@ public class TabRequestController extends TabPane {
             cmbHttpMethod.getStyleClass().add(newVal.toString());
         });
         cmbHttpMethod.getSelectionModel().select(leaf.getValue());
+    }
+
+    // Accessors used by MainController and others
+    public CodeArea getCodeJsonRequest() {
+        return codeJsonRequest;
+    }
+
+    public CustomCodeArea getCodeJsonResponse() {
+        return codeJsonResponse;
     }
 
 }
