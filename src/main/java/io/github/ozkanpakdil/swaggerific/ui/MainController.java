@@ -882,8 +882,8 @@ public class MainController implements Initializable {
                 String errTxt = "Error in request: " + response.errorMessage() +
                         "\n\nPlease check your request parameters and try again. If the problem persists, " +
                         "check the server status or network connection.";
-                // Use explicit start/end variant for RichTextFX compatibility across platforms
-                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errTxt);
+                // Write to the Pretty pane regardless of editor type (RichTextFX or TextArea)
+                getSelectedTab().setPrettyResponseText(errTxt);
                 return;
             }
 
@@ -892,37 +892,37 @@ public class MainController implements Initializable {
                 log.warn("Empty response body received");
                 String emptyTxt = "The server returned an empty response with status code: " + response.statusCode() +
                         "\n\nThis might be expected for some operations, or it could indicate an issue with the request.";
-                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), emptyTxt);
+                getSelectedTab().setPrettyResponseText(emptyTxt);
             } else if (httpUtility.isJsonResponse(response)) {
                 try {
                     String formattedJson = httpUtility.formatJson(responseBody);
-                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), formattedJson);
+                    getSelectedTab().setPrettyResponseText(formattedJson);
                     log.info("Successfully processed JSON response with status code: {}", response.statusCode());
                 } catch (Exception e) {
-                    log.warn("Failed to parse JSON response: {}", e.getMessage());
-                    // If JSON parsing fails, show the raw response
+                    log.warn("Failed to parse JSON response (content-type says JSON): {}", e.getMessage());
+                    // Show raw response in Pretty tab with a warning header
                     final String errorMessage = "Warning: Could not format as JSON. Showing raw response:\n\n" + responseBody;
-                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errorMessage);
+                    getSelectedTab().setPrettyResponseText(errorMessage);
                 }
             } else if (httpUtility.isXmlResponse(response)) {
                 log.info("Processing XML response with status code: {}", response.statusCode());
                 try {
                     String formattedXml = httpUtility.formatXml(responseBody);
-                    codeResponseXmlSettings(getCodeJsonResponse(), "/css/xml-highlighting.css");
-                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), formattedXml);
+                    getSelectedTab().applyXmlStylingIfSupported("/css/xml-highlighting.css");
+                    getSelectedTab().setPrettyResponseText(formattedXml);
                 } catch (Exception e) {
                     log.warn("Failed to format XML response: {}", e.getMessage());
-                    // If XML formatting fails, show the raw response
+                    // If XML formatting fails, show the raw response in Pretty tab
                     final String errorMessage = "Warning: Could not format as XML. Showing raw response:\n\n" + responseBody;
-                    getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), errorMessage);
+                    getSelectedTab().setPrettyResponseText(errorMessage);
                 }
             } else {
                 // Fallback to raw response
                 log.info("Processing raw response with status code: {}", response.statusCode());
-                getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), responseBody);
+                getSelectedTab().setPrettyResponseText(responseBody);
             }
 
-            // Always set the raw response
+            // Always set the raw response (keep Raw tab content in sync)
             getCodeRawJsonResponse().setText(responseBody);
 
             log.info("Request completed with status code: {}", response.statusCode());
@@ -932,7 +932,7 @@ public class MainController implements Initializable {
             openDebugConsole();
             String appErrTxt = "Error processing response: " + e.getMessage() +
                     "\n\nThis is an application error. Please report this issue with the steps to reproduce it.";
-            getCodeJsonResponse().replaceText(0, getCodeJsonResponse().getLength(), appErrTxt);
+            getSelectedTab().setPrettyResponseText(appErrTxt);
         }
     }
 }
