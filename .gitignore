@@ -66,3 +66,5 @@ replay_pid*
 /.idea/
 /.mvn/
 /dependency-reduced-pom.xml
+
+staging/

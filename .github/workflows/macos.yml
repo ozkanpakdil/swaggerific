@@ -43,6 +43,28 @@ jobs:
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
           chmod +x ./target/gluonfx/x86_64-darwin/swaggerific.app
+
+          # Generate .icns from applogo.png and patch Info.plist
+          ICON_PNG=./src/main/resources/applogo.png
+          if [ -f "$ICON_PNG" ]; then
+            echo "Generating AppIcon.icns from $ICON_PNG"
+            TMP_DIR=$(mktemp -d)
+            ICONSET="$TMP_DIR/AppIcon.iconset"
+            mkdir -p "$ICONSET"
+            for size in 16 32 64 128 256 512; do
+              sips -z $size $size     "$ICON_PNG" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
+              dbl=$((size*2))
+              sips -z $dbl  $dbl      "$ICON_PNG" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
+            done
+            sips -z 1024 1024 "$ICON_PNG" --out "$ICONSET/icon_512x512@2x.png" >/dev/null || true
+            iconutil -c icns "$ICONSET" -o ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Resources/AppIcon.icns
+            rm -rf "$TMP_DIR" || true
+            /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Info.plist 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Info.plist 2>/dev/null || true
+          else
+            echo "WARNING: $ICON_PNG not found; keeping default icon"
+          fi
+
           cp -r ./target/gluonfx/x86_64-darwin/swaggerific.app staging/
           tar -czvf staging/swaggerific_x86_64-darwin.tar.gz -C target/gluonfx/x86_64-darwin swaggerific
           pkgbuild --root ./target/gluonfx/x86_64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.4 --install-location /Applications Swaggerific.pkg

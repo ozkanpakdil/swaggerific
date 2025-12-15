@@ -10,6 +10,42 @@ You can download the latest version
 from [Github releases ![Download count of latest releases](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/latest/total.svg)](https://github.com/ozkanpakdil/swaggerific/releases)
 Follow [here](https://bsky.app/profile/swaggerific.bsky.social) for new releases.
 
+## Install via Homebrew (macOS arm64)
+
+Swaggerific is available as a Homebrew Cask for Apple Silicon (arm64) macOS.
+
+1) Tap this repository explicitly by URL:
+
+```bash
+brew tap ozkanpakdil/swaggerific https://github.com/ozkanpakdil/swaggerific
+```
+
+2) Install into your user Applications folder:
+
+```bash
+brew install --cask swaggerific --appdir=~/Applications
+```
+
+- Update to the latest build later:
+
+```bash
+brew upgrade --cask swaggerific
+```
+
+- Uninstall:
+
+```bash
+brew uninstall --cask swaggerific
+```
+
+Notes:
+- This cask targets Apple Silicon (arm64) builds only.
+- It pulls the latest prebuilt app bundle from the `latest_macos` GitHub release.
+
+## Packaging artifacts
+
+The macOS packaging script `build-macos-arm64.sh` places generated artifacts under the `staging/` directory (tar.gz, .pkg, and installer .pkg). The `staging/` folder is ignored by Git.
+
 ## Requirements
 
 - Java Development Kit (JDK) 17 or higher
