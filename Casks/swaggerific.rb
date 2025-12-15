@@ -16,5 +16,13 @@ cask "swaggerific" do
     This cask targets Apple Silicon (arm64) builds.
     To install the app into your user Applications folder, run:
       brew install --cask swaggerific --appdir=~/Applications
+
+    If you see “app is damaged and can’t be opened”, macOS Gatekeeper is
+    blocking a quarantined, unsigned app from a personal tap. Either install
+    without quarantine:
+      brew uninstall --cask swaggerific
+      brew install --cask --no-quarantine swaggerific --appdir=~/Applications
+    or remove the quarantine attribute after install:
+      xattr -dr com.apple.quarantine ~/Applications/swaggerific.app
   EOS
 end

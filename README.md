@@ -42,6 +42,19 @@ Notes:
 - This cask targets Apple Silicon (arm64) builds only.
 - It pulls the latest prebuilt app bundle from the `latest_macos` GitHub release.
 
+Tip (Gatekeeper on unsigned apps): If you see a message like “swaggerific.app is damaged and can’t be opened”, that’s macOS Gatekeeper blocking a quarantined, unsigned app from a personal tap. You can either install without quarantine or remove the quarantine attribute after install:
+
+```bash
+# Option A: install without quarantine
+brew uninstall --cask swaggerific
+brew install --cask --no-quarantine swaggerific --appdir=~/Applications
+
+# Option B: keep install, remove quarantine from the app bundle
+xattr -dr com.apple.quarantine ~/Applications/swaggerific.app
+```
+
+We plan to add signing/notarization later; for now this personal tap uses unsigned builds.
+
 ## Packaging artifacts
 
 The macOS packaging script `build-macos-arm64.sh` places generated artifacts under the `staging/` directory (tar.gz, .pkg, and installer .pkg). The `staging/` folder is ignored by Git.
