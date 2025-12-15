@@ -11,6 +11,10 @@ public class MenuController {
         mainController.menuFileOpenSwagger(event);
     }
 
+    public void menuFileOpenLocal(ActionEvent event) {
+        mainController.menuFileOpenLocal(event);
+    }
+
     public void openDebugConsole() {
         mainController.flipDebugConsole();
     }

@@ -10,6 +10,10 @@ set -euo pipefail
 # Requirements:
 # - The native image should already be built at target/gluonfx/aarch64-darwin/swaggerific.app
 # - pkgbuild and productbuild must be available (macOS only)
+#
+# Optional: After packaging, this script uploads the tar.gz to the GitHub
+# release tagged "latest_macos" using GitHub CLI (`gh`). Keep it simple.
+# Requirements for upload: `gh` installed and authenticated (`gh auth login`).
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TARGET_DIR="$ROOT_DIR/target/gluonfx/aarch64-darwin"
@@ -18,6 +22,10 @@ APP_PATH="$TARGET_DIR/$APP_NAME"
 STAGING_DIR="$ROOT_DIR/staging"
 IDENTIFIER="io.github.ozkanpakdil.swaggerific"
 APP_ICON_PNG="$ROOT_DIR/src/main/resources/applogo.png"
+
+# --- Simple, fixed upload target ---
+GITHUB_REPO="ozkanpakdil/swaggerific"
+RELEASE_TAG="latest_macos"
 
 # Obtain project version from Maven (falls back to 0.0.0 if unavailable)
 VERSION="$(./mvnw -q -DforceStdout help:evaluate -Dexpression=project.version 2>/dev/null || echo 0.0.0)"
@@ -102,3 +110,23 @@ echo "Done. Artifacts:"
 echo " - $STAGING_DIR/$ARCHIVE_NAME"
 echo " - $STAGING_DIR/$PKG_NAME"
 echo " - $STAGING_DIR/$INSTALLER_NAME"
+
+# ------------------------
+# Simple upload to GitHub Release (latest_macos)
+# ------------------------
+ARCHIVE_PATH="$STAGING_DIR/$ARCHIVE_NAME"
+if command -v gh >/dev/null 2>&1; then
+  echo "Uploading $ARCHIVE_PATH to https://github.com/$GITHUB_REPO/releases/tag/$RELEASE_TAG ..."
+  # Ensure release exists (no frills); if it doesn't, print a hint and skip
+  if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPO" >/dev/null 2>&1; then
+    gh release upload "$RELEASE_TAG" "$ARCHIVE_PATH" --repo "$GITHUB_REPO" --clobber
+    echo "Upload complete."
+  else
+    echo "Release tag '$RELEASE_TAG' does not exist on $GITHUB_REPO. Create it first, then re-run."
+    echo "Hint: gh release create $RELEASE_TAG -t \"latest macOS\" -n \"Automated macOS build\" --repo $GITHUB_REPO"
+  fi
+else
+  echo "GitHub CLI (gh) not found. To upload manually run:"
+  echo "  gh auth login"
+  echo "  gh release upload $RELEASE_TAG $ARCHIVE_PATH --repo $GITHUB_REPO --clobber"
+fi

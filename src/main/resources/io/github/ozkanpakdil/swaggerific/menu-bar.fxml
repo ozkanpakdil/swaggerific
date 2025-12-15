@@ -5,12 +5,10 @@
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="io.github.ozkanpakdil.swaggerific.ui.MenuController">
     <Menu text="_File">
-        <MenuItem onAction="#menuFileOpenSwagger" text="Open Swagger JSON URL">
-            <accelerator>
-                <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-            </accelerator>
-        </MenuItem>
-        <MenuItem text="Open"/>
+        <!-- Open local file (JSON/YAML) -->
+        <MenuItem text="Open" onAction="#menuFileOpenLocal" accelerator="Shortcut+L"/>
+        <!-- Open Swagger/OpenAPI from URL -->
+        <MenuItem onAction="#menuFileOpenSwagger" text="Open Swagger JSON URL" accelerator="Shortcut+O"/>
         <MenuItem text="Save"/>
         <MenuItem text="Save As"/>
         <MenuItem text="Enable Debug Window" onAction="#openDebugConsole">

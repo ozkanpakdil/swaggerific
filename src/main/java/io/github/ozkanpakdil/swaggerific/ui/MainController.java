@@ -378,6 +378,107 @@ public class MainController implements Initializable {
         });
     }
 
+    /**
+     * Opens a local Swagger/OpenAPI JSON file and populates the tree.
+     */
+    @DisableWindow
+    public void menuFileOpenLocal(ActionEvent ignoredActionEvent) {
+        javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+        chooser.setTitle("Open Swagger/OpenAPI JSON");
+        chooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter("JSON Files", "*.json"),
+                new javafx.stage.FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File file = chooser.showOpenDialog(mainBox.getScene().getWindow());
+        if (file == null) return;
+
+        setIsOnloading();
+        new Thread(() -> {
+            try {
+                String jsonContent = Files.readString(file.toPath());
+
+                if (StringUtils.isBlank(jsonContent)) {
+                    throw new RuntimeException("Selected file is empty");
+                }
+
+                // Parse
+                jsonRoot = Json.mapper().readTree(jsonContent);
+                jsonModal = Json.mapper().readValue(jsonContent, SwaggerModal.class);
+
+                if (StringUtils.isAllBlank(jsonModal.getSwagger(), jsonModal.getOpenapi())) {
+                    throw new RuntimeException("File content is not a recognized Swagger/OpenAPI document");
+                }
+
+                // Base URL target is unknown for local files; leave empty so user can edit full URL later
+                urlTarget = "";
+
+                // Build a new root
+                TreeItem<String> newRoot = new TreeItem<>("base root");
+
+                if (!StringUtils.isBlank(jsonModal.getSwagger())) { // Swagger 2.0 JSON
+                    jsonModal.getTags().forEach(tag1 -> {
+                        TreeItem<String> tag = new TreeItem<>();
+                        tag.setValue(tag1.getName());
+                        jsonModal.getPaths().forEach((path1, pathItem) -> {
+                            if (path1.contains(tag1.getName())) {
+                                TreeItem<String> path = new TreeItem<>();
+                                path.setValue(path1);
+                                tag.getChildren().add(path);
+                                returnTreeItemsForTheMethod(pathItem, path.getChildren(), path1);
+                            }
+                        });
+                        newRoot.getChildren().add(tag);
+                    });
+                } else { // OpenAPI 3+
+                    jsonModal.getPaths().forEach((path, pathItem) -> {
+                        String[] pathParts = (!path.startsWith("/")) ?
+                                path.split("/") :
+                                path.substring(1).split("/");
+                        TreeItem<String> currentItem = newRoot;
+
+                        for (String part : pathParts) {
+                            Optional<TreeItem<String>> existingItem = currentItem.getChildren().stream()
+                                    .filter(item -> part.equals(item.getValue()))
+                                    .findFirst();
+                            if (existingItem.isPresent()) {
+                                currentItem = existingItem.get();
+                            } else {
+                                TreeItem<String> newItem = new TreeItem<>(part);
+                                currentItem.getChildren().add(newItem);
+                                currentItem = newItem;
+                            }
+                        }
+
+                        TreeItem<String> finalCurrentItem = currentItem;
+                        pathItem.readOperationsMap().forEach((method, operation) -> {
+                            TreeItemOperationLeaf operationLeaf = TreeItemOperationLeaf.builder()
+                                    .uri(urlTarget + path)
+                                    .methodParameters(operation.getParameters())
+                                    .build();
+                            operationLeaf.setValue(method.name());
+                            finalCurrentItem.getChildren().add(operationLeaf);
+                        });
+                    });
+                }
+
+                Platform.runLater(() -> {
+                    treeFilter = new TreeFilter();
+                    txtFilterTree.setText("");
+                    treeItemRoot = newRoot;
+                    treePaths.setRoot(treeItemRoot);
+                    treePaths.setShowRoot(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    log.error("Error opening Swagger file", e);
+                    showAlert("Error", "Failed to open Swagger file", e.getMessage());
+                });
+            } finally {
+                Platform.runLater(this::setIsOffloading);
+            }
+        }).start();
+    }
+
     // Test helper: open swagger URL without UI dialog
     public void openSwaggerForTest(String urlSwaggerJson) {
         setIsOnloading();

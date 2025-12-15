@@ -1317,6 +1317,10 @@
   "methods":[{"name":"<init>","parameterTypes":["javafx.scene.input.KeyCode","javafx.scene.input.KeyCombination$ModifierValue","javafx.scene.input.KeyCombination$ModifierValue","javafx.scene.input.KeyCombination$ModifierValue","javafx.scene.input.KeyCombination$ModifierValue","javafx.scene.input.KeyCombination$ModifierValue"] }]
 },
 {
+  "name":"javafx.scene.input.KeyCombination",
+  "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
   "name":"javafx.scene.input.KeyCombination$ModifierValue",
   "methods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
 },
