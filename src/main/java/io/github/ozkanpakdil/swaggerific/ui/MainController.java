@@ -787,6 +787,20 @@ public class MainController implements Initializable {
     }
 
     /**
+     * Triggered from the Request -> Send menu item. Delegates to the active request tab.
+     */
+    public void requestSendFromMenu() {
+        try {
+            var tab = getSelectedTab();
+            if (tab != null) {
+                tab.btnSendRequest(null);
+            }
+        } catch (Exception ex) {
+            log.warn("Failed to send request from menu: {}", ex.getMessage());
+        }
+    }
+
+    /**
      * Opens the Environment Variables management window.
      *
      * @param ignoredActionEvent the action event (ignored)

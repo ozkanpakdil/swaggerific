@@ -55,6 +55,12 @@ public class MenuController {
         mainController.openEnvironmentVariables(event);
     }
 
+    public void menuRequestSend(ActionEvent event) {
+        if (mainController != null) {
+            mainController.requestSendFromMenu();
+        }
+    }
+
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }

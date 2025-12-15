@@ -19,6 +19,20 @@
 <BorderPane prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.EnvironmentController">
    <top>
       <VBox spacing="10.0" BorderPane.alignment="CENTER">
+         <!-- Hidden menu bar used only to register keyboard accelerators (e.g., Shortcut+S) -->
+         <MenuBar managed="false" visible="false">
+            <menus>
+               <Menu text="Hidden">
+                  <items>
+                     <MenuItem text="New Environment" onAction="#handleNewEnvironment" accelerator="Shortcut+N"/>
+                     <MenuItem text="Edit Environment" onAction="#handleEditEnvironment" accelerator="Shortcut+E"/>
+                     <MenuItem text="Delete Environment" onAction="#handleDeleteEnvironment" accelerator="Shortcut+DELETE"/>
+                     <MenuItem text="Save" onAction="#handleSaveEnvironment" accelerator="Shortcut+S"/>
+                     <MenuItem text="Close" onAction="#handleClose" accelerator="Shortcut+W"/>
+                  </items>
+               </Menu>
+            </menus>
+         </MenuBar>
          <children>
             <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>

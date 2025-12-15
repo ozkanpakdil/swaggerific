@@ -13,6 +13,16 @@
     <SplitPane dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="600.0" prefWidth="800.0"
                AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane VBox.vgrow="ALWAYS">
+            <!-- Hidden menu bar used only to register keyboard accelerators (e.g., Shortcut+S) -->
+            <MenuBar managed="false" visible="false">
+                <menus>
+                    <Menu text="Hidden">
+                        <items>
+                            <MenuItem text="Send" onAction="#btnSendRequest" accelerator="Shortcut+S"/>
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
             <VBox fx:id="boxParams" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS">
                 <HBox>
                     <ComboBox fx:id="cmbHttpMethod" minWidth="-Infinity" styleClass="cmbHttpMethod" maxWidth="10"/>

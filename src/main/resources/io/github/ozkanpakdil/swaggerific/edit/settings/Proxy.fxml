@@ -9,6 +9,16 @@
           AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Proxy">
     <children>
+        <!-- Hidden menu bar used only to register keyboard accelerators for this view -->
+        <MenuBar managed="false" visible="false">
+            <menus>
+                <Menu text="Hidden">
+                    <items>
+                        <MenuItem text="Save" onAction="#saveProxySettings" accelerator="Shortcut+S"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
         <Label text="Default Proxy Configuration" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
         <Label text="Swaggerific uses the system's proxy configurations by default to connect to any online services, or to send API requests." GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
         <CheckBox fx:id="proxyRequiresAuth" text="This proxy requires authentication" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"/>

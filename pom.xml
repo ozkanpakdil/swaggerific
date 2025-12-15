@@ -301,29 +301,9 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JavaScript engine for script execution -->
-        <dependency>
-            <groupId>org.graalvm.sdk</groupId>
-            <artifactId>graal-sdk</artifactId>
-            <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.truffle</groupId>
-            <artifactId>truffle-api</artifactId>
-            <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js-scriptengine</artifactId>
-            <version>${graalvm.js.version}</version>
-        </dependency>
-        <!-- GraalJS engine and dependencies for JSR-223 -->
-        <!-- Removed org.graalvm.js:js for GraalVM >=23 as coordinates changed; keep scriptengine + truffle/sdk -->
-        <dependency>
-            <groupId>org.graalvm.regex</groupId>
-            <artifactId>regex</artifactId>
-            <version>22.3.3</version>
-        </dependency>
+        <!-- JavaScript (GraalJS) dependencies are moved to the 'scripts' profile
+             to avoid putting GraalVM builder classes (graal-sdk, svm) on the
+             Native Image classpath during GluonFX builds. -->
 
     </dependencies>
 
@@ -795,6 +775,34 @@
         <!-- Add a no-op 'desktop' profile to avoid warnings when building with -Pdesktop -->
         <profile>
             <id>desktop</id>
+        </profile>
+        <!-- Optional profile to include GraalJS on the JVM when you want
+             script execution while running with a regular JDK. Intentionally
+             NOT activated for native-image builds. Enable with -Pscripts. -->
+        <profile>
+            <id>scripts</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.graalvm.sdk</groupId>
+                    <artifactId>graal-sdk</artifactId>
+                    <version>${graalvm.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.graalvm.truffle</groupId>
+                    <artifactId>truffle-api</artifactId>
+                    <version>${graalvm.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.graalvm.js</groupId>
+                    <artifactId>js-scriptengine</artifactId>
+                    <version>${graalvm.js.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.graalvm.regex</groupId>
+                    <artifactId>regex</artifactId>
+                    <version>22.3.3</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

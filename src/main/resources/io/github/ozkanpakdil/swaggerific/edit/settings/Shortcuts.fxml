@@ -7,6 +7,17 @@
           fx:controller="io.github.ozkanpakdil.swaggerific.ui.edit.Shortcuts"
           AnchorPane.bottomAnchor="0.0"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <!-- Hidden menu bar used only to register keyboard accelerators for this view -->
+    <MenuBar managed="false" visible="false">
+        <menus>
+            <Menu text="Hidden">
+                <items>
+                    <MenuItem text="Save" onAction="#save" accelerator="Shortcut+S"/>
+                    <MenuItem text="Reset to Defaults" onAction="#resetDefaults" accelerator="Shortcut+R"/>
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0"/>
         <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
