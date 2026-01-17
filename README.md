@@ -116,6 +116,8 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 mvn -Djava.awt.headless=false -Dtestfx.robot=glass -Dsurefire.parallel=none test
 ```
 
+test
+
 ### Run agent
 
 ```shell
