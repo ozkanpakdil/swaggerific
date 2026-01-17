@@ -68,3 +68,10 @@ replay_pid*
 /dependency-reduced-pom.xml
 
 staging/
+# Certificates (sensitive)
+certificates/
+*.p12
+*.cer
+*.certSigningRequest
+entitlements.plist
+Swaggerific*.pkg

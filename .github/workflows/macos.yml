@@ -2,11 +2,18 @@ name: macOS
 on:
   push:
     branches: [ main ]
+
+env:
+  APP_NAME: swaggerific
+  BUNDLE_ID: io.github.ozkanpakdil.swaggerific
+  APP_VERSION: "0.0.4"
+  TEAM_ID: TA5X5C9T57
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Gluon's GraalVM
         uses: gluonhq/setup-graalvm@master
@@ -21,13 +28,22 @@ jobs:
           system_profiler SPSoftwareDataType SPHardwareDataType
           sysctl -a
 
-      #      - name: Developer ID Application certificate
-      #        uses: Apple-Actions/import-codesign-certs@v1
-      #        with:
-      #          keychain: ${{ github.run_id }}
-      #          keychain-password: ${{ github.run_id }}
-      #          p12-file-base64: ${{ secrets.GLUON_MACOS_CERTIFICATES_FILE_BASE64 }}
-      #          p12-password: ${{ secrets.GLUON_MACOS_CERTIFICATES_PASSWORD }}
+      - name: Import Developer ID Application certificate
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          keychain: signing
+          keychain-password: ${{ github.run_id }}
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_APPLICATION }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+
+      - name: Import Developer ID Installer certificate
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          keychain: signing
+          keychain-password: ${{ github.run_id }}
+          create-keychain: false
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_INSTALLER }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
       - name: Make staging directory
         run: mkdir staging
@@ -37,12 +53,35 @@ jobs:
         with:
           gluon-license: ${{ secrets.GLUON_LICENSE }}
 
+      - name: Create entitlements file
+        run: |
+          cat > entitlements.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.security.cs.allow-jit</key>
+              <true/>
+              <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+              <true/>
+              <key>com.apple.security.cs.disable-library-validation</key>
+              <true/>
+              <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+              <true/>
+              <key>com.apple.security.network.client</key>
+              <true/>
+              <key>com.apple.security.network.server</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
       - name: Gluon Build and Package
         id: outputfile
         run: |
           set -e
           ./mvnw -ntp -Pdesktop gluonfx:build gluonfx:package
-          chmod +x ./target/gluonfx/x86_64-darwin/swaggerific.app
+          chmod +x ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
 
           # Generate .icns from applogo.png and patch Info.plist
           ICON_PNG=./src/main/resources/applogo.png
@@ -57,18 +96,44 @@ jobs:
               sips -z $dbl  $dbl      "$ICON_PNG" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
             done
             sips -z 1024 1024 "$ICON_PNG" --out "$ICONSET/icon_512x512@2x.png" >/dev/null || true
-            iconutil -c icns "$ICONSET" -o ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Resources/AppIcon.icns
+            iconutil -c icns "$ICONSET" -o ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app/Contents/Resources/AppIcon.icns
             rm -rf "$TMP_DIR" || true
-            /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Info.plist 2>/dev/null || \
-            /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" ./target/gluonfx/x86_64-darwin/swaggerific.app/Contents/Info.plist 2>/dev/null || true
+            /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile AppIcon" ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app/Contents/Info.plist 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string AppIcon" ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app/Contents/Info.plist 2>/dev/null || true
           else
             echo "WARNING: $ICON_PNG not found; keeping default icon"
           fi
 
-          cp -r ./target/gluonfx/x86_64-darwin/swaggerific.app staging/
-          tar -czvf staging/swaggerific_x86_64-darwin.tar.gz -C target/gluonfx/x86_64-darwin swaggerific
-          pkgbuild --root ./target/gluonfx/x86_64-darwin/ --identifier io.github.ozkanpakdil.swaggerific --version 0.0.4 --install-location /Applications Swaggerific.pkg
-          productbuild --package Swaggerific.pkg SwaggerificInstaller.pkg
+      - name: Sign the application
+        run: |
+          echo "=== Signing the .app bundle ==="
+          codesign --deep --force --verify --verbose \
+            --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+            --options runtime \
+            --entitlements ./entitlements.plist \
+            ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+          
+          echo "=== Verifying signature ==="
+          codesign --verify --verbose=2 ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+
+      - name: Create and sign installer package
+        run: |
+          echo "=== Creating signed .pkg installer ==="
+          pkgbuild --root ./target/gluonfx/x86_64-darwin/ \
+            --identifier ${{ env.BUNDLE_ID }} \
+            --version ${{ env.APP_VERSION }} \
+            --install-location /Applications \
+            --sign "Developer ID Installer: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+            Swaggerific.pkg
+          
+          productbuild --package Swaggerific.pkg \
+            --sign "Developer ID Installer: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+            SwaggerificInstaller.pkg
+
+      - name: Prepare staging artifacts
+        run: |
+          cp -r ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app staging/
+          tar -czvf staging/swaggerific_x86_64-darwin.tar.gz -C target/gluonfx/x86_64-darwin ${{ env.APP_NAME }}.app
           cp -r SwaggerificInstaller.pkg staging/
           
           
@@ -79,50 +144,13 @@ jobs:
           name: Package
           path: staging
 
-      #      - name: Provisioning Profile
-      #        id: provisioning
-      #        uses: Apple-Actions/download-provisioning-profiles@v1.0.1
-      #        with:
-      #          bundle-id: com.gluonhq.hello.HelloGluonApp
-      #          profile-type: 'MAC_APP_STORE'
-      #          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
-      #          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
-      #          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
-
-      #      - name: 3rd Party Mac certificate
-      #        uses: Apple-Actions/import-codesign-certs@v1
-      #        with:
-      #          keychain: ${{ github.run_id }}
-      #          keychain-password: ${{ github.run_id }}
-      #          create-keychain: false
-      #          p12-file-base64: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_FILE_BASE64 }}
-      #          p12-password: ${{ secrets.GLUON_MACOS_STORE_CERTIFICATES_PASSWORD }}
-
-      # - name: Gluon Package Store
-      #   id: outputfilestore
-      #   run: |
-      #     ./mvnw -ntp -Pdesktop gluonfx:package
-      #     echo ::set-output name=path::target/gluonfx/x86_64-darwin/*.pkg
-
-      #      - name: Upload (pkg store)
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: PackageAppStore
-      #          path: ${{ steps.outputfilestore.outputs.path }}
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Create GitHub Release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest_macos"
           prerelease: true
-          title: "MacOS Development Build"
+          title: "MacOS Development Build (Signed)"
           files: |
             staging/*
         id: "automatic_releases"
-#      - name: Upload App Store TestFlight
-#        uses: Apple-Actions/upload-testflight-build@master
-#        with:
-#          app-path: ${{ steps.outputfilestore.outputs.path }}
-#          app-type: osx
-#          issuer-id: ${{ secrets.GLUON_IOS_APPSTORE_ISSUER_ID }}
-#          api-key-id: ${{ secrets.GLUON_IOS_APPSTORE_KEY_ID }}
-#          api-private-key: ${{ secrets.GLUON_IOS_APPSTORE_PRIVATE_KEY }}
