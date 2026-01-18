@@ -142,29 +142,32 @@ jobs:
           
           echo "=== Submitting app for notarization ==="
           # Submit and capture the output to get submission ID
-          SUBMIT_OUTPUT=$(xcrun notarytool submit ${{ env.APP_NAME }}.zip \
+          # Use --wait to block until finished, but we'll handle the timeout/error
+          xcrun notarytool submit ${{ env.APP_NAME }}.zip \
             --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
             --key-id ${{ secrets.APPLE_API_KEY_ID }} \
             --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-            --wait 2>&1) || true
+            --wait > notarization_output.txt 2>&1 || true
           
-          echo "$SUBMIT_OUTPUT"
+          cat notarization_output.txt
           
-          # Extract submission ID and check status
-          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
+          # Extract submission ID
+          SUBMISSION_ID=$(grep -o 'id: [a-f0-9-]*' notarization_output.txt | head -1 | cut -d' ' -f2)
           echo "Submission ID: $SUBMISSION_ID"
           
           # Check if notarization was successful
-          if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+          if grep -q "status: Accepted" notarization_output.txt; then
             echo "=== Notarization successful! ==="
           else
-            echo "=== Notarization failed, fetching log ==="
-            xcrun notarytool log "$SUBMISSION_ID" \
-              --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
-              --key-id ${{ secrets.APPLE_API_KEY_ID }} \
-              --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-              notarization_app_log.json || true
-            cat notarization_app_log.json || true
+            echo "=== Notarization failed or timed out, fetching log ==="
+            if [ -n "$SUBMISSION_ID" ]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+                --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+                --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+                notarization_app_log.json || true
+              cat notarization_app_log.json || true
+            fi
             exit 1
           fi
           
@@ -175,29 +178,31 @@ jobs:
         run: |
           echo "=== Submitting pkg for notarization ==="
           # Submit and capture the output to get submission ID
-          SUBMIT_OUTPUT=$(xcrun notarytool submit SwaggerificInstaller.pkg \
+          xcrun notarytool submit SwaggerificInstaller.pkg \
             --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
             --key-id ${{ secrets.APPLE_API_KEY_ID }} \
             --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-            --wait 2>&1) || true
+            --wait > notarization_pkg_output.txt 2>&1 || true
           
-          echo "$SUBMIT_OUTPUT"
+          cat notarization_pkg_output.txt
           
-          # Extract submission ID and check status
-          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
+          # Extract submission ID
+          SUBMISSION_ID=$(grep -o 'id: [a-f0-9-]*' notarization_pkg_output.txt | head -1 | cut -d' ' -f2)
           echo "Submission ID: $SUBMISSION_ID"
           
           # Check if notarization was successful
-          if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+          if grep -q "status: Accepted" notarization_pkg_output.txt; then
             echo "=== Notarization successful! ==="
           else
-            echo "=== Notarization failed, fetching log ==="
-            xcrun notarytool log "$SUBMISSION_ID" \
-              --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
-              --key-id ${{ secrets.APPLE_API_KEY_ID }} \
-              --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-              notarization_pkg_log.json || true
-            cat notarization_pkg_log.json || true
+            echo "=== Notarization failed or timed out, fetching log ==="
+            if [ -n "$SUBMISSION_ID" ]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+                --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+                --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+                notarization_pkg_log.json || true
+              cat notarization_pkg_log.json || true
+            fi
             exit 1
           fi
           
