@@ -106,10 +106,25 @@ jobs:
 
       - name: Sign the application
         run: |
+          echo "=== Signing all binaries in the .app bundle ==="
+          # Find and sign all Mach-O binaries and libraries first
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f \( -perm +111 -or -name "*.dylib" \) | while read binary; do
+            if file "$binary" | grep -q "Mach-O"; then
+              echo "Signing $binary"
+              codesign --force --verify --verbose \
+                --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+                --options runtime \
+                --timestamp \
+                --entitlements ./entitlements.plist \
+                "$binary"
+            fi
+          done
+
           echo "=== Signing the .app bundle ==="
-          codesign --deep --force --verify --verbose \
+          codesign --force --verify --verbose \
             --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
             --options runtime \
+            --timestamp \
             --entitlements ./entitlements.plist \
             ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
           
