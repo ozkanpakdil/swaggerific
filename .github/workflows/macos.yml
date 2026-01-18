@@ -300,16 +300,16 @@ jobs:
           name: Package
           path: staging
 
-      - name: Create GitHub Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest_macos"
+          tag_name: "latest_macos"
+          name: "MacOS Development Build (Signed & Notarized)"
           prerelease: true
-          title: "MacOS Development Build (Signed & Notarized)"
           files: |
             staging/*
-        id: "automatic_releases"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Homebrew Cask
         run: |

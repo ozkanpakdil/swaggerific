@@ -47,6 +47,20 @@ Notes:
 
 The macOS packaging script `build-macos-arm64.sh` places generated artifacts under the `staging/` directory (tar.gz, .pkg, and installer .pkg). The `staging/` folder is ignored by Git.
 
+### Local Signing and Notarization
+
+To run the local build with signing and notarization:
+
+1. Ensure your Developer ID certificates are in your Keychain.
+2. Set the following environment variables (e.g., in your `~/.zshrc`):
+   ```bash
+   export APPLE_API_KEY_ID="your_key_id"
+   export APPLE_API_ISSUER_ID="your_issuer_id"
+   # The script expects the .p8 key in certificates/ or set:
+   export APPLE_API_KEY_PATH="/path/to/your/AuthKey_XXXX.p8"
+   ```
+3. Run `./build-macos-arm64.sh`
+
 ## Requirements
 
 - Java Development Kit (JDK) 17 or higher
