@@ -141,11 +141,32 @@ jobs:
           ditto -c -k --keepParent ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app ${{ env.APP_NAME }}.zip
           
           echo "=== Submitting app for notarization ==="
-          xcrun notarytool submit ${{ env.APP_NAME }}.zip \
+          # Submit and capture the output to get submission ID
+          SUBMIT_OUTPUT=$(xcrun notarytool submit ${{ env.APP_NAME }}.zip \
             --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
             --key-id ${{ secrets.APPLE_API_KEY_ID }} \
             --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-            --wait
+            --wait 2>&1) || true
+          
+          echo "$SUBMIT_OUTPUT"
+          
+          # Extract submission ID and check status
+          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
+          echo "Submission ID: $SUBMISSION_ID"
+          
+          # Check if notarization was successful
+          if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+            echo "=== Notarization successful! ==="
+          else
+            echo "=== Notarization failed, fetching log ==="
+            xcrun notarytool log "$SUBMISSION_ID" \
+              --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+              --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+              --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+              notarization_app_log.json || true
+            cat notarization_app_log.json || true
+            exit 1
+          fi
           
           echo "=== Stapling notarization ticket to app ==="
           xcrun stapler staple ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
@@ -153,11 +174,32 @@ jobs:
       - name: Notarize the installer package
         run: |
           echo "=== Submitting pkg for notarization ==="
-          xcrun notarytool submit SwaggerificInstaller.pkg \
+          # Submit and capture the output to get submission ID
+          SUBMIT_OUTPUT=$(xcrun notarytool submit SwaggerificInstaller.pkg \
             --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
             --key-id ${{ secrets.APPLE_API_KEY_ID }} \
             --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
-            --wait
+            --wait 2>&1) || true
+          
+          echo "$SUBMIT_OUTPUT"
+          
+          # Extract submission ID and check status
+          SUBMISSION_ID=$(echo "$SUBMIT_OUTPUT" | grep -o 'id: [a-f0-9-]*' | head -1 | cut -d' ' -f2)
+          echo "Submission ID: $SUBMISSION_ID"
+          
+          # Check if notarization was successful
+          if echo "$SUBMIT_OUTPUT" | grep -q "status: Accepted"; then
+            echo "=== Notarization successful! ==="
+          else
+            echo "=== Notarization failed, fetching log ==="
+            xcrun notarytool log "$SUBMISSION_ID" \
+              --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+              --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+              --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+              notarization_pkg_log.json || true
+            cat notarization_pkg_log.json || true
+            exit 1
+          fi
           
           echo "=== Stapling notarization ticket to pkg ==="
           xcrun stapler staple SwaggerificInstaller.pkg
