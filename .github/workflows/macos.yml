@@ -110,17 +110,32 @@ jobs:
           # Find and sign all Mach-O binaries and libraries first
           # We use a more comprehensive search to ensure all nested binaries are caught
           # and we sign them in reverse depth order (deepest first)
-          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f | while read file; do
-            if file "$file" | grep -q "Mach-O"; then
-              echo "Signing binary: $file"
-              codesign --force --verify --verbose \
-                --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
-                --options runtime \
-                --timestamp \
-                --entitlements ./entitlements.plist \
-                "$file"
-            fi
+          # Using find with -exec file {} \; to correctly identify Mach-O files regardless of extension
+          # Also signing in reverse order of depth to ensure child binaries are signed before parents
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f | xargs -I {} sh -c 'if file "{}" | grep -q "Mach-O"; then echo "{}"; fi' | sort -r | while read file; do
+            echo "Signing binary: $file"
+            # Ensure we have write permissions
+            chmod +w "$file"
+            codesign --force --verify --verbose \
+              --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+              --options runtime \
+              --timestamp \
+              --entitlements ./entitlements.plist \
+              "$file"
           done
+
+          # Explicitly sign the main executable again just to be sure
+          echo "=== Signing main executable ==="
+          MAIN_EXE="./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app/Contents/MacOS/${{ env.APP_NAME }}"
+          if [ -f "$MAIN_EXE" ]; then
+             chmod +w "$MAIN_EXE"
+             codesign --force --verify --verbose \
+               --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+               --options runtime \
+               --timestamp \
+               --entitlements ./entitlements.plist \
+               "$MAIN_EXE"
+          fi
 
           echo "=== Signing the .app bundle ==="
           codesign --force --verify --verbose \
@@ -132,6 +147,7 @@ jobs:
           
           echo "=== Verifying signature ==="
           codesign --verify --verbose=4 --deep ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+          # Check with spctl to see what Gatekeeper thinks
           spctl --assess --verbose=4 --type execute ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app || true
 
       - name: Create and sign installer package
