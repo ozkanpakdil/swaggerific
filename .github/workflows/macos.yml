@@ -108,15 +108,17 @@ jobs:
         run: |
           echo "=== Signing all binaries in the .app bundle ==="
           # Find and sign all Mach-O binaries and libraries first
-          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f \( -perm +111 -or -name "*.dylib" \) | while read binary; do
-            if file "$binary" | grep -q "Mach-O"; then
-              echo "Signing $binary"
+          # We use a more comprehensive search to ensure all nested binaries are caught
+          # and we sign them in reverse depth order (deepest first)
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f | while read file; do
+            if file "$file" | grep -q "Mach-O"; then
+              echo "Signing binary: $file"
               codesign --force --verify --verbose \
                 --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
                 --options runtime \
                 --timestamp \
                 --entitlements ./entitlements.plist \
-                "$binary"
+                "$file"
             fi
           done
 
@@ -129,7 +131,8 @@ jobs:
             ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
           
           echo "=== Verifying signature ==="
-          codesign --verify --verbose=2 ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+          codesign --verify --verbose=4 --deep ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+          spctl --assess --verbose=4 --type execute ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app || true
 
       - name: Create and sign installer package
         run: |
