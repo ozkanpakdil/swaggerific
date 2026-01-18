@@ -130,6 +130,38 @@ jobs:
             --sign "Developer ID Installer: Ozkan Pakdil (${{ env.TEAM_ID }})" \
             SwaggerificInstaller.pkg
 
+      - name: Setup notarization credentials
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+
+      - name: Notarize the application
+        run: |
+          echo "=== Creating zip for notarization ==="
+          ditto -c -k --keepParent ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app ${{ env.APP_NAME }}.zip
+          
+          echo "=== Submitting app for notarization ==="
+          xcrun notarytool submit ${{ env.APP_NAME }}.zip \
+            --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+            --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+            --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+            --wait
+          
+          echo "=== Stapling notarization ticket to app ==="
+          xcrun stapler staple ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app
+
+      - name: Notarize the installer package
+        run: |
+          echo "=== Submitting pkg for notarization ==="
+          xcrun notarytool submit SwaggerificInstaller.pkg \
+            --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+            --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+            --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+            --wait
+          
+          echo "=== Stapling notarization ticket to pkg ==="
+          xcrun stapler staple SwaggerificInstaller.pkg
+
       - name: Prepare staging artifacts
         run: |
           cp -r ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app staging/
@@ -150,7 +182,42 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest_macos"
           prerelease: true
-          title: "MacOS Development Build (Signed)"
+          title: "MacOS Development Build (Signed & Notarized)"
           files: |
             staging/*
         id: "automatic_releases"
+
+      - name: Update Homebrew Cask
+        run: |
+          # Calculate SHA256 of the tar.gz file
+          SHA256=$(shasum -a 256 staging/swaggerific_x86_64-darwin.tar.gz | awk '{print $1}')
+          echo "SHA256: $SHA256"
+          
+          # Update the cask file with the new SHA256
+          cat > Casks/swaggerific.rb << EOF
+          cask "swaggerific" do
+            version "${{ env.APP_VERSION }}"
+            sha256 "$SHA256"
+
+            url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/swaggerific_x86_64-darwin.tar.gz",
+                verified: "github.com/ozkanpakdil/swaggerific"
+            name "Swaggerific"
+            desc "Simple GUI app for working with Swagger/OpenAPI"
+            homepage "https://github.com/ozkanpakdil/swaggerific"
+
+            app "swaggerific.app"
+
+            caveats <<~EOS
+              This app is signed and notarized with a Developer ID certificate.
+              It should open without any Gatekeeper warnings.
+            EOS
+          end
+          EOF
+
+      - name: Commit and push Homebrew Cask update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add Casks/swaggerific.rb
+          git diff --staged --quiet || git commit -m "Update Homebrew cask SHA256 for version ${{ env.APP_VERSION }}"
+          git push

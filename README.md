@@ -10,23 +10,23 @@ You can download the latest version
 from [Github releases ![Download count of latest releases](https://img.shields.io/github/downloads/ozkanpakdil/swaggerific/latest/total.svg)](https://github.com/ozkanpakdil/swaggerific/releases)
 Follow [here](https://bsky.app/profile/swaggerific.bsky.social) for new releases.
 
-## Install via Homebrew (macOS arm64)
+## Install via Homebrew (macOS)
 
-Swaggerific is available as a Homebrew Cask for Apple Silicon (arm64) macOS.
+Swaggerific is available as a Homebrew Cask for macOS (Intel x86_64). The app is **signed and notarized** with an Apple Developer ID certificate.
 
-1) Tap this repository explicitly by URL:
+1) Tap this repository:
 
 ```bash
 brew tap ozkanpakdil/swaggerific https://github.com/ozkanpakdil/swaggerific
 ```
 
-2) Install into your user Applications folder:
+2) Install the app:
 
 ```bash
-brew install --cask swaggerific --appdir=~/Applications
+brew install --cask swaggerific
 ```
 
-- Update to the latest build later:
+- Update to the latest build:
 
 ```bash
 brew upgrade --cask swaggerific
@@ -39,21 +39,9 @@ brew uninstall --cask swaggerific
 ```
 
 Notes:
-- This cask targets Apple Silicon (arm64) builds only.
+- This cask targets Intel (x86_64) macOS builds.
+- The app is signed and notarized, so it should open without Gatekeeper warnings.
 - It pulls the latest prebuilt app bundle from the `latest_macos` GitHub release.
-
-Tip (Gatekeeper on unsigned apps): If you see a message like “swaggerific.app is damaged and can’t be opened”, that’s macOS Gatekeeper blocking a quarantined, unsigned app from a personal tap. You can either install without quarantine or remove the quarantine attribute after install:
-
-```bash
-# Option A: install without quarantine
-brew uninstall --cask swaggerific
-brew install --cask --no-quarantine swaggerific --appdir=~/Applications
-
-# Option B: keep install, remove quarantine from the app bundle
-xattr -dr com.apple.quarantine ~/Applications/swaggerific.app
-```
-
-We plan to add signing/notarization later; for now this personal tap uses unsigned builds.
 
 ## Packaging artifacts
 
