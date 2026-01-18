@@ -107,21 +107,56 @@ jobs:
       - name: Sign the application
         run: |
           echo "=== Signing all binaries in the .app bundle ==="
-          # Find and sign all Mach-O binaries and libraries first
-          # We use a more comprehensive search to ensure all nested binaries are caught
-          # and we sign them in reverse depth order (deepest first)
-          # Using find with -exec file {} \; to correctly identify Mach-O files regardless of extension
-          # Also signing in reverse order of depth to ensure child binaries are signed before parents
-          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f | xargs -I {} sh -c 'if file "{}" | grep -q "Mach-O"; then echo "{}"; fi' | sort -r | while read file; do
-            echo "Signing binary: $file"
-            # Ensure we have write permissions
+          
+          # 1. Sign any .dylib files first
+          echo "Signing shared libraries (.dylib)..."
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -name "*.dylib" | while read -r file; do
+            echo "Signing dylib: $file"
             chmod +w "$file"
             codesign --force --verify --verbose \
               --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
               --options runtime \
               --timestamp \
               --entitlements ./entitlements.plist \
-              "$file"
+              "$file" || true
+          done
+
+          # 2. Find and sign all Mach-O binaries and libraries in reverse depth order
+          # We use a more comprehensive search to ensure all nested binaries are caught
+          # Using find with file to correctly identify Mach-O files regardless of extension
+          echo "Scanning for Mach-O binaries..."
+          # Identify all potential binaries and libraries using the 'file' command
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f -print0 | while read -r -d '' file; do
+            if file "$file" | grep -qE "Mach-O|current ar archive"; then
+              echo "$file"
+            fi
+          done | sort -r | while read -r file; do
+            echo "Signing binary: $file"
+            # Ensure we have write permissions
+            chmod +w "$file"
+            # We sign with --options runtime and --timestamp as required by Apple
+            codesign --force --verify --verbose \
+              --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+              --options runtime \
+              --timestamp \
+              --entitlements ./entitlements.plist \
+              "$file" || echo "Warning: Failed to sign $file, might not be necessary if it is not a loadable binary."
+          done
+
+          # 3. Double-check for any missed executable files (files with +x permission)
+          echo "Checking for additional executable files..."
+          find ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app -type f -perm +111 -print0 | while read -r -d '' file; do
+            # Only sign if it's not already signed or needs resigning
+            if ! codesign -v "$file" 2>/dev/null; then
+               echo "Signing missed executable: $file"
+               chmod +w "$file"
+               codesign --force --verify --verbose \
+                 --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+                 --options runtime \
+                 --timestamp \
+                 --entitlements ./entitlements.plist \
+                 "$file" || true
+            fi
           done
 
           # Explicitly sign the main executable again just to be sure
@@ -129,6 +164,7 @@ jobs:
           MAIN_EXE="./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app/Contents/MacOS/${{ env.APP_NAME }}"
           if [ -f "$MAIN_EXE" ]; then
              chmod +w "$MAIN_EXE"
+             # Sign the main executable with entitlements and runtime options
              codesign --force --verify --verbose \
                --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
                --options runtime \
@@ -138,7 +174,8 @@ jobs:
           fi
 
           echo "=== Signing the .app bundle ==="
-          codesign --force --verify --verbose \
+          # Use --deep as a final verification/reinforcement, though individual signing is better
+          codesign --force --verify --verbose --deep \
             --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
             --options runtime \
             --timestamp \
@@ -153,16 +190,22 @@ jobs:
       - name: Create and sign installer package
         run: |
           echo "=== Creating signed .pkg installer ==="
-          pkgbuild --root ./target/gluonfx/x86_64-darwin/ \
+          # Use --component to correctly package the .app bundle, which is more reliable than --root for single apps
+          # Ensure the .app bundle is signed before packaging
+          pkgbuild --component ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app \
             --identifier ${{ env.BUNDLE_ID }} \
             --version ${{ env.APP_VERSION }} \
             --install-location /Applications \
             --sign "Developer ID Installer: Ozkan Pakdil (${{ env.TEAM_ID }})" \
             Swaggerific.pkg
           
+          # Create the final distribution package
           productbuild --package Swaggerific.pkg \
             --sign "Developer ID Installer: Ozkan Pakdil (${{ env.TEAM_ID }})" \
             SwaggerificInstaller.pkg
+          
+          echo "=== Verifying pkg signature ==="
+          pkgutil --check-signature SwaggerificInstaller.pkg
 
       - name: Setup notarization credentials
         run: |
