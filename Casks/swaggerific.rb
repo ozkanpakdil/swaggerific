@@ -1,6 +1,6 @@
 cask "swaggerific" do
   version "0.0.4"
-  sha256 "261772c84e8326f36a238b62e482f832c8ae26513aa3c449bb05c0b73ba79671"
+  sha256 "af452dc573213d4fa5ecaaf6d6c718b52bcad78bea8a39dfe00be7840d60fd94"
 
   url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/swaggerific_x86_64-darwin.tar.gz",
       verified: "github.com/ozkanpakdil/swaggerific"
