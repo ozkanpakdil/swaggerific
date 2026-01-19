@@ -187,6 +187,53 @@ jobs:
           # Check with spctl to see what Gatekeeper thinks
           spctl --assess --verbose=4 --type execute ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app || true
 
+      - name: Create and sign DMG
+        run: |
+          echo "=== Creating DMG ==="
+          # Create a temporary directory for DMG content
+          mkdir -p dmg_content
+          cp -r ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app dmg_content/
+          
+          # Create DMG
+          hdiutil create -volname "${{ env.APP_NAME }}" -srcfolder dmg_content -ov -format UDZO Swaggerific_x86_64.dmg
+          
+          echo "=== Signing DMG ==="
+          codesign --force --verify --verbose \
+            --sign "Developer ID Application: Ozkan Pakdil (${{ env.TEAM_ID }})" \
+            --timestamp \
+            Swaggerific_x86_64.dmg
+
+      - name: Notarize the DMG
+        run: |
+          echo "=== Submitting DMG for notarization ==="
+          xcrun notarytool submit Swaggerific_x86_64.dmg \
+            --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+            --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+            --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+            --wait > notarization_dmg_output.txt 2>&1 || true
+          
+          cat notarization_dmg_output.txt
+          
+          # Extract submission ID
+          SUBMISSION_ID=$(grep -o 'id: [a-f0-9-]*' notarization_dmg_output.txt | head -1 | cut -d' ' -f2)
+          echo "Submission ID: $SUBMISSION_ID"
+          
+          if grep -q "status: Accepted" notarization_dmg_output.txt; then
+            echo "=== Notarization successful! ==="
+            xcrun stapler staple Swaggerific_x86_64.dmg
+          else
+            echo "=== Notarization failed, fetching log ==="
+            if [ -n "$SUBMISSION_ID" ]; then
+              xcrun notarytool log "$SUBMISSION_ID" \
+                --key ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8 \
+                --key-id ${{ secrets.APPLE_API_KEY_ID }} \
+                --issuer ${{ secrets.APPLE_API_ISSUER_ID }} \
+                notarization_dmg_log.json || true
+              cat notarization_dmg_log.json || true
+            fi
+            exit 1
+          fi
+
       - name: Create and sign installer package
         run: |
           echo "=== Creating signed .pkg installer ==="
@@ -289,10 +336,8 @@ jobs:
       - name: Prepare staging artifacts
         run: |
           cp -r ./target/gluonfx/x86_64-darwin/${{ env.APP_NAME }}.app staging/
-          tar -czvf staging/swaggerific_x86_64-darwin.tar.gz -C target/gluonfx/x86_64-darwin ${{ env.APP_NAME }}.app
-          cp -r SwaggerificInstaller.pkg staging/
-          
-          
+          cp Swaggerific_x86_64.dmg staging/
+          cp SwaggerificInstaller.pkg staging/
 
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -307,14 +352,15 @@ jobs:
           name: "MacOS Development Build (Signed & Notarized)"
           prerelease: true
           files: |
-            staging/*
+            staging/*.dmg
+            staging/*.pkg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Homebrew Cask
         run: |
-          # Calculate SHA256 of the tar.gz file
-          SHA256=$(shasum -a 256 staging/swaggerific_x86_64-darwin.tar.gz | awk '{print $1}')
+          # Calculate SHA256 of the dmg file
+          SHA256=$(shasum -a 256 staging/Swaggerific_x86_64.dmg | awk '{print $1}')
           echo "SHA256: $SHA256"
           
           # Update the cask file with the new SHA256
@@ -323,7 +369,7 @@ jobs:
             version "${{ env.APP_VERSION }}"
             sha256 "$SHA256"
 
-            url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/swaggerific_x86_64-darwin.tar.gz",
+            url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/Swaggerific_x86_64.dmg",
                 verified: "github.com/ozkanpakdil/swaggerific"
             name "Swaggerific"
             desc "Simple GUI app for working with Swagger/OpenAPI"

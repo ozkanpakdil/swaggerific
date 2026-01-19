@@ -12,7 +12,7 @@ Follow [here](https://bsky.app/profile/swaggerific.bsky.social) for new releases
 
 ## Install via Homebrew (macOS)
 
-Swaggerific is available as a Homebrew Cask for macOS (Intel x86_64). The app is **signed and notarized** with an Apple Developer ID certificate.
+Swaggerific is available as a Homebrew Cask for macOS (Intel x86_64). The app is **signed and notarized** with an Apple Developer ID certificate in a DMG package.
 
 1) Tap this repository:
 
@@ -41,11 +41,11 @@ brew uninstall --cask swaggerific
 Notes:
 - This cask targets Intel (x86_64) macOS builds.
 - The app is signed and notarized, so it should open without Gatekeeper warnings.
-- It pulls the latest prebuilt app bundle from the `latest_macos` GitHub release.
+- It pulls the latest prebuilt DMG from the `latest_macos` GitHub release.
 
 ## Packaging artifacts
 
-The macOS packaging script `build-macos-arm64.sh` places generated artifacts under the `staging/` directory (tar.gz, .pkg, and installer .pkg). The `staging/` folder is ignored by Git.
+The macOS packaging script `build-macos-arm64.sh` places generated artifacts under the `staging/` directory (DMG, .pkg, and installer .pkg). The `staging/` folder is ignored by Git.
 
 ### Local Signing and Notarization
 
@@ -117,8 +117,6 @@ A user interface (UI) designed to interact with APIs using Swagger or OpenAPI js
 ```shell
 mvn -Djava.awt.headless=false -Dtestfx.robot=glass -Dsurefire.parallel=none test
 ```
-
-test
 
 ### Run agent
 

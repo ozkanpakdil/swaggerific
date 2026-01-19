@@ -210,10 +210,19 @@ echo "The app has been signed and is located at: $STAGED_APP"
 echo "You can now try to open it manually to verify it works."
 read -p "Press Enter to continue with packaging and notarization, or Ctrl+C to abort..."
 
-ARCHIVE_NAME="swaggerific_aarch64-darwin.tar.gz"
-echo "Creating archive $ARCHIVE_NAME ..."
-# Use staged (signed) app for archive
-tar -czvf "$STAGING_DIR/$ARCHIVE_NAME" -C "$STAGING_DIR" "swaggerific.app"
+# --- DMG Creation ---
+DMG_NAME="Swaggerific_aarch64.dmg"
+echo "Creating DMG $DMG_NAME ..."
+mkdir -p "$STAGING_DIR/dmg_content"
+cp -r "$STAGED_APP" "$STAGING_DIR/dmg_content/"
+hdiutil create -volname "Swaggerific" -srcfolder "$STAGING_DIR/dmg_content" -ov -format UDZO "$STAGING_DIR/$DMG_NAME"
+rm -rf "$STAGING_DIR/dmg_content"
+
+echo "=== Signing DMG ==="
+codesign --force --verify --verbose \
+  --sign "$SIGNING_IDENTITY" \
+  --timestamp \
+  "$STAGING_DIR/$DMG_NAME"
 
 PKG_NAME="Swaggerific.pkg"
 INSTALLER_NAME="SwaggerificInstaller.pkg"
@@ -274,6 +283,22 @@ if [[ ${#AUTH_ARGS[@]} -gt 0 ]]; then
   xcrun stapler staple "$STAGED_APP"
   rm "$APP_ZIP"
 
+  # 1b. Notarize the DMG
+  echo "Submitting DMG for notarization..."
+  xcrun notarytool submit "$STAGING_DIR/$DMG_NAME" "${AUTH_ARGS[@]}" --wait > notarization_dmg_output.txt 2>&1 || true
+  cat notarization_dmg_output.txt
+  SUBMISSION_ID=$(grep -o 'id: [a-f0-9-]*' notarization_dmg_output.txt | head -1 | cut -d' ' -f2)
+  if ! grep -q "status: Accepted" notarization_dmg_output.txt; then
+    echo "=== DMG notarization failed, fetching log ==="
+    if [[ -n "${SUBMISSION_ID:-}" ]]; then
+      xcrun notarytool log "$SUBMISSION_ID" "${AUTH_ARGS[@]}" notarization_dmg_log.json || true
+      cat notarization_dmg_log.json || true
+    fi
+    exit 1
+  fi
+  echo "Stapling notarization ticket to DMG..."
+  xcrun stapler staple "$STAGING_DIR/$DMG_NAME"
+
   # 2. Notarize the installer package
   echo "Submitting installer for notarization..."
   xcrun notarytool submit "$STAGED_INSTALLER" "${AUTH_ARGS[@]}" --wait > notarization_pkg_output.txt 2>&1 || true
@@ -293,27 +318,24 @@ if [[ ${#AUTH_ARGS[@]} -gt 0 ]]; then
   echo "Stapling notarization ticket to installer..."
   xcrun stapler staple "$STAGED_INSTALLER"
 
-  # 3. Update the tar.gz with the stapled app
-  echo "Re-creating archive $ARCHIVE_NAME with stapled app..."
-  tar -czvf "$STAGING_DIR/$ARCHIVE_NAME" -C "$STAGING_DIR" "swaggerific.app"
-  
+  # 3. Done
   echo "Notarization and stapling complete."
 fi
 
 echo "Done. Artifacts:"
-echo " - $STAGING_DIR/$ARCHIVE_NAME"
+echo " - $STAGING_DIR/$DMG_NAME"
 echo " - $STAGING_DIR/$PKG_NAME"
 echo " - $STAGING_DIR/$INSTALLER_NAME"
 
 # ------------------------
 # Simple upload to GitHub Release (latest_macos)
 # ------------------------
-ARCHIVE_PATH="$STAGING_DIR/$ARCHIVE_NAME"
 if command -v gh >/dev/null 2>&1; then
-  echo "Uploading $ARCHIVE_PATH to https://github.com/$GITHUB_REPO/releases/tag/$RELEASE_TAG ..."
+  echo "Uploading artifacts to https://github.com/$GITHUB_REPO/releases/tag/$RELEASE_TAG ..."
   # Ensure release exists (no frills); if it doesn't, print a hint and skip
   if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPO" >/dev/null 2>&1; then
-    gh release upload "$RELEASE_TAG" "$ARCHIVE_PATH" --repo "$GITHUB_REPO" --clobber || true
+    gh release upload "$RELEASE_TAG" "$STAGING_DIR/$DMG_NAME" --repo "$GITHUB_REPO" --clobber || true
+    gh release upload "$RELEASE_TAG" "$STAGING_DIR/$INSTALLER_NAME" --repo "$GITHUB_REPO" --clobber || true
     echo "Upload complete."
   else
     echo "Release tag '$RELEASE_TAG' does not exist on $GITHUB_REPO. Create it first, then re-run."
@@ -322,7 +344,7 @@ if command -v gh >/dev/null 2>&1; then
 else
   echo "GitHub CLI (gh) not found. To upload manually run:"
   echo "  gh auth login"
-  echo "  gh release upload $RELEASE_TAG $ARCHIVE_PATH --repo $GITHUB_REPO --clobber"
+  echo "  gh release upload $RELEASE_TAG $STAGING_DIR/$DMG_NAME --repo $GITHUB_REPO --clobber"
 fi
 
 

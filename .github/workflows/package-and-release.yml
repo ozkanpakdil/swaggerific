@@ -96,7 +96,7 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           tag_name: "latest"
-          name: "Latest Development Zip Package"
+          name: "Latest Development Package"
           prerelease: true
           files: |
             dist/*.zip
