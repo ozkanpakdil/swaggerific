@@ -1,8 +1,8 @@
 cask "swaggerific" do
   version "0.0.4"
-  sha256 "af452dc573213d4fa5ecaaf6d6c718b52bcad78bea8a39dfe00be7840d60fd94"
+  sha256 "3a6e1f37df338452102922546b89c854ee2b72334d44481c3aa702ca81d27519"
 
-  url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/swaggerific_x86_64-darwin.tar.gz",
+  url "https://github.com/ozkanpakdil/swaggerific/releases/download/latest_macos/Swaggerific_x86_64.dmg",
       verified: "github.com/ozkanpakdil/swaggerific"
   name "Swaggerific"
   desc "Simple GUI app for working with Swagger/OpenAPI"
