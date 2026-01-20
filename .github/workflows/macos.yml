@@ -203,6 +203,11 @@ jobs:
             --timestamp \
             Swaggerific_x86_64.dmg
 
+      - name: Setup notarization credentials
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+
       - name: Notarize the DMG
         run: |
           echo "=== Submitting DMG for notarization ==="
@@ -253,11 +258,6 @@ jobs:
           
           echo "=== Verifying pkg signature ==="
           pkgutil --check-signature SwaggerificInstaller.pkg
-
-      - name: Setup notarization credentials
-        run: |
-          mkdir -p ~/private_keys
-          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
 
       - name: Notarize the application
         run: |
